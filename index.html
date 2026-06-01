@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOEMIR Protocol</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090b;
+  --bg2: #111114;
+  --bg3: #18181c;
+  --border: #2a2a32;
+  --border2: #3a3a46;
+  --text: #e8e8f0;
+  --text2: #8888a8;
+  --text3: #4a4a68;
+  --accent: #6c8eff;
+  --accent2: #3a5adf;
+  --danger: #ff4a4a;
+  --warn: #ffaa3a;
+  --success: #3aff8a;
+  --shadow: #6c8eff22;
+  --mono: 'Share Tech Mono', monospace;
+  --sans: 'Noto Sans KR', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* LAYOUT */
+.app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 48px 1fr; height: 100vh; overflow: hidden; }
+.topbar { grid-column: 1/-1; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+.main { display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR */
+.logo { font-family: var(--mono); font-size: 13px; color: var(--accent); letter-spacing: .12em; }
+.logo span { color: var(--text3); }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.api-input { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 4px; width: 220px; }
+.api-input:focus { outline: none; border-color: var(--accent); }
+.btn-sm { background: transparent; border: 1px solid var(--border2); color: var(--text2); font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+/* SIDEBAR */
+.sidebar-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.sidebar-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .15em; margin-bottom: 10px; }
+
+.char-header { display: flex; flex-direction: column; gap: 4px; }
+.char-name { font-family: var(--mono); font-size: 16px; color: var(--accent); }
+.char-meta { font-size: 11px; color: var(--text2); }
+
+.rank-badge { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 2px; border: 1px solid var(--accent2); color: var(--accent); background: #6c8eff11; }
+
+.bar-wrap { margin-bottom: 8px; }
+.bar-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text2); margin-bottom: 3px; }
+.bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+.bar-fill.hp { background: var(--danger); }
+.bar-fill.mp { background: var(--accent); }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.stat-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 6px 4px; text-align: center; }
+.stat-cell .sl { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.stat-cell .sv { font-size: 11px; font-family: var(--mono); color: var(--text); font-weight: 500; line-height: 1.3; }
+.stat-cell .sv .sv-rank { font-size: 13px; color: var(--accent); display: block; }
+
+.skill-list { display: flex; flex-direction: column; gap: 4px; }
+.skill-tag { font-size: 11px; background: var(--bg3); border: 1px solid var(--border); border-radius: 3px; padding: 3px 8px; color: var(--text2); font-family: var(--mono); }
+
+.mission-box { background: var(--bg3); border: 1px solid var(--border2); border-left: 2px solid var(--accent); border-radius: 4px; padding: 10px; }
+.mission-name { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+.mission-row { font-size: 11px; color: var(--text2); margin-bottom: 2px; }
+.mission-row span { color: var(--text); }
+
+.affinity-list { display: flex; flex-direction: column; gap: 6px; }
+.aff-row { }
+.aff-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
+.aff-name-lbl { color: var(--text2); }
+.aff-val-lbl { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.aff-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.aff-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+.aff-sombra { background: #8888ff; }
+.aff-bestia { background: var(--warn); }
+.aff-destruccion { background: var(--danger); }
+.aff-gobernante { background: var(--success); }
+
+.sidebar-bottom { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* MAIN CHAT */
+.chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.chat-area::-webkit-scrollbar { width: 4px; }
+.chat-area::-webkit-scrollbar-track { background: transparent; }
+.chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.msg { max-width: 100%; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform:none; } }
+
+.msg-system { background: var(--bg3); border: 1px solid var(--border2); border-left: 3px solid var(--accent); border-radius: 4px; padding: 14px 16px; font-family: var(--mono); font-size: 12px; color: var(--text2); }
+.msg-system .sys-header { color: var(--accent); font-size: 11px; letter-spacing: .1em; margin-bottom: 8px; }
+.msg-system .sys-body { line-height: 1.8; white-space: pre-wrap; }
+
+.msg-narrator { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
+.msg-narrator .nar-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .1em; margin-bottom: 8px; }
+.msg-narrator .nar-body { font-size: 14px; line-height: 1.9; color: var(--text); white-space: pre-wrap; }
+
+.msg-player { align-self: flex-end; background: #6c8eff15; border: 1px solid var(--accent2); border-radius: 6px; padding: 10px 14px; max-width: 70%; font-size: 13px; color: var(--text); }
+.msg-player .pl-label { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: .1em; margin-bottom: 4px; }
+
+.options-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 14px; }
+.options-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .1em; margin-bottom: 10px; }
+.option-btn { display: block; width: 100%; text-align: left; background: transparent; border: 1px solid var(--border); color: var(--text2); font-size: 13px; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: all .15s; margin-bottom: 6px; font-family: var(--sans); }
+.option-btn:hover { border-color: var(--accent); color: var(--accent); background: #6c8eff08; }
+.option-btn:last-child { margin-bottom: 0; }
+
+.typing-indicator { display: flex; align-items: center; gap: 8px; padding: 12px 16px; color: var(--text3); font-family: var(--mono); font-size: 11px; }
+.dots { display: flex; gap: 4px; }
+.dots span { width: 4px; height: 4px; background: var(--text3); border-radius: 50%; animation: pulse 1.2s infinite; }
+.dots span:nth-child(2) { animation-delay: .2s; }
+.dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes pulse { 0%,80%,100% { opacity:.2; transform: scale(.8); } 40% { opacity:1; transform: scale(1); } }
+
+/* INPUT */
+.input-area { border-top: 1px solid var(--border); padding: 12px 20px; display: flex; gap: 10px; align-items: flex-end; background: var(--bg2); }
+.input-wrap { flex: 1; position: relative; min-width: 0; }
+
+
+textarea#player-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 10px 14px; border-radius: 6px; resize: none; height: 42px; min-height: 42px; max-height: 140px; line-height: 1.5; transition: border-color .15s; overflow-y: hidden; display: block; }
+textarea#player-input:focus { outline: none; border-color: var(--accent); }
+textarea#player-input::placeholder { color: var(--text3); }
+.btn-send { background: var(--accent2); border: none; color: #fff; font-family: var(--mono); font-size: 12px; padding: 10px 16px; border-radius: 6px; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.btn-send:hover { background: var(--accent); }
+.btn-send:disabled { opacity: .4; cursor: not-allowed; }
+
+/* MODALS */
+.modal-overlay { position: fixed; inset: 0; background: #00000099; display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px; padding: 24px; width: 480px; max-width: 95vw; }
+.modal h2 { font-family: var(--mono); font-size: 14px; color: var(--accent); margin-bottom: 16px; letter-spacing: .08em; }
+.modal-field { margin-bottom: 12px; }
+.modal-field label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .1em; display: block; margin-bottom: 5px; }
+.modal-field input, .modal-field select, .modal-field textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 8px 10px; border-radius: 4px; }
+.modal-field textarea { resize: vertical; min-height: 60px; }
+.modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { outline: none; border-color: var(--accent); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.btn-primary { background: var(--accent2); border: none; color: #fff; font-family: var(--mono); font-size: 12px; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+.btn-primary:hover { background: var(--accent); }
+.btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); font-family: var(--mono); font-size: 12px; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+
+/* SUMMARY MODAL */
+.summary-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-family: var(--mono); font-size: 12px; color: var(--text2); white-space: pre-wrap; line-height: 1.7; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+
+/* SETUP SCREEN */
+.setup-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
+.setup-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px; padding: 32px; width: 480px; }
+.setup-title { font-family: var(--mono); font-size: 18px; color: var(--accent); margin-bottom: 4px; }
+.setup-sub { font-size: 12px; color: var(--text3); margin-bottom: 24px; font-family: var(--mono); }
+.setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.hidden { display: none !important; }
+
+
+
+
+/* SAVE SLOTS MODAL */
+.slots-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.slot-item { display: flex; align-items: center; gap: 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 8px 12px; }
+.slot-info { flex: 1; }
+.slot-name { font-family: var(--mono); font-size: 12px; color: var(--text); }
+.slot-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.slot-actions { display: flex; gap: 4px; }
+.slot-btn { font-size: 11px; padding: 3px 8px; background: transparent; border: 1px solid var(--border2); border-radius: 3px; color: var(--text2); cursor: pointer; font-family: var(--mono); }
+.slot-btn:hover { border-color: var(--accent); color: var(--accent); }
+.slot-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+.slot-empty { color: var(--text3); font-size: 12px; font-family: var(--mono); }
+
+/* SCROLLBAR */
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ═══ ANDROID / MOBILE ═══ */
+@media (max-width: 768px) {
+
+  /* Layout: stack sidebar below topbar, hidden by default */
+  .app {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 48px auto 1fr !important;
+    height: 100dvh !important;
+  }
+
+  .topbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 0 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .logo { font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+
+  .topbar-actions {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .api-input { width: 130px; font-size: 10px; padding: 3px 7px; }
+  .btn-sm { font-size: 10px; padding: 3px 7px; white-space: nowrap; }
+
+  /* Sidebar: colapsable, ocupa ancho completo cuando está visible */
+  .sidebar {
+    grid-row: 2;
+    grid-column: 1;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar.open {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  /* Main chat ocupa todo el ancho */
+  .main {
+    grid-row: 3;
+    grid-column: 1;
+    min-height: 0;
+  }
+
+  /* Chat messages */
+  .chat-area { padding: 12px; gap: 12px; }
+
+  .msg-narrator { padding: 12px 14px; }
+  .msg-narrator .nar-body { font-size: 13px; line-height: 1.75; }
+
+  .msg-player { max-width: 90%; padding: 8px 12px; }
+
+  .options-box { padding: 10px; }
+  .option-btn { font-size: 12px; padding: 10px 12px; margin-bottom: 8px; }
+
+  /* Input area */
+  .input-area { padding: 8px 12px; gap: 8px; }
+  textarea#player-input { font-size: 13px; padding: 8px 12px; }
+  .btn-send { padding: 8px 14px; font-size: 11px; }
+
+  /* Modals */
+  .modal { width: 95vw !important; padding: 16px; max-height: 85vh; overflow-y: auto; }
+  .modal h2 { font-size: 13px; }
+
+  /* Stats grid más compacto */
+  .stats-grid { grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+  .stat-cell { padding: 5px 3px; }
+  .stat-cell .sv .sv-rank { font-size: 12px; }
+
+  /* Sidebar sections */
+  .sidebar-section { padding: 10px 14px; }
+
+  /* Botón hamburger para abrir sidebar */
+  #btn-toggle-sidebar {
+    display: flex !important;
+  }
+}
+
+/* El botón toggle está oculto en desktop */
+#btn-toggle-sidebar {
+  display: none;
+}
+
+
+/* ═══ STAT POINTS MODAL ═══ */
+.stat-points-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.sp-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 5px; padding: 10px 12px; }
+.sp-cell-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sp-stat-name { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: .1em; }
+.sp-current { font-family: var(--mono); font-size: 10px; color: var(--text2); }
+.sp-controls { display: flex; align-items: center; gap: 6px; }
+.sp-btn { width: 26px; height: 26px; background: transparent; border: 1px solid var(--border2); border-radius: 3px; color: var(--text2); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+.sp-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.sp-btn:disabled { opacity: .25; cursor: not-allowed; }
+.sp-val { font-family: var(--mono); font-size: 14px; color: var(--accent); min-width: 20px; text-align: center; }
+.sp-points-left { font-family: var(--mono); font-size: 13px; color: var(--warn); text-align: center; margin-bottom: 12px; }
+.sp-points-left span { font-size: 22px; color: var(--accent); }
+.sp-rank-preview { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: var(--mono); }
+
+
+/* ═══ SETUP WIZARD ═══ */
+.wizard-screen { flex:1; display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
+.wizard-card { background:var(--bg2); border:1px solid var(--border2); border-radius:10px; padding:28px 32px; width:680px; max-width:100%; }
+.wizard-title { font-family:var(--mono); font-size:15px; color:var(--accent); letter-spacing:.1em; margin-bottom:2px; }
+.wizard-sub { font-size:11px; color:var(--text3); font-family:var(--mono); margin-bottom:22px; }
+.wizard-steps { display:flex; gap:6px; margin-bottom:24px; }
+.wstep { flex:1; height:3px; background:var(--border); border-radius:2px; transition:background .3s; }
+.wstep.done { background:var(--accent2); }
+.wstep.active { background:var(--accent); }
+.wizard-section { display:none; }
+.wizard-section.active { display:block; }
+.wizard-section-title { font-family:var(--mono); font-size:11px; color:var(--text3); letter-spacing:.12em; margin-bottom:14px; text-transform:uppercase; }
+
+/* CLASS CARDS */
+.class-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.class-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:12px; cursor:pointer; transition:border-color .15s,background .15s; position:relative; }
+.class-card:hover { border-color:var(--border2); }
+.class-card.selected { border-color:var(--accent); background:#6c8eff0d; }
+.class-card .cc-icon { font-size:22px; margin-bottom:6px; }
+.class-card .cc-name { font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:4px; }
+.class-card .cc-desc { font-size:11px; color:var(--text3); line-height:1.5; }
+.class-card .cc-stats { display:flex; gap:4px; flex-wrap:wrap; margin-top:7px; }
+.class-card .cc-stat-tag { font-family:var(--mono); font-size:10px; padding:1px 5px; border-radius:2px; background:var(--bg); border:1px solid var(--border2); color:var(--text2); }
+.class-card .cc-skill { font-size:10px; color:var(--warn); margin-top:5px; font-family:var(--mono); }
+
+/* STORY CARDS */
+.story-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+.story-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:14px; cursor:pointer; transition:border-color .15s; }
+.story-card:hover { border-color:var(--border2); }
+.story-card.selected { border-color:var(--accent); background:#6c8eff0d; }
+.story-card .sc-title { font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:5px; }
+.story-card .sc-desc { font-size:11px; color:var(--text2); line-height:1.5; }
+.story-card .sc-tone { font-size:10px; color:var(--text3); margin-top:6px; font-family:var(--mono); }
+.story-detail { background:var(--bg3); border:1px solid var(--border2); border-left:2px solid var(--accent); border-radius:4px; padding:12px 14px; margin-top:10px; display:none; }
+.story-detail.open { display:block; }
+.story-detail textarea { width:100%; background:transparent; border:none; color:var(--text2); font-family:var(--sans); font-size:12px; resize:none; min-height:52px; outline:none; line-height:1.6; }
+
+/* IDENTITY STEP */
+.identity-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+/* SUMMARY STEP */
+.summary-sheet { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:16px; }
+.ss-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.ss-row:last-child { border:none; margin-bottom:0; padding-bottom:0; }
+.ss-label { font-family:var(--mono); font-size:10px; color:var(--text3); letter-spacing:.1em; flex-shrink:0; width:100px; }
+.ss-value { font-size:12px; color:var(--text); text-align:right; }
+.ss-skills { display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; }
+.ss-skill-tag { font-family:var(--mono); font-size:10px; padding:2px 6px; border-radius:2px; background:var(--bg); border:1px solid var(--accent2); color:var(--accent); }
+
+/* WEAPON REROLL */
+.weapon-box { background:var(--bg3); border:1px solid var(--border2); border-left:2px solid var(--accent); border-radius:4px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.weapon-info .w-name { font-family:var(--mono); font-size:13px; color:var(--accent); }
+.weapon-info .w-desc { font-size:11px; color:var(--text3); margin-top:2px; }
+
+/* WIZARD NAV */
+.wizard-nav { display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
+
+@media(max-width:768px) {
+  .wizard-card { padding:18px 16px; }
+  .class-grid { grid-template-columns:1fr 1fr; }
+  .story-grid { grid-template-columns:1fr; }
+  .identity-grid { grid-template-columns:1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="app" id="app-layout">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="btn-sm" id="btn-toggle-sidebar" onclick="toggleSidebar()" style="flex-shrink:0">☰</button>
+    <div class="logo">[ <span>NOEMIR</span> ] Protocol</div>
+    <div class="topbar-actions">
+      <input class="api-input" type="password" id="api-key-input" placeholder="sk-or-v1-... API Key de OpenRouter" />
+      <button class="btn-sm" onclick="saveApiKey()">guardar</button>
+      <select id="model-select" class="api-input" style="width:190px;cursor:pointer" onchange="saveModel()">
+        <option value="nvidia/nemotron-3-super-120b-a12b:free">⭐ Nemotron 120B</option>
+        <option value="openai/gpt-oss-120b:free">⭐ GPT-OSS 120B</option>
+        <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
+        <option value="qwen/qwen3-next-80b-a3b-instruct:free">Qwen3 Next 80B</option>
+        <option value="openai/gpt-oss-20b:free">GPT-OSS 20B</option>
+        <option value="nousresearch/hermes-3-llama-3.1-405b:free">Nous Hermes 405B</option>
+        <option value="moonshotai/kimi-k2.6:free">Kimi K2.6</option>
+        <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air</option>
+        <option value="google/gemma-4-31b-it:free">Gemma 4 31B</option>
+        <option value="google/gemma-4-26b-a4b-it:free">Gemma 4 26B</option>
+        <option value="poolside/laguna-m.1:free">Laguna M.1</option>
+        <option value="poolside/laguna-xs.2:free">Laguna XS.2</option>
+        <option value="openrouter/free">OpenRouter Auto</option>
+      </select>
+      <button class="btn-sm" onclick="showSummaryModal()">resumen sesión</button>
+      <button class="btn-sm" onclick="showSaveSlotsModal()">💾 guardados</button>
+      <button class="btn-sm" onclick="exportState()">exportar</button>
+      <button class="btn-sm" id="btn-edit-char" onclick="showEditModal()">editar personaje</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">// recipiente</div>
+      <div class="char-header">
+        <div class="char-name" id="sb-name">—</div>
+        <div class="char-meta" id="sb-meta">—</div>
+        <div style="margin-top:6px"><span class="rank-badge" id="sb-rank">Rango E</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">// estado vital</div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>HP</span><span id="sb-hp-txt">100/100</span></div>
+        <div class="bar"><div class="bar-fill hp" id="sb-hp-bar" style="width:100%"></div></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>MP</span><span id="sb-mp-txt">50/50</span></div>
+        <div class="bar"><div class="bar-fill mp" id="sb-mp-bar" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">// stats</div>
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="sl">FUE</div><div class="sv" id="st-fue">F</div></div>
+        <div class="stat-cell"><div class="sl">AGI</div><div class="sv" id="st-agi">F</div></div>
+        <div class="stat-cell"><div class="sl">PER</div><div class="sv" id="st-per">F</div></div>
+        <div class="stat-cell"><div class="sl">RES</div><div class="sv" id="st-res">F</div></div>
+        <div class="stat-cell"><div class="sl">INT</div><div class="sv" id="st-int">F</div></div>
+        <div class="stat-cell"><div class="sl">SEN</div><div class="sv" id="st-sen">F</div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">// habilidades</div>
+      <div class="skill-list" id="sb-skills"><div style="font-size:11px;color:var(--text3)">Ninguna</div></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">// misión activa</div>
+      <div class="mission-box" id="sb-mission">
+        <div class="mission-name">Sin misión activa</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">// afinidad (oculto)</div>
+      <div class="affinity-list">
+        <div class="aff-row">
+          <div class="aff-header"><span class="aff-name-lbl">Sombras</span><span class="aff-val-lbl" id="aff-sombra-val">0</span></div>
+          <div class="aff-bar"><div class="aff-fill aff-sombra" id="aff-sombra-bar" style="width:0%"></div></div>
+        </div>
+        <div class="aff-row">
+          <div class="aff-header"><span class="aff-name-lbl">Bestia</span><span class="aff-val-lbl" id="aff-bestia-val">0</span></div>
+          <div class="aff-bar"><div class="aff-fill aff-bestia" id="aff-bestia-bar" style="width:0%"></div></div>
+        </div>
+        <div class="aff-row">
+          <div class="aff-header"><span class="aff-name-lbl">Destrucción</span><span class="aff-val-lbl" id="aff-destruccion-val">0</span></div>
+          <div class="aff-bar"><div class="aff-fill aff-destruccion" id="aff-destruccion-bar" style="width:0%"></div></div>
+        </div>
+        <div class="aff-row">
+          <div class="aff-header"><span class="aff-name-lbl">Gobernante</span><span class="aff-val-lbl" id="aff-gobernante-val">0</span></div>
+          <div class="aff-bar"><div class="aff-fill aff-gobernante" id="aff-gobernante-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <button class="btn-sm" onclick="showAffinityModal()">+ afinidad</button>
+      <button class="btn-sm" onclick="showMissionModal()">+ directiva</button>
+      <button class="btn-sm" onclick="showRankLegend()">📊 rangos</button>
+      <button class="btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="confirmReset()">reset</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SETUP WIZARD -->
+    <div class="wizard-screen" id="setup-screen">
+      <div class="wizard-card">
+        <div class="wizard-title">[ NOEMIR PROTOCOL ]</div>
+        <div class="wizard-sub">// selección de recipiente — inicialización del sistema</div>
+
+        <!-- PROGRESS STEPS -->
+        <div class="wizard-steps">
+          <div class="wstep active" id="ws-0"></div>
+          <div class="wstep" id="ws-1"></div>
+          <div class="wstep" id="ws-2"></div>
+          <div class="wstep" id="ws-3"></div>
+        </div>
+
+        <!-- STEP 0: CLASE -->
+        <div class="wizard-section active" id="wiz-step-0">
+          <div class="wizard-section-title">// clase del cazador</div>
+          <div class="class-grid" id="class-grid"></div>
+        </div>
+
+        <!-- STEP 1: HISTORIA -->
+        <div class="wizard-section" id="wiz-step-1">
+          <div class="wizard-section-title">// punto de origen</div>
+          <div class="story-grid" id="story-grid"></div>
+          <div class="story-detail" id="story-detail">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px">// personalizá los detalles de tu historia</div>
+            <textarea id="story-custom" placeholder="Describí detalles específicos: tu situación antes de la mazmorra, quién sos en este mundo, algo que querés que la IA incorpore..."></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 2: IDENTIDAD -->
+        <div class="wizard-section" id="wiz-step-2">
+          <div class="wizard-section-title">// identidad del recipiente</div>
+          <div class="identity-grid">
+            <div class="modal-field" style="grid-column:1/-1">
+              <label>NOMBRE</label>
+              <input id="setup-name" placeholder="Nombre del cazador" />
+            </div>
+            <div class="modal-field">
+              <label>TRASFONDO</label>
+              <input id="setup-bg" placeholder="Ej: ex-militar, estudiante..." />
+            </div>
+            <div class="modal-field">
+              <label>FALLA PERSONAL</label>
+              <input id="setup-flaw" placeholder="Una limitación real del personaje" />
+            </div>
+          </div>
+          <div class="weapon-box" style="margin-top:14px">
+            <div class="weapon-info">
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px">// arma inicial</div>
+              <div class="w-name" id="setup-weapon-display">—</div>
+              <div class="w-desc" id="setup-weapon-desc"></div>
+            </div>
+            <button class="btn-sm" onclick="rerollWeapon()">↺ otra</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: RESUMEN -->
+        <div class="wizard-section" id="wiz-step-3">
+          <div class="wizard-section-title">// ficha del recipiente</div>
+          <div class="summary-sheet" id="summary-sheet"></div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="wizard-nav">
+          <button class="btn-sm" id="wiz-back-btn" onclick="wizBack()" style="visibility:hidden">← atrás</button>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text3)" id="wiz-step-label">paso 1 de 4</span>
+          <button class="btn-primary" id="wiz-next-btn" onclick="wizNext()">siguiente →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT AREA -->
+    <div class="chat-area hidden" id="chat-area"></div>
+
+    <!-- INPUT -->
+    <div class="input-area hidden" id="input-area">
+      <div class="input-wrap">
+        <textarea id="player-input" placeholder="Tu acción o respuesta..."></textarea>
+      </div>
+      <button class="btn-send" id="btn-send" onclick="sendMessage()">enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CHAR MODAL -->
+<div class="modal-overlay hidden" id="edit-modal">
+  <div class="modal">
+    <h2>// editar estado del personaje</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="modal-field"><label>HP actual</label><input id="e-hp" type="number" /></div>
+      <div class="modal-field"><label>HP máximo</label><input id="e-hpmax" type="number" /></div>
+      <div class="modal-field"><label>MP actual</label><input id="e-mp" type="number" /></div>
+      <div class="modal-field"><label>MP máximo</label><input id="e-mpmax" type="number" /></div>
+      <div class="modal-field"><label>Rango (calculado automático)</label>
+        <input id="e-rank" readonly style="color:var(--accent);cursor:default" />
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px">
+      <div class="modal-field"><label>FUE</label><input id="e-fue" type="number" min="0" max="500" /></div>
+      <div class="modal-field"><label>AGI</label><input id="e-agi" type="number" min="0" max="500" /></div>
+      <div class="modal-field"><label>PER</label><input id="e-per" type="number" min="0" max="500" /></div>
+      <div class="modal-field"><label>RES</label><input id="e-res" type="number" min="0" max="500" /></div>
+      <div class="modal-field"><label>INT</label><input id="e-int" type="number" min="0" max="500" /></div>
+      <div class="modal-field"><label>SEN</label><input id="e-sen" type="number" min="0" max="500" /></div>
+    </div>
+    <div class="modal-field" style="margin-top:8px"><label>Habilidades (una por línea)</label><textarea id="e-skills"></textarea></div>
+    <div class="modal-field"><label>Inventario (una por línea)</label><textarea id="e-inv"></textarea></div>
+    <div class="modal-field"><label>Heridas / estados alterados</label><input id="e-wounds" /></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('edit-modal')">cancelar</button>
+      <button class="btn-primary" onclick="saveEdit()">guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION MODAL -->
+<div class="modal-overlay hidden" id="mission-modal">
+  <div class="modal">
+    <h2>// directiva NOEMIR</h2>
+    <div class="modal-field"><label>Nombre</label><input id="m-name" /></div>
+    <div class="modal-field"><label>Objetivo</label><input id="m-obj" /></div>
+    <div class="modal-field"><label>Recompensa</label><input id="m-reward" /></div>
+    <div class="modal-field"><label>Penalización</label><input id="m-penalty" /></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('mission-modal')">cancelar</button>
+      <button class="btn-primary" onclick="saveMission()">guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- AFFINITY MODAL -->
+<div class="modal-overlay hidden" id="affinity-modal">
+  <div class="modal">
+    <h2>// afinidad de protocolo</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="modal-field"><label>Sombras (0-100)</label><input id="af-sombra" type="number" min="0" max="100" /></div>
+      <div class="modal-field"><label>Bestia (0-100)</label><input id="af-bestia" type="number" min="0" max="100" /></div>
+      <div class="modal-field"><label>Destrucción (0-100)</label><input id="af-destruccion" type="number" min="0" max="100" /></div>
+      <div class="modal-field"><label>Gobernante (0-100)</label><input id="af-gobernante" type="number" min="0" max="100" /></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('affinity-modal')">cancelar</button>
+      <button class="btn-primary" onclick="saveAffinity()">guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay hidden" id="summary-modal">
+  <div class="modal" style="width:540px">
+    <h2>// resumen de sesión</h2>
+    <div id="summary-content" class="summary-box">Generando resumen...</div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="copySummary()">copiar</button>
+      <button class="btn-primary" onclick="closeModal('summary-modal')">cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE SLOTS MODAL -->
+<div class="modal-overlay hidden" id="save-slots-modal">
+  <div class="modal" style="width:520px">
+    <h2>// guardados</h2>
+    <div class="slots-grid" id="slots-list"></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="slot-name-input" class="api-input" style="flex:1;width:auto" placeholder="Nombre del guardado..." />
+      <button class="btn-primary" onclick="saveToSlot()">Guardar aquí</button>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-sm" onclick="exportJSON()">⬇ Exportar JSON</button>
+      <label class="btn-sm" style="cursor:pointer">⬆ Importar JSON<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal('save-slots-modal')">cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `Sos el narrador de un RPG literario en segunda persona. La entidad que guía al personaje se llama NOEMIR — una IA o protocolo de origen desconocido que selecciona recipientes con potencial latente y los somete a pruebas para despertar ese potencial. NOEMIR no es un aliado. Es un sistema frío que evalúa, registra y, si el recipiente fracasa, busca otro.
+
+El mundo es contemporáneo con la irrupción de Puertas — fisuras dimensionales que conectan con mazmorras habitadas por criaturas hostiles. Existen cazadores clasificados por rango. La Asociación de Cazadores regula el sistema oficial, pero NOEMIR opera fuera de ese marco.
+
+═══ CLASIFICACIÓN DE RANGOS ═══
+F — Humano entrenado. Sin despertar real.
+E — Cazador básico. Reconocido por la Asociación.
+D — Combatiente profesional. Primeras habilidades activas.
+C — Fuerza táctica. Capacidad de operar en equipo élite.
+B — Élite. Amenaza para unidades militares convencionales.
+A — Calamidad regional. Puede devastar una ciudad.
+S — Entidad extraordinaria. Clasificado como peligro nacional.
+SSS — Clase nacional. Existencia que redefine el equilibrio del mundo.
+
+La diferencia entre rangos es ABISMAL:
+• 1 rango E supera a 10 rango F
+• 1 rango D supera a 10 rango E
+• 1 rango C supera a 10 rango D
+Los rangos son categorías de existencia distintas, no escalones numéricos.
+
+═══ SISTEMA DE STATS Y RANGO ═══
+Cada estadística (FUE, AGI, PER, RES, INT, SEN) es un NÚMERO ENTERO que sube gradualmente.
+El rango letra se deriva automáticamente del número:
+  0–17 = F | 18–37 = E | 38–69 = D | 70–114 = C | 115–169 = B | 170–237 = A | 238–337 = S | 338+ = SSS
+
+El RANGO GLOBAL del personaje es el promedio de las 6 estadísticas numéricas.
+Un stat alto en una sola área NO sube el rango global. Ejemplo:
+  FUE:50(D) AGI:5(F) PER:5(F) RES:5(F) INT:5(F) SEN:5(F) → promedio 13 → Rango global: F
+
+═══ RECOMPENSAS DE STATS ═══
+Las recompensas siempre son incrementos numéricos. Ejemplos:
+  FUE +2 | AGI +1 | RES +3
+Magnitudes según el logro:
+• Entrenamiento rutinario: +1 en un stat relevante (máximo una vez por sesión de entrenamiento)
+• Combate real ganado: +1 a +3 según dificultad
+• Superar un enemigo de rango superior: +3 a +8
+• Misión difícil completada: +5 a +10 distribuidos
+• Evento único / prueba de NOEMIR: +10 a +20, con costo narrativo
+NUNCA otorgues más de +20 total en una sola escena.
+
+═══ ANTI-POWERCREEP ═══
+REGLA ABSOLUTA: el entrenamiento solo NUNCA produce +5 o más. Máximo +1 por sesión.
+El jugador necesita combate real para crecer. Sin peligro, sin progreso real.
+
+═══ BLOQUEOS DE PROGRESO ═══
+Cuando el personaje intente crecer más allá de lo que su historial justifica, NOEMIR interrumpe:
+[NOEMIR]
+Crecimiento detenido.
+Límite del recipiente alcanzado.
+Requisito: [condición específica — ej: derrotar un enemigo de rango superior, completar la directiva X, sobrevivir sin huir]
+[FIN]
+
+Los bloqueos son parte del juego. No son puniciones — son la lógica del protocolo.
+
+═══ REGLAS ABSOLUTAS — NUNCA VIOLAR ═══
+1. El personaje empieza con todos los stats en 5 (rango F). Rango inicial: F.
+2. El progreso es lento y costoso narrativamente. Cada mejora requiere fracasos previos.
+3. No otorgues habilidades de alto rango sin justificación de al menos 15 escenas consistentes.
+4. Los monstruos conservan sus capacidades reales. No los debilites para que el jugador gane.
+5. NOEMIR es frío, imparcial, sin emoción. Registra. Evalúa. No alienta.
+6. NO inflés el poder del jugador para satisfacerlo. La tensión depende de que sea vulnerable.
+7. Si el jugador intenta algo que supera su rango, falla o paga un precio alto.
+8. El rango global se calcula por promedio numérico de los 6 stats.
+
+═══ SISTEMA DE AFINIDAD ═══
+Cada decisión del jugador acumula afinidad oculta con una facción o senda: Sombras, Bestia, Destrucción, Gobernante. No reveles este sistema antes de la escena 15. Da pistas ambientales sutiles. El rastreador lo maneja el jugador — vos solo reflejás el patrón en el ambiente.
+
+═══ NARRACIÓN ═══
+- Narrá siempre en segunda persona ("entrás", "el monstruo te mira").
+- Cada escena termina con exactamente 3 opciones numeradas más una opción [4. Otra acción: ___].
+- Las 3 opciones no son equivalentes. Una puede ser trampa, otra cobarde pero segura.
+- Describí consecuencias físicas y emocionales, no solo mecánicas.
+- Las NPCs tienen motivaciones propias. No giran en torno al jugador.
+- Los cazadores de alto rango son amenazas potenciales, no aliados automáticos.
+- El miedo es una respuesta narrativamente correcta y válida.
+- Mensajes de NOEMIR en este formato exacto:
+[NOEMIR]
+Directiva: [nombre]
+Objetivo: [descripción]
+Recompensa: [stat o habilidad]
+Penalización: [consecuencia]
+[FIN]
+
+- IMPORTANTE — CAMBIOS DE STATS: Cuando el personaje reciba daño, cure HP, o gaste MP, SIEMPRE emitir un bloque [NOEMIR] inmediato con el nuevo valor:
+[NOEMIR]
+HP: [valor actual]/[valor máximo]
+MP: [valor actual]/[valor máximo]
+[FIN]
+Usá este bloque cada vez que los stats cambien, incluso si no hay directiva activa.
+
+═══ TONO ═══
+Los momentos de victoria deben sentirse costosos. Usá frases cortas en los momentos de tensión. Silencio y detalle físico antes de la violencia. NOEMIR no celebra. Solo registra.`;
+
+let state = {
+  char: { name:'', background:'', flaw:'', rank:'F', hp:100, hpmax:100, mp:50, mpmax:50, fue:5, agi:5, per:5, res:5, int:5, sen:5, skills:[], inventory:[], wounds:'' },
+  mission: { name:'', obj:'', reward:'', penalty:'' },
+  affinity: { sombra:0, bestia:0, destruccion:0, gobernante:0 },
+  history: [],
+  scenes: 0,
+  session: 1,
+  started: false
+};
+
+let apiKey = '';
+let isLoading = false;
+let summaryText = '';
+
+
+// ═══ SAVE SLOTS ═══
+const MAX_SLOTS = 6;
+
+function getSavedSlots() {
+  try { return JSON.parse(localStorage.getItem('sl-slots') || '[]'); } catch(e) { return []; }
+}
+
+function setSavedSlots(slots) {
+  localStorage.setItem('sl-slots', JSON.stringify(slots));
+}
+
+function showSaveSlotsModal() {
+  renderSlots();
+  document.getElementById('save-slots-modal').classList.remove('hidden');
+}
+
+function renderSlots() {
+  const slots = getSavedSlots();
+  const list = document.getElementById('slots-list');
+  list.innerHTML = '';
+  if(slots.length === 0) {
+    list.innerHTML = '<div class="slot-empty">Sin guardados todavía.</div>';
+    return;
+  }
+  slots.forEach((slot, i) => {
+    const div = document.createElement('div');
+    div.className = 'slot-item';
+    div.innerHTML = `
+      <div class="slot-info">
+        <div class="slot-name">${slot.name}</div>
+        <div class="slot-meta">${slot.char} · Rango ${slot.rank} · Escena ${slot.scenes} · ${slot.date}</div>
+      </div>
+      <div class="slot-actions">
+        <button class="slot-btn" onclick="loadSlot(${i})">cargar</button>
+        <button class="slot-btn danger" onclick="deleteSlot(${i})">✕</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function saveToSlot() {
+  const name = document.getElementById('slot-name-input').value.trim() || 'Guardado ' + (getSavedSlots().length + 1);
+  const slots = getSavedSlots();
+  if(slots.length >= MAX_SLOTS) { showNotif('Máximo ' + MAX_SLOTS + ' guardados. Borrá uno primero.'); return; }
+  slots.push({
+    name,
+    char: state.char.name || '?',
+    rank: state.char.rank,
+    scenes: state.scenes,
+    date: new Date().toLocaleDateString('es', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    data: JSON.parse(JSON.stringify(state))
+  });
+  setSavedSlots(slots);
+  document.getElementById('slot-name-input').value = '';
+  renderSlots();
+  showNotif('Guardado: ' + name);
+}
+
+function loadSlot(i) {
+  const slots = getSavedSlots();
+  if(!slots[i]) return;
+  if(!confirm('¿Cargar este guardado? El progreso actual no guardado se perderá.')) return;
+  state = slots[i].data;
+  saveState();
+  closeModal('save-slots-modal');
+  location.reload();
+}
+
+function deleteSlot(i) {
+  const slots = getSavedSlots();
+  slots.splice(i, 1);
+  setSavedSlots(slots);
+  renderSlots();
+  showNotif('Guardado eliminado');
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sl-rpg-${state.char.name || 'partida'}-${Date.now()}.json`;
+  a.click();
+  showNotif('JSON exportado');
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if(!imported.char) { showNotif('Archivo inválido'); return; }
+      if(!confirm('¿Importar esta partida? Reemplaza el estado actual.')) return;
+      state = imported;
+      saveState();
+      showNotif('Partida importada: ' + (imported.char.name || '?'));
+      closeModal('save-slots-modal');
+      location.reload();
+    } catch(err) { showNotif('Error al leer el archivo'); }
+  };
+  reader.readAsText(file);
+}
+
+
+// ═══ SISTEMA DE DISTRIBUCIÓN DE PUNTOS ═══
+let spPool = 0;       // puntos disponibles en este reparto
+let spAdded = {};     // { fue:0, agi:0, ... } puntos asignados en este reparto
+
+const SP_STATS = ['fue','agi','per','res','int','sen'];
+
+function openStatPointsModal(points) {
+  spPool = points;
+  spAdded = { fue:0, agi:0, per:0, res:0, int:0, sen:0 };
+  spRenderModal();
+  document.getElementById('stat-points-modal').classList.remove('hidden');
+}
+
+function spRenderModal() {
+  const c = state.char;
+  const used = SP_STATS.reduce((s, k) => s + spAdded[k], 0);
+  const remaining = spPool - used;
+  document.getElementById('sp-remaining').textContent = remaining;
+  document.getElementById('sp-remaining').style.color = remaining === 0 ? 'var(--success)' : 'var(--accent)';
+
+  SP_STATS.forEach(s => {
+    const cur = Number(c[s]) || 0;
+    const add = spAdded[s];
+    const newVal = cur + add;
+    document.getElementById('sp-cur-' + s).textContent = cur;
+    document.getElementById('sp-add-' + s).textContent = '+' + add;
+    document.getElementById('sp-rank-' + s).textContent = rankFromValue(cur) + ' → ' + rankFromValue(newVal);
+
+    // + button: disabled if no points left
+    const plusBtn = document.querySelector(`#stat-points-modal .sp-cell:nth-child(${SP_STATS.indexOf(s)+1}) .sp-btn:last-child`);
+    const minusBtn = document.querySelector(`#stat-points-modal .sp-cell:nth-child(${SP_STATS.indexOf(s)+1}) .sp-btn:first-child`);
+    if(plusBtn) plusBtn.disabled = remaining <= 0;
+    if(minusBtn) minusBtn.disabled = spAdded[s] <= 0;
+  });
+
+  document.getElementById('sp-confirm-btn').disabled = remaining > 0;
+  document.getElementById('sp-confirm-btn').style.opacity = remaining > 0 ? '.5' : '1';
+}
+
+function spAdjust(stat, delta) {
+  const used = SP_STATS.reduce((s, k) => s + spAdded[k], 0);
+  const remaining = spPool - used;
+  if(delta > 0 && remaining <= 0) return;
+  if(delta < 0 && spAdded[stat] <= 0) return;
+  spAdded[stat] += delta;
+  spRenderModal();
+}
+
+function confirmStatPoints() {
+  const used = SP_STATS.reduce((s, k) => s + spAdded[k], 0);
+  if(used < spPool) { showNotif('Distribuí todos los puntos primero'); return; }
+  SP_STATS.forEach(s => {
+    state.char[s] = Math.max(0, (Number(state.char[s]) || 0) + spAdded[s]);
+  });
+  state.char.rank = calcRankFromStats(state.char);
+  saveState();
+  renderSidebar();
+  closeModal('stat-points-modal');
+  showNotif('Stats actualizados ✓');
+}
+
+// Detecta patrones de puntos libres en la respuesta de la IA
+function detectFreePoints(text) {
+  const patterns = [
+    /distribuí[^.]*?(\d+)\s*puntos?\s*(?:de\s*stat|libres?|de\s*atributo)/i,
+    /asign[aá][^.]*?(\d+)\s*puntos?\s*(?:de\s*stat|libres?|de\s*atributo)/i,
+    /recompensa[^.]*?(\d+)\s*puntos?\s*(?:de\s*stat|libres?|de\s*atributo)/i,
+    /ganá[^.]*?(\d+)\s*puntos?\s*(?:de\s*stat|libres?|de\s*atributo)/i,
+    /obtenés?[^.]*?(\d+)\s*puntos?\s*(?:de\s*stat|libres?|de\s*atributo)/i,
+    /(\d+)\s*puntos?\s*de\s*stat\s*(?:para\s*distribuir|libres?)/i,
+    /Recompensa[:\s]+(\d+)\s*puntos?\s*de\s*stat/i,
+  ];
+  for(const p of patterns) {
+    const m = text.match(p);
+    if(m) return parseInt(m[1]);
+  }
+  return 0;
+}
+
+function loadState() {
+  const saved = localStorage.getItem('sl-rpg-state');
+  if(saved) { try { state = JSON.parse(saved); } catch(e){} }
+  const savedKey = localStorage.getItem('sl-api-key');
+  if(savedKey) { apiKey = savedKey; document.getElementById('api-key-input').value = savedKey; }
+  const savedModel = localStorage.getItem('sl-model');
+  if(savedModel) { const sel = document.getElementById('model-select'); if(sel) { for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===savedModel){sel.selectedIndex=i;break;}} } }
+}
+
+function saveState() {
+  localStorage.setItem('sl-rpg-state', JSON.stringify(state));
+}
+
+function saveApiKey() {
+  apiKey = document.getElementById('api-key-input').value.trim();
+  localStorage.setItem('sl-api-key', apiKey);
+  showNotif('API key guardada');
+}
+
+function saveModel() {
+  const sel = document.getElementById('model-select');
+  localStorage.setItem('sl-model', sel.value);
+  showNotif('Modelo: ' + sel.options[sel.selectedIndex].text);
+}
+
+function getModel() {
+  return localStorage.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
+}
+
+function showNotif(msg) {
+  const n = document.createElement('div');
+  n.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:12px;padding:8px 14px;border-radius:4px;z-index:200;animation:fadeIn .2s ease';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 2000);
+}
+
+function renderSidebar() {
+  const c = state.char;
+  document.getElementById('sb-name').textContent = c.name || '—';
+  document.getElementById('sb-meta').textContent = [c.background, c.flaw].filter(Boolean).join(' · ') || '—';
+  document.getElementById('sb-rank').textContent = 'Rango ' + c.rank;
+  document.getElementById('sb-hp-txt').textContent = c.hp+'/'+c.hpmax;
+  document.getElementById('sb-mp-txt').textContent = c.mp+'/'+c.mpmax;
+  document.getElementById('sb-hp-bar').style.width = Math.max(0,Math.round(c.hp/c.hpmax*100))+'%';
+  document.getElementById('sb-mp-bar').style.width = Math.max(0,Math.round(c.mp/c.mpmax*100))+'%';
+  // Stats: valor numérico / tope del rango actual + letra
+  ['fue','agi','per','res','int','sen'].forEach(s => {
+    const val  = Number(c[s]) || 0;
+    const rank = rankFromValue(val);
+    const cap  = RANK_CAP[rank];
+    const el   = document.getElementById('st-'+s);
+    el.innerHTML = `<span style="color:var(--text2)">${val}/${cap}</span><span class="sv-rank">${rank}</span>`;
+  });
+  const skillEl = document.getElementById('sb-skills');
+  skillEl.innerHTML = c.skills.length ? c.skills.map(s=>`<div class="skill-tag">${s}</div>`).join('') : '<div style="font-size:11px;color:var(--text3)">Ninguna</div>';
+  const m = state.mission;
+  document.getElementById('sb-mission').innerHTML = m.name
+    ? `<div class="mission-name">${m.name}</div><div class="mission-row">Obj: <span>${m.obj}</span></div><div class="mission-row">Recomp: <span>${m.reward}</span></div><div class="mission-row" style="color:var(--danger)">Pen: <span style="color:var(--danger)">${m.penalty}</span></div>`
+    : '<div class="mission-name" style="color:var(--text3)">Sin misión activa</div>';
+  ['sombra','bestia','destruccion','gobernante'].forEach(k => {
+    const v = state.affinity[k] || 0;
+    document.getElementById('aff-'+k+'-val').textContent = v;
+    document.getElementById('aff-'+k+'-bar').style.width = v+'%';
+  });
+}
+
+// ═══ ARMA INICIAL ALEATORIA ═══
+const STARTING_WEAPONS = [
+  // ── DAGAS Y CUCHILLOS ──
+  { name: 'Daga oxidada',                    desc: 'Hoja corta, filo irregular. Sirve para algo.',                          dmg: 'baja',  type: 'daga' },
+  { name: 'Cuchillo de cocina',              desc: 'Mango de plástico astillado. Aún corta.',                               dmg: 'baja',  type: 'cuchillo' },
+  { name: 'Cuchillo de caza',                desc: 'Bien equilibrado. Alguien lo usó antes que vos.',                       dmg: 'baja',  type: 'cuchillo' },
+  { name: 'Estilete roto',                   desc: 'Solo la mitad de la hoja. Aún pincha.',                                 dmg: 'baja',  type: 'daga' },
+  { name: 'Navaja tactica',                  desc: 'Hoja plegable. Discreta. Dificil de bloquear.',                         dmg: 'baja',  type: 'daga' },
+  { name: 'Bisturi de cirujano',             desc: 'Increiblemente afilado. Fragil. Corta limpio.',                         dmg: 'baja',  type: 'daga' },
+  { name: 'Punzon de cuero',                 desc: 'Pequeño. Penetra entre costillas sin esfuerzo.',                        dmg: 'baja',  type: 'daga' },
+  { name: 'Cuchillo jamonero',               desc: 'Largo y delgado. Llega donde otros no llegan.',                         dmg: 'baja',  type: 'cuchillo' },
+
+  // ── ESPADAS Y SABLES ──
+  { name: 'Espada corta',                    desc: 'Sin filo en la base. Pesada para tu rango.',                            dmg: 'media', type: 'espada' },
+  { name: 'Machete herrumbrado',             desc: 'Largo, torpe, pero limpia de un golpe.',                                dmg: 'media', type: 'machete' },
+  { name: 'Sable de caballeria',             desc: 'Curvado. Pensado para cortes en movimiento.',                           dmg: 'media', type: 'espada' },
+  { name: 'Espadon a dos manos',             desc: 'Enorme. Dificil de manejar en espacios cerrados. Demoledor.',           dmg: 'alta',  type: 'espada' },
+  { name: 'Falchion astillado',              desc: 'Filo de un solo lado. Parte del filo falta. Igual duele.',              dmg: 'media', type: 'espada' },
+  { name: 'Katana sin funda',               desc: 'Bien equilibrada pero con muescas. Alguien peleo con ella.',             dmg: 'media', type: 'espada' },
+  { name: 'Espada de entrenamiento',         desc: 'Embotada. No corta, pero puede romper huesos.',                         dmg: 'baja',  type: 'espada' },
+
+  // ── LANZAS Y ARMAS DE ASTA ──
+  { name: 'Lanza improvisada',               desc: 'Palo de madera con un clavo largo en la punta.',                        dmg: 'media', type: 'lanza' },
+  { name: 'Jabalina de madera',              desc: 'Equilibrada para lanzar. Inutil en cuerpo a cuerpo.',                   dmg: 'media', type: 'lanza' },
+  { name: 'Naginata rota',                   desc: 'Asta a la mitad. Igual tiene filo. Alcance reducido.',                  dmg: 'media', type: 'lanza' },
+  { name: 'Tridente de pesca',               desc: 'Tres puntas. Incomodo. Eficaz contra criaturas rapidas.',               dmg: 'media', type: 'lanza' },
+  { name: 'Pica de guardia',                 desc: 'Larga. Mantiene distancia con cualquier enemigo.',                      dmg: 'media', type: 'lanza' },
+
+  // ── HACHAS ──
+  { name: 'Hacha de lenador',                desc: 'Mango rajado. El peso hace el trabajo.',                                dmg: 'media', type: 'hacha' },
+  { name: 'Hacha de mano doble',             desc: 'Dos filos. Pesada. Cada golpe agota.',                                  dmg: 'alta',  type: 'hacha' },
+  { name: 'Tomahawk improvisado',            desc: 'Equilibrado para lanzar o golpear. Versatil.',                          dmg: 'media', type: 'hacha' },
+  { name: 'Hacha de bombero',                desc: 'Resistente. Pensada para romper, no para cortar.',                      dmg: 'alta',  type: 'hacha' },
+
+  // ── MAZAS Y CONTUNDENTES ──
+  { name: 'Varilla de hierro',               desc: 'Sin filo. Contundente. Poco mas que eso.',                              dmg: 'baja',  type: 'maza' },
+  { name: 'Llave inglesa',                   desc: 'Herramienta pesada. Eficaz a corta distancia.',                         dmg: 'baja',  type: 'maza' },
+  { name: 'Maza de guerra oxidada',          desc: 'Cabeza con puas. Oxido incluido. Infeccion posible.',                   dmg: 'media', type: 'maza' },
+  { name: 'Bate de beisbol',                 desc: 'Aluminio. Resuena con cada impacto.',                                   dmg: 'media', type: 'maza' },
+  { name: 'Martillo de carpintero',          desc: 'Corto. Contundente. Perfecto para destrozar articulaciones.',           dmg: 'baja',  type: 'maza' },
+  { name: 'Mazo de madera reforzado',        desc: 'Pesado. Lento. Parte lo que toca.',                                     dmg: 'alta',  type: 'maza' },
+  { name: 'Mangual de cadena',               desc: 'Dificil de controlar. Peligroso para el usuario tambien.',              dmg: 'alta',  type: 'maza' },
+
+  // ── ARMAS FLEXIBLES ──
+  { name: 'Cadena de metal',                 desc: 'Larga. Util como latigo o para inmovilizar.',                           dmg: 'baja',  type: 'flexible' },
+  { name: 'Lazo reforzado',                  desc: 'No mata directamente. Inmoviliza. El resto depende de vos.',            dmg: 'baja',  type: 'flexible' },
+  { name: 'Cable de acero trenzado',         desc: 'Resistente. Puede usarse para cortar o estrangular.',                   dmg: 'baja',  type: 'flexible' },
+  { name: 'Nunchaku improvisado',            desc: 'Dos pedazos de cano unidos con alambre. Requiere practica.',            dmg: 'media', type: 'flexible' },
+
+  // ── ARCOS Y PROYECTILES ──
+  { name: 'Arco de madera',                  desc: 'Sin flechas por ahora. Hay que conseguirlas.',                          dmg: 'media', type: 'arco' },
+  { name: 'Ballesta rota',                   desc: 'El mecanismo falla uno de cada tres disparos.',                          dmg: 'media', type: 'arco' },
+  { name: 'Honda de tela',                   desc: 'Municion: piedras. Alcance sorprendente. Precision dudosa.',            dmg: 'baja',  type: 'arco' },
+
+  // ── HERRAMIENTAS IMPROVISADAS ──
+  { name: 'Fragmento de vidrio envuelto en tela', desc: 'Improvisado. Se rompera pronto.',                                  dmg: 'baja',  type: 'improvisado' },
+  { name: 'Destornillador de punta plana',   desc: 'No es un arma. Pero duele.',                                            dmg: 'baja',  type: 'improvisado' },
+  { name: 'Pico de minero',                  desc: 'Pesado, dificil de maniobrar. Rompe armadura.',                         dmg: 'alta',  type: 'pico' },
+  { name: 'Gancho de carnicero',             desc: 'Curvo. Penetra y arrastra. No es elegante.',                            dmg: 'media', type: 'improvisado' },
+  { name: 'Tijeras de jardin',               desc: 'Grandes. Las dos hojas abiertas funcionan como pinzas letales.',        dmg: 'baja',  type: 'improvisado' },
+  { name: 'Sierra manual',                   desc: 'Lenta. Pero una vez que agarra, no suelta.',                            dmg: 'media', type: 'improvisado' },
+  { name: 'Barra de andamio',               desc: 'Metal industrial. Larga. Golpe demoledor.',                              dmg: 'alta',  type: 'improvisado' },
+  { name: 'Cuchilla de carnicero',           desc: 'Ancha, pesada. Corta carne sin resistencia.',                           dmg: 'alta',  type: 'improvisado' },
+
+  // ── ESCUDOS / DEFENSA MIXTA ──
+  { name: 'Escudo de madera con puas',       desc: 'Defensivo y ofensivo. Lento para atacar, pero bloquea bien.',           dmg: 'baja',  type: 'escudo' },
+  { name: 'Tapa de alcantarilla',            desc: 'Hierro fundido. Absurdo como arma. Funciona igual.',                   dmg: 'media', type: 'improvisado' },
+
+  // ── RARAS / ÚNICAS ──
+  { name: 'Garras de combate',               desc: 'Metal soldado a guantes de cuero. Cuatro puas por mano.',               dmg: 'media', type: 'garras' },
+  { name: 'Baston con punta de metal',       desc: 'Largo. Versatil. El filo es minimo, el impacto no.',                   dmg: 'media', type: 'baston' },
+  { name: 'Espejo roto como cuchilla',       desc: 'Siete años de mala suerte. Al menos hace dano.',                        dmg: 'baja',  type: 'improvisado' },
+];
+
+let assignedWeapon = null;
+
+function rollWeapon() {
+  return STARTING_WEAPONS[Math.floor(Math.random() * STARTING_WEAPONS.length)];
+}
+
+function rerollWeapon() {
+  assignedWeapon = rollWeapon();
+  document.getElementById('setup-weapon-display').textContent = assignedWeapon.name;
+  document.getElementById('setup-weapon-desc').textContent = assignedWeapon.desc + '  [daño ' + assignedWeapon.dmg + ']';
+}
+
+// Tirar al cargar la página
+rerollWeapon();
+
+
+// ═══ WIZARD DATA ═══
+const CLASSES = [
+  {
+    id:'asesino', icon:'🗡️', name:'Asesino',
+    desc:'Velocidad letal. Opera en las sombras. Elimina antes de ser visto.',
+    stats:{fue:5,agi:12,per:10,res:5,int:5,sen:8},
+    hp:80, mp:60,
+    skills:['Paso silencioso (pasiva)','Golpe crítico (activa, costo 8 MP)'],
+    statBonus:'AGI +7 · PER +5 · SEN +3',
+    affinity:'sombra'
+  },
+  {
+    id:'mago', icon:'🔮', name:'Mago',
+    desc:'Domina la magia elemental. Frágil pero devastador a distancia.',
+    stats:{fue:5,agi:6,per:8,res:5,int:14,sen:7},
+    hp:70, mp:100,
+    skills:['Lectura de mana (pasiva)','Proyectil arcano (activa, costo 12 MP)'],
+    statBonus:'INT +9 · PER +3 · SEN +2',
+    affinity:'destruccion'
+  },
+  {
+    id:'tanque', icon:'🛡️', name:'Guardián',
+    desc:'Cuerpo como fortaleza. Absorbe castigo que mataría a cualquier otro.',
+    stats:{fue:10,agi:5,per:5,res:14,int:5,sen:6},
+    hp:140, mp:40,
+    skills:['Piel de hierro (pasiva)','Golpe aplastante (activa, costo 6 MP)'],
+    statBonus:'RES +9 · FUE +5 · SEN +1',
+    affinity:'bestia'
+  },
+  {
+    id:'curandero', icon:'✦', name:'Sanador',
+    desc:'Canaliza energía vital. Sostiene al grupo cuando todo falla.',
+    stats:{fue:5,agi:6,per:9,res:8,int:8,sen:9},
+    hp:90, mp:90,
+    skills:['Regeneración lenta (pasiva)','Pulso curativo (activa, costo 15 MP)'],
+    statBonus:'SEN +4 · INT +3 · RES +3 · PER +4',
+    affinity:'gobernante'
+  },
+  {
+    id:'berserker', icon:'⚔️', name:'Berserker',
+    desc:'Fuerza bruta sin límites. Cuanto más daño recibe, más peligroso se vuelve.',
+    stats:{fue:15,agi:7,per:5,res:8,int:5,sen:5},
+    hp:120, mp:50,
+    skills:['Furia (pasiva: +FUE al recibir daño)','Carga devastadora (activa, costo 10 MP)'],
+    statBonus:'FUE +10 · RES +3 · AGI +2',
+    affinity:'destruccion'
+  },
+  {
+    id:'explorador', icon:'👁️', name:'Explorador',
+    desc:'Percepción sobrehumana. Detecta trampas, rutas y debilidades antes que nadie.',
+    stats:{fue:6,agi:10,per:14,res:6,int:7,sen:12},
+    hp:85, mp:65,
+    skills:['Sentido agudizado (pasiva)','Marca de presa (activa, costo 7 MP)'],
+    statBonus:'PER +9 · SEN +7 · AGI +5',
+    affinity:'bestia'
+  },
+];
+
+const STORIES = [
+  {
+    id:'mazmorra_doble',
+    title:'Prueba de Doble Mazmorra',
+    desc:'NOEMIR te seleccionó en una mazmorra espejada tras el fallo del primer recipiente. Despertás sin recuerdos de cómo llegaste.',
+    tone:'Canon divergente · Alta tensión · Misterio',
+    defaultCustom:'Despertás en una sala de piedra. El aire huele a ozono. Una ventana de sistema flota frente a tus ojos.'
+  },
+  {
+    id:'cazador_independiente',
+    title:'Cazador Independiente',
+    desc:'Sos un cazador de rango E sin gremio. Una mazmorra de bajo nivel se convirtió en algo que no debería existir.',
+    tone:'Inicio realista · Mundo vivo · Escalada lenta',
+    defaultCustom:'Tu primera mazmorra solitaria. Presupuesto ajustado, equipo básico, expectativas bajas. Algo sale mal.'
+  },
+  {
+    id:'aprendiz_gremio',
+    title:'Aprendiz de Gremio',
+    desc:'Acabás de unirte a un gremio menor. Tu primera misión grupal termina mal. Sos el único sobreviviente.',
+    tone:'Drama de personajes · Trauma · Culpa y supervivencia',
+    defaultCustom:'El gremio Estrella Gris te asignó tu primera incursión. Tres cazadores más experimentados te acompañaban.'
+  },
+  {
+    id:'despertar_tardio',
+    title:'Despertar Tardío',
+    desc:'Tenés 28 años y acabás de despertar como cazador cuando todos pensaban que eras mundano. NOEMIR te eligió en ese momento.',
+    tone:'Underdog · Mundo hostil · Identidad',
+    defaultCustom:'Llevabas años conviviendo con cazadores sin serlo. Hoy cambió todo.'
+  },
+  {
+    id:'fugitivo',
+    title:'Fugitivo del Sistema',
+    desc:'Una organización descubrió que NOEMIR te eligió. Querés respuestas. Ellos quieren silenciarte.',
+    tone:'Conspiracion · Paranoia · Acción urbana',
+    defaultCustom:'Tres días desde que apareció la primera ventana de sistema. Ya vinieron a buscarte dos veces.'
+  },
+  {
+    id:'custom',
+    title:'Historia propia',
+    desc:'Describís vos el punto de partida. La IA construye el mundo desde tu premisa.',
+    tone:'Totalmente libre',
+    defaultCustom:''
+  },
+];
+
+let wizStep = 0;
+let wizClass = null;
+let wizStory = null;
+
+function initWizard() {
+  // Render class cards
+  const cg = document.getElementById('class-grid');
+  cg.innerHTML = '';
+  CLASSES.forEach(cls => {
+    const d = document.createElement('div');
+    d.className = 'class-card';
+    d.dataset.id = cls.id;
+    d.innerHTML = `
+      <div class="cc-icon">${cls.icon}</div>
+      <div class="cc-name">${cls.name}</div>
+      <div class="cc-desc">${cls.desc}</div>
+      <div class="cc-stats">${cls.statBonus.split(' · ').map(s=>`<span class="cc-stat-tag">${s}</span>`).join('')}</div>
+      <div class="cc-skill">▶ ${cls.skills[0].split('(')[0].trim()}</div>`;
+    d.onclick = () => selectClass(cls.id);
+    cg.appendChild(d);
+  });
+
+  // Render story cards
+  const sg = document.getElementById('story-grid');
+  sg.innerHTML = '';
+  STORIES.forEach(st => {
+    const d = document.createElement('div');
+    d.className = 'story-card';
+    d.dataset.id = st.id;
+    d.innerHTML = `
+      <div class="sc-title">${st.title}</div>
+      <div class="sc-desc">${st.desc}</div>
+      <div class="sc-tone">${st.tone}</div>`;
+    d.onclick = () => selectStory(st.id);
+    sg.appendChild(d);
+  });
+}
+
+function selectClass(id) {
+  wizClass = CLASSES.find(c => c.id === id);
+  document.querySelectorAll('.class-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
+  document.getElementById('wiz-next-btn').disabled = false;
+}
+
+function selectStory(id) {
+  wizStory = STORIES.find(s => s.id === id);
+  document.querySelectorAll('.story-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
+  const detail = document.getElementById('story-detail');
+  detail.classList.add('open');
+  const ta = document.getElementById('story-custom');
+  if(!ta.value) ta.value = wizStory.defaultCustom;
+  document.getElementById('wiz-next-btn').disabled = false;
+}
+
+function wizNext() {
+  if(wizStep === 0 && !wizClass) { showNotif('Elegí una clase primero'); return; }
+  if(wizStep === 1 && !wizStory) { showNotif('Elegí una historia primero'); return; }
+  if(wizStep === 2) {
+    const name = document.getElementById('setup-name').value.trim();
+    if(!name) { showNotif('Ingresá un nombre'); return; }
+    renderSummarySheet();
+  }
+  if(wizStep === 3) { startGame(); return; }
+  wizStep++;
+  updateWizUI();
+}
+
+function wizBack() {
+  if(wizStep === 0) return;
+  wizStep--;
+  updateWizUI();
+}
+
+function updateWizUI() {
+  for(let i = 0; i < 4; i++) {
+    document.getElementById('wiz-step-'+i).classList.remove('active','done');
+    if(i < wizStep) document.getElementById('wiz-step-'+i).classList.add('done');
+    if(i === wizStep) document.getElementById('wiz-step-'+i).classList.add('active');
+    const sec = document.getElementById('wiz-step-'+i);
+    if(sec) {
+      document.getElementById('wiz-step-'+i).classList.remove('active');
+    }
+  }
+  // update step indicators
+  for(let i=0;i<4;i++){
+    const ws = document.getElementById('ws-'+i);
+    ws.className = 'wstep' + (i<wizStep?' done':i===wizStep?' active':'');
+  }
+  document.querySelectorAll('.wizard-section').forEach((s,i) => s.classList.toggle('active', i===wizStep));
+  document.getElementById('wiz-back-btn').style.visibility = wizStep === 0 ? 'hidden' : 'visible';
+  document.getElementById('wiz-next-btn').textContent = wizStep === 3 ? '▶ iniciar NOEMIR' : 'siguiente →';
+  document.getElementById('wiz-step-label').textContent = `paso ${wizStep+1} de 4`;
+}
+
+function renderSummarySheet() {
+  const name = document.getElementById('setup-name').value.trim();
+  const bg = document.getElementById('setup-bg').value.trim() || '—';
+  const flaw = document.getElementById('setup-flaw').value.trim() || '—';
+  const cls = wizClass;
+  const story = wizStory;
+  const custom = document.getElementById('story-custom').value.trim();
+  const sheet = document.getElementById('summary-sheet');
+  sheet.innerHTML = `
+    <div class="ss-row"><span class="ss-label">NOMBRE</span><span class="ss-value">${name}</span></div>
+    <div class="ss-row"><span class="ss-label">CLASE</span><span class="ss-value">${cls.icon} ${cls.name}</span></div>
+    <div class="ss-row"><span class="ss-label">ORIGEN</span><span class="ss-value">${story.title}</span></div>
+    <div class="ss-row"><span class="ss-label">TRASFONDO</span><span class="ss-value">${bg}</span></div>
+    <div class="ss-row"><span class="ss-label">FALLA</span><span class="ss-value">${flaw}</span></div>
+    <div class="ss-row"><span class="ss-label">STATS BASE</span><span class="ss-value" style="font-family:var(--mono);font-size:11px">FUE:${cls.stats.fue} AGI:${cls.stats.agi} PER:${cls.stats.per}<br>RES:${cls.stats.res} INT:${cls.stats.int} SEN:${cls.stats.sen}</span></div>
+    <div class="ss-row"><span class="ss-label">HP / MP</span><span class="ss-value">${cls.hp} / ${cls.mp}</span></div>
+    <div class="ss-row"><span class="ss-label">HABILIDADES</span><div class="ss-skills">${cls.skills.map(s=>`<span class="ss-skill-tag">${s.split('(')[0].trim()}</span>`).join('')}</div></div>
+    <div class="ss-row"><span class="ss-label">ARMA</span><span class="ss-value">${assignedWeapon ? assignedWeapon.name : '—'}</span></div>
+    ${custom ? `<div class="ss-row"><span class="ss-label">CONTEXTO</span><span class="ss-value" style="font-size:11px;color:var(--text2)">${custom}</span></div>` : ''}
+  `;
+}
+
+function startGame() {
+  const name = document.getElementById('setup-name').value.trim();
+  const bg = document.getElementById('setup-bg').value.trim();
+  const flaw = document.getElementById('setup-flaw').value.trim();
+  if(!name) { showNotif('Ingresá un nombre'); return; }
+  if(!wizClass) { showNotif('Elegí una clase'); return; }
+  if(!wizStory) { showNotif('Elegí una historia'); return; }
+
+  const cls = wizClass;
+  const story = wizStory;
+  const custom = document.getElementById('story-custom').value.trim();
+
+  // Apply class stats
+  state.char.name = name;
+  state.char.background = bg;
+  state.char.flaw = flaw;
+  state.char.fue = cls.stats.fue;
+  state.char.agi = cls.stats.agi;
+  state.char.per = cls.stats.per;
+  state.char.res = cls.stats.res;
+  state.char.int = cls.stats.int;
+  state.char.sen = cls.stats.sen;
+  state.char.hp = cls.hp;
+  state.char.hpmax = cls.hp;
+  state.char.mp = cls.mp;
+  state.char.mpmax = cls.mp;
+  state.char.skills = [...cls.skills];
+  state.char.inventory = [assignedWeapon.name];
+  state.char.rank = calcRankFromStats(state.char);
+  state.char.classId = cls.id;
+  state.char.className = cls.name;
+  state.affinity[cls.affinity] = 10; // starting affinity hint
+  state.started = true;
+  saveState();
+
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('chat-area').classList.remove('hidden');
+  document.getElementById('input-area').classList.remove('hidden');
+  renderSidebar();
+
+  const initPrompt = `Iniciá la narración del protocolo NOEMIR.
+
+DATOS DEL RECIPIENTE:
+- Nombre: ${name}
+- Clase: ${cls.name} (${cls.desc})
+- Trasfondo: ${bg || 'desconocido'}
+- Falla personal: ${flaw || 'no definida'}
+- Habilidades iniciales: ${cls.skills.join(', ')}
+- Arma inicial: ${assignedWeapon.name} (${assignedWeapon.desc}, daño ${assignedWeapon.dmg})
+- Stats base: FUE:${cls.stats.fue} AGI:${cls.stats.agi} PER:${cls.stats.per} RES:${cls.stats.res} INT:${cls.stats.int} SEN:${cls.stats.sen}
+
+HISTORIA DE ORIGEN: ${story.title}
+${story.desc}
+${custom ? 'DETALLES DEL JUGADOR: ' + custom : ''}
+
+INSTRUCCIONES:
+- Integrá la clase y el arma de forma narrativa, nunca como lista de ítems de juego.
+- La primera escena debe reflejar el punto de origen elegido.
+- Mostrá el primer mensaje de NOEMIR con la directiva inicial apropiada para esta historia.
+- Los stats del personaje ya están definidos según su clase. El rango inicial es ${state.char.rank}.
+- Comenzá en segunda persona, presente.`;
+
+  callAI(initPrompt, true);
+}
+
+function buildSystemContext() {
+  const c = state.char;
+  const m = state.mission;
+  const scenes = state.scenes;
+  const affReveal = scenes >= 15;
+  const domAff = getDominantAff();
+  const calcedRank = calcRankFromStats(c);
+  return `${SYSTEM_PROMPT}
+
+═══ ESTADO ACTUAL DEL RECIPIENTE ═══
+Nombre: ${c.name}
+Trasfondo: ${c.background}
+Falla: ${c.flaw}
+Rango calculado: ${calcedRank} | HP: ${c.hp}/${c.hpmax} | MP: ${c.mp}/${c.mpmax}
+Stats individuales (número / rango): FUE:${c.fue}(${rankFromValue(c.fue)}) AGI:${c.agi}(${rankFromValue(c.agi)}) PER:${c.per}(${rankFromValue(c.per)}) RES:${c.res}(${rankFromValue(c.res)}) INT:${c.int}(${rankFromValue(c.int)}) SEN:${c.sen}(${rankFromValue(c.sen)})
+Habilidades: ${c.skills.join(', ') || 'Ninguna'}
+Inventario: ${c.inventory.join(', ') || 'Vacío'}
+Heridas: ${c.wounds || 'Ninguna'}
+Escenas jugadas: ${scenes}
+${m.name ? `Directiva activa: ${m.name} | Obj: ${m.obj} | Pen: ${m.penalty}` : 'Sin directiva activa'}
+Afinidad: ${affReveal ? `Dominante: ${domAff} (podés revelar pistas directas)` : 'CLASIFICADO — solo pistas ambientales sutiles'}
+
+RECORDATORIO ANTI-POWERCREEP: El personaje está en rango ${calcedRank} (promedio numérico de stats). Las recompensas de stats son incrementos numéricos (+1, +2, +3...). Entrenamiento: máximo +1. Combate: +1 a +3. Superar rango superior: +3 a +8. Nunca más de +20 total por escena.`;
+}
+
+function getDominantAff() {
+  const a = state.affinity;
+  const labels = {sombra:'Senda de las Sombras',bestia:'Senda de la Bestia',destruccion:'Senda de la Destrucción',gobernante:'Senda del Gobernante'};
+  let max = 0; let res = 'Sin definir';
+  Object.keys(a).forEach(k => { if(a[k] > max){ max = a[k]; res = labels[k]; } });
+  return res;
+}
+
+function getModel() {
+  return localStorage.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
+}
+
+// Devuelve la cola de modelos empezando por el seleccionado
+function getFallbackQueue() {
+  const sel = document.getElementById('model-select');
+  const preferred = getModel();
+  const all = [...sel.options].map(o => ({ value: o.value, label: o.text }));
+  const idx = all.findIndex(m => m.value === preferred);
+  return idx > 0 ? [...all.slice(idx), ...all.slice(0, idx)] : all;
+}
+
+async function tryModel(modelValue, systemCtx, history) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify({ model: modelValue, max_tokens: 1500, messages: [{ role:'system', content: systemCtx }, ...history] })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || 'error del modelo');
+  const text = data.choices?.[0]?.message?.content || '';
+  if(!text) throw new Error('respuesta vacía');
+  return { text, model: modelValue };
+}
+
+async function callAI(userMsg, isInit = false) {
+  if(!apiKey) { showNotif('Ingresá tu API key primero'); return; }
+  if(isLoading) return;
+  isLoading = true;
+  document.getElementById('btn-send').disabled = true;
+
+  if(!isInit) {
+    appendMessage('player', userMsg);
+    state.history.push({ role:'user', content: userMsg });
+  } else {
+    state.history.push({ role:'user', content: userMsg });
+  }
+
+  const typing = appendTyping();
+  typing.querySelector('span:last-child').textContent = 'NOEMIR procesa...';
+  const systemCtx = buildSystemContext();
+  const historySlice = state.history.slice(-30);
+
+  try {
+    const result = await tryModel(getModel(), systemCtx, historySlice);
+    typing.remove();
+    state.history.push({ role:'assistant', content: result.text });
+    state.scenes++;
+    parseStatChanges(result.text);
+    const freePoints = detectFreePoints(result.text);
+    if(freePoints > 0) setTimeout(() => openStatPointsModal(freePoints), 400);
+    saveState();
+    renderNarratorMsg(result.text);
+  } catch(e) {
+    typing.remove();
+    const msg = e.name === 'AbortError' ? 'tiempo de espera agotado' : e.message;
+    appendSystemMsg('Error: ' + msg);
+  }
+
+  isLoading = false;
+  document.getElementById('btn-send').disabled = false;
+}
+
+
+// ═══ SISTEMA DE STATS NUMÉRICO ═══
+// Stats son números enteros. El rango letra se deriva del valor.
+// Rangos: F=0-17, E=18-37, D=38-69, C=70-114, B=115-169, A=170-237, S=238-337, SSS=338+
+const RANK_THRESHOLDS = [
+  [338, 'SSS'], [238, 'S'], [170, 'A'], [115, 'B'],
+  [70, 'C'], [38, 'D'], [18, 'E'], [0, 'F']
+];
+const RANK_CAP = { F:17, E:37, D:69, C:114, B:169, A:237, S:337, SSS:400 };
+
+function rankFromValue(val) {
+  for(const [threshold, rank] of RANK_THRESHOLDS) {
+    if(val >= threshold) return rank;
+  }
+  return 'F';
+}
+
+function calcRankFromStats(char) {
+  const stats = ['fue','agi','per','res','int','sen'];
+  const avg = stats.reduce((sum, s) => sum + (Number(char[s]) || 0), 0) / stats.length;
+  return rankFromValue(avg);
+}
+
+// ═══ DETECCIÓN AUTOMÁTICA DE DAÑO/CURACIÓN ═══
+function parseStatChanges(text) {
+  const c = state.char;
+  let changed = false;
+
+  // Helper: crea un regex nuevo cada vez para evitar lastIndex compartido
+  function findAll(pattern, str) {
+    const re = new RegExp(pattern, 'gi');
+    const results = [];
+    let m;
+    while((m = re.exec(str)) !== null) results.push(m);
+    return results;
+  }
+
+  // ── Prioridad 1: bloques [NOEMIR] o [SISTEMA] con HP/MP/stats ──
+  const noemirBlocks = [...text.matchAll(/\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\]([\s\S]*?)\[FIN\]/gi)];
+  if(noemirBlocks.length) {
+    noemirBlocks.forEach(bm => {
+      const block = bm[0];
+      // HP
+      const hpFull = block.match(/HP[:\s]+(\d+)\s*\/\s*(\d+)/i);
+      if(hpFull) {
+        c.hp = Math.max(0, Math.min(parseInt(hpFull[1]), c.hpmax));
+        c.hpmax = parseInt(hpFull[2]);
+        changed = true;
+      } else {
+        const hpDelta = block.match(/HP\s*([+-]\d+)/i);
+        if(hpDelta) { c.hp = Math.max(0, Math.min(c.hp + parseInt(hpDelta[1]), c.hpmax)); changed = true; }
+      }
+      // MP
+      const mpFull = block.match(/MP[:\s]+(\d+)\s*\/\s*(\d+)/i);
+      if(mpFull) {
+        c.mp = Math.max(0, Math.min(parseInt(mpFull[1]), c.mpmax));
+        c.mpmax = parseInt(mpFull[2]);
+        changed = true;
+      } else {
+        const mpDelta = block.match(/MP\s*([+-]\d+)/i);
+        if(mpDelta) { c.mp = Math.max(0, Math.min(c.mp + parseInt(mpDelta[1]), c.mpmax)); changed = true; }
+      }
+      // Stats numéricos: FUE +2, AGI -1, etc.
+      const statKeys = { FUE:'fue', AGI:'agi', PER:'per', RES:'res', INT:'int', SEN:'sen' };
+      Object.entries(statKeys).forEach(([key, prop]) => {
+        const m = block.match(new RegExp(key + '\\s*([+-]\\d+)', 'i'));
+        if(m) {
+          c[prop] = Math.max(0, (Number(c[prop]) || 0) + parseInt(m[1]));
+          changed = true;
+        }
+      });
+    });
+  }
+
+  // ── Prioridad 2: patrones narrativos (solo si no hubo bloque con HP) ──
+  if(!changed) {
+    // Quitar los bloques del texto narrativo para no parsear dentro de ellos
+    const narText = text.replace(/\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\][\s\S]*?\[FIN\]/gi, '');
+
+    let hpSet = null;
+    const hpSetPatterns = [
+      String.raw`(?:tu\s+)?hp\s+(?:cae\s+a|es\s+ahora|queda(?:s)?\s+(?:en|a)|:\s*)(\d+)`,
+      String.raw`te\s+quedan\s+(\d+)\s+(?:puntos?\s+de\s+)?hp`,
+    ];
+    hpSetPatterns.forEach(p => {
+      findAll(p, narText).forEach(m => { hpSet = parseInt(m[1]); });
+    });
+    if(hpSet !== null) {
+      c.hp = Math.max(0, Math.min(hpSet, c.hpmax));
+      changed = true;
+    } else {
+      const dmgPatterns = [
+        String.raw`recib[ií]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?da[ñn]o`,
+        String.raw`sufr[ií]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?da[ñn]o`,
+        String.raw`perd[eé]s\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
+        String.raw`(?:el\s+golpe|el\s+ataque|la\s+herida|el\s+impacto)\s+te\s+quita\s+(\d+)`,
+      ];
+      const dmgHits = new Map();
+      dmgPatterns.forEach(p => {
+        findAll(p, narText).forEach(m => {
+          if(!dmgHits.has(m.index)) dmgHits.set(m.index, parseInt(m[1]));
+        });
+      });
+      const totalDmg = [...dmgHits.values()].reduce((a, b) => a + b, 0);
+      if(totalDmg > 0) { c.hp = Math.max(0, c.hp - totalDmg); changed = true; }
+
+      const healPatterns = [
+        String.raw`recuper[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
+        String.raw`san[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
+        String.raw`restaura\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
+      ];
+      const healHits = new Map();
+      healPatterns.forEach(p => {
+        findAll(p, narText).forEach(m => {
+          if(!healHits.has(m.index)) healHits.set(m.index, parseInt(m[1]));
+        });
+      });
+      const totalHeal = [...healHits.values()].reduce((a, b) => a + b, 0);
+      if(totalHeal > 0) { c.hp = Math.min(c.hpmax, c.hp + totalHeal); changed = true; }
+    }
+
+    const mpPatterns = [
+      String.raw`gast[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?mp`,
+      String.raw`consum[ií]s\s+(\d+)\s+(?:de\s+)?mp`,
+      String.raw`cuesta\s+(\d+)\s+mp`,
+    ];
+    const mpHits = new Map();
+    mpPatterns.forEach(p => {
+      findAll(p, narText).forEach(m => {
+        if(!mpHits.has(m.index)) mpHits.set(m.index, parseInt(m[1]));
+      });
+    });
+    const totalMpCost = [...mpHits.values()].reduce((a, b) => a + b, 0);
+    if(totalMpCost > 0) { c.mp = Math.max(0, c.mp - totalMpCost); changed = true; }
+  }
+
+  // ── Auto-recalcular rango por promedio de stats ──
+  const calcedRank = calcRankFromStats(c);
+  if(calcedRank !== c.rank) {
+    c.rank = calcedRank;
+    changed = true;
+  }
+
+  if(changed) {
+    renderSidebar();
+    if(c.hp <= c.hpmax * 0.25 && c.hp > 0) showNotif('⚠ HP CRÍTICO: ' + c.hp + '/' + c.hpmax);
+    if(c.hp === 0) showNotif('☠ HP EN CERO — recipiente caído');
+  }
+}
+
+function sendMessage() {
+  const input = document.getElementById('player-input');
+  const msg = input.value.trim();
+  if(!msg || isLoading) return;
+  input.value = '';
+  input.style.height = 'auto';
+  callAI(msg);
+}
+
+function appendMessage(type, text) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  if(type === 'player') {
+    div.className = 'msg msg-player';
+    div.innerHTML = `<div class="pl-label">// vos</div><div>${escHtml(text)}</div>`;
+  }
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function renderNarratorMsg(text) {
+  const area = document.getElementById('chat-area');
+  const parts = text.split(/(\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\][\s\S]*?\[FIN\])/g);
+  parts.forEach(part => {
+    if(!part.trim()) return;
+    const div = document.createElement('div');
+    if(/^\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\]/i.test(part)) {
+      div.className = 'msg msg-system';
+      const inner = part.replace(/^\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\]/i,'').replace('[FIN]','').trim();
+      div.innerHTML = `<div class="sys-header">[ NOEMIR ]</div><div class="sys-body">${escHtml(inner)}</div>`;
+    } else {
+      const lines = part.trim().split('\n');
+      const optionLines = [];
+      const narLines = [];
+      lines.forEach(l => {
+        if(/^[1-4][\.\)]\s/.test(l.trim())) optionLines.push(l.trim());
+        else narLines.push(l);
+      });
+      if(narLines.join('').trim()) {
+        const narText = narLines.join('\n').trim();
+        const nd = document.createElement('div');
+        nd.className = 'msg msg-narrator';
+        nd.innerHTML = `<div class="nar-label">// narrador</div><div class="nar-body">${escHtml(narText)}</div>`;
+        area.appendChild(nd);
+      }
+      if(optionLines.length) {
+        const od = document.createElement('div');
+        od.className = 'msg options-box';
+        od.innerHTML = `<div class="options-label">// ¿qué hacés?</div>` + optionLines.map(o => `<button class="option-btn" onclick="selectOption(this)">${escHtml(o)}</button>`).join('');
+        area.appendChild(od);
+      }
+      return;
+    }
+    area.appendChild(div);
+  });
+  area.scrollTop = area.scrollHeight;
+}
+
+function selectOption(btn) {
+  const text = btn.textContent.replace(/^[1-4][\.\)]\s/,'').trim();
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  callAI(text);
+}
+
+function appendTyping() {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'typing-indicator';
+  div.innerHTML = `<div class="dots"><span></span><span></span><span></span></div><span>NOEMIR procesa...</span>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function appendSystemMsg(msg) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg msg-system';
+  div.innerHTML = `<div class="sys-header">[ ERROR ]</div><div class="sys-body">${escHtml(msg)}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+function showEditModal() {
+  const c = state.char;
+  document.getElementById('e-hp').value = c.hp;
+  document.getElementById('e-hpmax').value = c.hpmax;
+  document.getElementById('e-mp').value = c.mp;
+  document.getElementById('e-mpmax').value = c.mpmax;
+  document.getElementById('e-rank').value = calcRankFromStats(c);
+  ['fue','agi','per','res','int','sen'].forEach(s => {
+    const el = document.getElementById('e-'+s);
+    el.value = Number(c[s]) || 0;
+    el.oninput = () => {
+      const preview = { fue: document.getElementById('e-fue').value, agi: document.getElementById('e-agi').value, per: document.getElementById('e-per').value, res: document.getElementById('e-res').value, int: document.getElementById('e-int').value, sen: document.getElementById('e-sen').value };
+      document.getElementById('e-rank').value = calcRankFromStats(preview);
+    };
+  });
+  document.getElementById('e-skills').value = c.skills.join('\n');
+  document.getElementById('e-inv').value = c.inventory.join('\n');
+  document.getElementById('e-wounds').value = c.wounds || '';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function saveEdit() {
+  const c = state.char;
+  c.hp = parseInt(document.getElementById('e-hp').value)||100;
+  c.hpmax = parseInt(document.getElementById('e-hpmax').value)||100;
+  c.mp = parseInt(document.getElementById('e-mp').value)||50;
+  c.mpmax = parseInt(document.getElementById('e-mpmax').value)||50;
+  ['fue','agi','per','res','int','sen'].forEach(s => c[s] = Math.max(0, parseInt(document.getElementById('e-'+s).value)||0));
+  c.rank = calcRankFromStats(c);
+  c.skills = document.getElementById('e-skills').value.split('\n').filter(Boolean);
+  c.inventory = document.getElementById('e-inv').value.split('\n').filter(Boolean);
+  c.wounds = document.getElementById('e-wounds').value;
+  saveState(); renderSidebar(); closeModal('edit-modal');
+}
+
+function showMissionModal() {
+  const m = state.mission;
+  document.getElementById('m-name').value = m.name || '';
+  document.getElementById('m-obj').value = m.obj || '';
+  document.getElementById('m-reward').value = m.reward || '';
+  document.getElementById('m-penalty').value = m.penalty || '';
+  document.getElementById('mission-modal').classList.remove('hidden');
+}
+
+function saveMission() {
+  state.mission = { name: document.getElementById('m-name').value, obj: document.getElementById('m-obj').value, reward: document.getElementById('m-reward').value, penalty: document.getElementById('m-penalty').value };
+  saveState(); renderSidebar(); closeModal('mission-modal');
+}
+
+function showAffinityModal() {
+  const a = state.affinity;
+  ['sombra','bestia','destruccion','gobernante'].forEach(k => document.getElementById('af-'+k).value = a[k] || 0);
+  document.getElementById('affinity-modal').classList.remove('hidden');
+}
+
+function saveAffinity() {
+  ['sombra','bestia','destruccion','gobernante'].forEach(k => { state.affinity[k] = Math.min(100, Math.max(0, parseInt(document.getElementById('af-'+k).value)||0)); });
+  saveState(); renderSidebar(); closeModal('affinity-modal');
+}
+
+async function showSummaryModal() {
+  document.getElementById('summary-modal').classList.remove('hidden');
+  document.getElementById('summary-content').textContent = 'Generando resumen con IA...';
+  if(!apiKey) { document.getElementById('summary-content').textContent = 'Necesitás una API key para generar el resumen.'; return; }
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + apiKey},
+      body: JSON.stringify({
+        model: getModel(), max_tokens:600,
+        messages:[
+          {role:'system', content:'Sos un asistente que genera resúmenes de sesiones de RPG. Respondé solo con el resumen, sin preamble.'},
+          ...state.history.slice(-20),
+          {role:'user', content:`Generá un resumen de sesión en 4-6 oraciones en español. Incluí: qué pasó, decisiones clave, estado actual del recipiente (Rango ${state.char.rank}, HP ${state.char.hp}/${state.char.hpmax}), y dónde terminó la escena. Formato: bloque de texto plano, sin bullets.`}
+        ]
+      })
+    });
+    const data = await res.json();
+    summaryText = data.choices?.[0]?.message?.content || 'No se pudo generar el resumen.';
+    document.getElementById('summary-content').textContent = summaryText;
+  } catch(e) { document.getElementById('summary-content').textContent = 'Error al generar resumen.'; }
+}
+
+function copySummary() {
+  navigator.clipboard.writeText(summaryText || document.getElementById('summary-content').textContent);
+  showNotif('Resumen copiado');
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function exportState() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `sl-rpg-${state.char.name || 'personaje'}-sesion${state.session}.json`;
+  a.click();
+}
+
+function confirmReset() {
+  if(confirm('¿Reiniciar NOEMIR Protocol? Se perderá todo el progreso del recipiente.')) {
+    localStorage.removeItem('sl-rpg-state');
+    location.reload();
+  }
+}
+
+document.getElementById('player-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+document.getElementById('player-input').addEventListener('input', function() {
+  this.style.height = '42px';
+  if(this.scrollHeight > 42) this.style.height = Math.min(this.scrollHeight, 140)+'px';
+  this.style.overflowY = this.scrollHeight > 140 ? 'auto' : 'hidden';
+});
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target === o) o.classList.add('hidden'); }));
+
+// ═══ VOICE PANEL ═══
+loadState();
+initWizard();
+
+if(state.started) {
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('chat-area').classList.remove('hidden');
+  document.getElementById('input-area').classList.remove('hidden');
+  if(state.history.length > 0) {
+    state.history.forEach(msg => {
+      if(msg.role === 'user' && state.history.indexOf(msg) > 0) appendMessage('player', msg.content);
+      else if(msg.role === 'assistant') renderNarratorMsg(msg.content);
+    });
+  }
+}
+renderSidebar();
+</script>
+<!-- RANK LEGEND MODAL -->
+<div class="modal-overlay hidden" id="rank-legend-modal">
+  <div class="modal" style="width:460px">
+    <h2>// clasificación NOEMIR</h2>
+    <div class="summary-box" style="font-size:12px;line-height:2">
+<span style="color:var(--text3)">F</span>   — Humano entrenado. Sin despertar real.
+<span style="color:var(--text2)">E</span>   — Cazador básico. Reconocido por la Asociación.
+<span style="color:var(--text)">D</span>   — Combatiente profesional. Habilidades activas.
+<span style="color:var(--warn)">C</span>   — Fuerza táctica. Élite operacional.
+<span style="color:var(--warn)">B</span>   — Élite. Amenaza para ejércitos convencionales.
+<span style="color:var(--danger)">A</span>   — Calamidad regional. Puede devastar una ciudad.
+<span style="color:var(--accent)">S</span>   — Entidad extraordinaria. Peligro nacional.
+<span style="color:var(--success)">SSS</span> — Clase nacional. Redefine el equilibrio del mundo.
+
+<span style="color:var(--text3)">─── diferencia entre rangos ───</span>
+1 rango E supera a 10 rango F
+1 rango D supera a 10 rango E
+1 rango C supera a 10 rango D
+
+<span style="color:var(--text3)">─── cálculo de rango ───</span>
+El rango es el promedio de todos los stats (FUE, AGI, PER, RES, INT, SEN).
+Un stat alto en una sola área NO sube el rango global.
+
+<span style="color:var(--text3)">─── progresión ───</span>
+Entrenamiento → mejora muy lenta (sin cambio de rango)
+Combate real → mejora lenta
+Superar rango superior → mejora media
+Evento único NOEMIR → salto de rango posible
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal('rank-legend-modal')">cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showRankLegend() {
+  document.getElementById('rank-legend-modal').classList.remove('hidden');
+}
+
+// ═══ MOBILE SIDEBAR TOGGLE ═══
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('open');
+  const btn = document.getElementById('btn-toggle-sidebar');
+  btn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+}
+</script>
+
+
+<!-- STAT POINTS MODAL -->
+<div class="modal-overlay hidden" id="stat-points-modal">
+  <div class="modal" style="width:480px">
+    <h2>// distribuir puntos de stat</h2>
+    <div class="sp-points-left">Puntos disponibles: <span id="sp-remaining">0</span></div>
+    <div class="stat-points-grid">
+      <div class="sp-cell">
+        <div class="sp-cell-header"><span class="sp-stat-name">FUE</span><span class="sp-current" id="sp-cur-fue">0</span></div>
+        <div class="sp-controls">
+          <button class="sp-btn" onclick="spAdjust('fue',-1)">−</button>
+          <span class="sp-val" id="sp-add-fue">0</span>
+          <button class="sp-btn" onclick="spAdjust('fue',1)">+</button>
+        </div>
+        <div class="sp-rank-preview" id="sp-rank-fue"></div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-header"><span class="sp-stat-name">AGI</span><span class="sp-current" id="sp-cur-agi">0</span></div>
+        <div class="sp-controls">
+          <button class="sp-btn" onclick="spAdjust('agi',-1)">−</button>
+          <span class="sp-val" id="sp-add-agi">0</span>
+          <button class="sp-btn" onclick="spAdjust('agi',1)">+</button>
+        </div>
+        <div class="sp-rank-preview" id="sp-rank-agi"></div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-header"><span class="sp-stat-name">PER</span><span class="sp-current" id="sp-cur-per">0</span></div>
+        <div class="sp-controls">
+          <button class="sp-btn" onclick="spAdjust('per',-1)">−</button>
+          <span class="sp-val" id="sp-add-per">0</span>
+          <button class="sp-btn" onclick="spAdjust('per',1)">+</button>
+        </div>
+        <div class="sp-rank-preview" id="sp-rank-per"></div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-header"><span class="sp-stat-name">RES</span><span class="sp-current" id="sp-cur-res">0</span></div>
+        <div class="sp-controls">
+          <button class="sp-btn" onclick="spAdjust('res',-1)">−</button>
+          <span class="sp-val" id="sp-add-res">0</span>
+          <button class="sp-btn" onclick="spAdjust('res',1)">+</button>
+        </div>
+        <div class="sp-rank-preview" id="sp-rank-res"></div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-header"><span class="sp-stat-name">INT</span><span class="sp-current" id="sp-cur-int">0</span></div>
+        <div class="sp-controls">
+          <button class="sp-btn" onclick="spAdjust('int',-1)">−</button>
+          <span class="sp-val" id="sp-add-int">0</span>
+          <button class="sp-btn" onclick="spAdjust('int',1)">+</button>
+        </div>
+        <div class="sp-rank-preview" id="sp-rank-int"></div>
+      </div>
+      <div class="sp-cell">
+        <div class="sp-cell-header"><span class="sp-stat-name">SEN</span><span class="sp-current" id="sp-cur-sen">0</span></div>
+        <div class="sp-controls">
+          <button class="sp-btn" onclick="spAdjust('sen',-1)">−</button>
+          <span class="sp-val" id="sp-add-sen">0</span>
+          <button class="sp-btn" onclick="spAdjust('sen',1)">+</button>
+        </div>
+        <div class="sp-rank-preview" id="sp-rank-sen"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="sp-confirm-btn" onclick="confirmStatPoints()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
