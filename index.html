@@ -389,7 +389,7 @@ textarea#player-input::placeholder { color: var(--text3); }
       <button class="btn-sm" onclick="showSummaryModal()">resumen sesión</button>
       <button class="btn-sm" onclick="showSaveSlotsModal()">💾 guardados</button>
       <button class="btn-sm" onclick="exportState()">exportar</button>
-      <button class="btn-sm" id="btn-edit-char" onclick="showEditModal()">editar personaje</button>
+
     </div>
   </div>
 
@@ -559,35 +559,6 @@ textarea#player-input::placeholder { color: var(--text3); }
 </div>
 
 <!-- EDIT CHAR MODAL -->
-<div class="modal-overlay hidden" id="edit-modal">
-  <div class="modal">
-    <h2>// editar estado del personaje</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="modal-field"><label>HP actual</label><input id="e-hp" type="number" /></div>
-      <div class="modal-field"><label>HP máximo</label><input id="e-hpmax" type="number" /></div>
-      <div class="modal-field"><label>MP actual</label><input id="e-mp" type="number" /></div>
-      <div class="modal-field"><label>MP máximo</label><input id="e-mpmax" type="number" /></div>
-      <div class="modal-field"><label>Rango (calculado automático)</label>
-        <input id="e-rank" readonly style="color:var(--accent);cursor:default" />
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px">
-      <div class="modal-field"><label>FUE</label><input id="e-fue" type="number" min="0" max="500" /></div>
-      <div class="modal-field"><label>AGI</label><input id="e-agi" type="number" min="0" max="500" /></div>
-      <div class="modal-field"><label>PER</label><input id="e-per" type="number" min="0" max="500" /></div>
-      <div class="modal-field"><label>RES</label><input id="e-res" type="number" min="0" max="500" /></div>
-      <div class="modal-field"><label>INT</label><input id="e-int" type="number" min="0" max="500" /></div>
-      <div class="modal-field"><label>SEN</label><input id="e-sen" type="number" min="0" max="500" /></div>
-    </div>
-    <div class="modal-field" style="margin-top:8px"><label>Habilidades (una por línea)</label><textarea id="e-skills"></textarea></div>
-    <div class="modal-field"><label>Inventario (una por línea)</label><textarea id="e-inv"></textarea></div>
-    <div class="modal-field"><label>Heridas / estados alterados</label><input id="e-wounds" /></div>
-    <div class="modal-actions">
-      <button class="btn-sm" onclick="closeModal('edit-modal')">cancelar</button>
-      <button class="btn-primary" onclick="saveEdit()">guardar</button>
-    </div>
-  </div>
-</div>
 
 <!-- MISSION MODAL -->
 <div class="modal-overlay hidden" id="mission-modal">
@@ -1806,41 +1777,6 @@ function appendSystemMsg(msg) {
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-
-function showEditModal() {
-  const c = state.char;
-  document.getElementById('e-hp').value = c.hp;
-  document.getElementById('e-hpmax').value = c.hpmax;
-  document.getElementById('e-mp').value = c.mp;
-  document.getElementById('e-mpmax').value = c.mpmax;
-  document.getElementById('e-rank').value = calcRankFromStats(c);
-  ['fue','agi','per','res','int','sen'].forEach(s => {
-    const el = document.getElementById('e-'+s);
-    el.value = Number(c[s]) || 0;
-    el.oninput = () => {
-      const preview = { fue: document.getElementById('e-fue').value, agi: document.getElementById('e-agi').value, per: document.getElementById('e-per').value, res: document.getElementById('e-res').value, int: document.getElementById('e-int').value, sen: document.getElementById('e-sen').value };
-      document.getElementById('e-rank').value = calcRankFromStats(preview);
-    };
-  });
-  document.getElementById('e-skills').value = c.skills.join('\n');
-  document.getElementById('e-inv').value = c.inventory.join('\n');
-  document.getElementById('e-wounds').value = c.wounds || '';
-  document.getElementById('edit-modal').classList.remove('hidden');
-}
-
-function saveEdit() {
-  const c = state.char;
-  c.hp = parseInt(document.getElementById('e-hp').value)||100;
-  c.hpmax = parseInt(document.getElementById('e-hpmax').value)||100;
-  c.mp = parseInt(document.getElementById('e-mp').value)||50;
-  c.mpmax = parseInt(document.getElementById('e-mpmax').value)||50;
-  ['fue','agi','per','res','int','sen'].forEach(s => c[s] = Math.max(0, parseInt(document.getElementById('e-'+s).value)||0));
-  c.rank = calcRankFromStats(c);
-  c.skills = document.getElementById('e-skills').value.split('\n').filter(Boolean);
-  c.inventory = document.getElementById('e-inv').value.split('\n').filter(Boolean);
-  c.wounds = document.getElementById('e-wounds').value;
-  saveState(); renderSidebar(); closeModal('edit-modal');
-}
 
 function showMissionModal() {
   const m = state.mission;
