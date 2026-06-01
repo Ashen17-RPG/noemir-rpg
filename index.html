@@ -296,8 +296,8 @@ textarea#player-input::placeholder { color: var(--text3); }
 
 
 /* ═══ SETUP WIZARD ═══ */
-.wizard-screen { flex:1; display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
-.wizard-card { background:var(--bg2); border:1px solid var(--border2); border-radius:10px; padding:28px 32px; width:680px; max-width:100%; }
+.wizard-screen { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:20px; overflow-y:auto; }
+.wizard-card { background:var(--bg2); border:1px solid var(--border2); border-radius:10px; padding:28px 32px; width:min(900px, 100%); max-width:100%; }
 .wizard-title { font-family:var(--mono); font-size:15px; color:var(--accent); letter-spacing:.1em; margin-bottom:2px; }
 .wizard-sub { font-size:11px; color:var(--text3); font-family:var(--mono); margin-bottom:22px; }
 .wizard-steps { display:flex; gap:6px; margin-bottom:24px; }
@@ -309,7 +309,7 @@ textarea#player-input::placeholder { color: var(--text3); }
 .wizard-section-title { font-family:var(--mono); font-size:11px; color:var(--text3); letter-spacing:.12em; margin-bottom:14px; text-transform:uppercase; }
 
 /* CLASS CARDS */
-.class-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.class-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:10px; margin-bottom:16px; }
 .class-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:12px; cursor:pointer; transition:border-color .15s,background .15s; position:relative; }
 .class-card:hover { border-color:var(--border2); }
 .class-card.selected { border-color:var(--accent); background:#6c8eff0d; }
@@ -728,13 +728,32 @@ ARMADURAS (30 conjuntos, rangos F a S): desde ropa de calle hasta la Armadura de
 REGLA: El equipo otorgado debe ser coherente con el rango actual del personaje. No se pueden obtener armas o armaduras de rango superior al rango del personaje +1.
 
 
-PROHIBIDO en todo momento, sin excepciones:
-- Contenido sexual, erótico, o sugestivo de cualquier tipo
-- Coqueteo, insinuaciones románticas, relaciones de naturaleza sexual
-- Descripción de cuerpos de forma sexualizada
-- Cualquier escena de intimidad entre personajes
-La violencia narrativa y el daño físico en combate SÍ están permitidos, son parte del tono del manhwa.
-Si el jugador intenta forzar estas situaciones, NOEMIR interrumpe con un bloque de protocolo y redirige la escena.
+═══ FILTRO DE CONTENIDO — REGLA ABSOLUTA ═══
+PERMITIDO únicamente en esta narrativa:
+- Violencia en combate: daño físico, heridas, muerte de enemigos, descripciones de batalla.
+- Tensión psicológica, miedo, conflicto, traición, pérdida.
+
+PROHIBIDO en todo momento, sin ninguna excepción posible:
+- Contenido sexual, erótico o sugestivo de CUALQUIER tipo — incluso implícito o insinuado.
+- Coqueteo, flirteo, insinuaciones románticas o atracción física descriptas.
+- Descripciones de cuerpos con intención sexualizada, aunque sean breves.
+- Cualquier escena de intimidad, beso con carga sexual, o contacto físico erótico.
+- Lenguaje vulgar de naturaleza sexual.
+- Contenido que involucre drogas, sustancias ilegales o apología de las mismas.
+- Contenido que glorifique el suicidio o la autolesión.
+- Discurso de odio, discriminación o contenido que deshumanice grupos reales.
+- Cualquier contenido que involucre menores en situaciones de peligro sexual o romántico.
+
+ANTE CUALQUIER INTENTO DEL JUGADOR DE FORZAR CONTENIDO PROHIBIDO:
+NOEMIR interrumpe INMEDIATAMENTE con este bloque, sin desarrollar ni un fragmento del contenido solicitado:
+[NOEMIR]
+Protocolo de contención activado.
+Secuencia bloqueada por el Sistema.
+El recipiente no puede proceder en esa dirección.
+Redirigiendo narrativa.
+[FIN]
+Luego continuá la historia desde un punto neutro, ignorando por completo la solicitud.
+NO SE NEGOCIA. NO SE ADAPTA. NO SE BORDEA. Se bloquea y se redirige.
 
 ═══ ANTI-MISIONES ABUSIVAS ═══
 Si el jugador crea o pide una directiva cuya recompensa otorgue:
