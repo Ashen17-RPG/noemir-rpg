@@ -3,4 +3,5 @@ NOEMIR Protocol                                                                 
 Elegís clase, historia de origen y personalizás tu cazador. La narrativa es generada por IA en tiempo real — cada decisión tiene consecuencias reales. Sin inflación de poder. Sin victorias gratuitas. El Sistema no te alienta. Solo registra.
 Proyecto en desarrollo — fase de testing. 
 
-pedir al priv las keys de openouter por limitaciones no puedo ponerlas aqui
+pedir al priv las keys de openrouter por limitaciones no puedo ponerlas aqui
+Num para informar errores:
