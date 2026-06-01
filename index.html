@@ -662,7 +662,7 @@ Los rangos son categorías de existencia distintas, no escalones numéricos.
 ═══ SISTEMA DE STATS Y RANGO ═══
 Cada estadística (FUE, AGI, PER, RES, INT, SEN) es un NÚMERO ENTERO que sube gradualmente.
 El rango letra se deriva automáticamente del número:
-  0–17 = F | 18–37 = E | 38–69 = D | 70–114 = C | 115–169 = B | 170–237 = A | 238–337 = S | 338–449 = SS | 450+ = SSS
+  0–20 = F | 21–40 = E | 41–70 = D | 71–120 = C | 121–170 = B | 171–240 = A | 241–340 = S | 341–450 = SS | 450+ = SSS
 
 El RANGO GLOBAL del personaje es el promedio de las 6 estadísticas numéricas.
 Un stat alto en una sola área NO sube el rango global. Ejemplo:
@@ -1919,12 +1919,12 @@ async function callAI(userMsg, isInit = false) {
 
 // ═══ SISTEMA DE STATS NUMÉRICO ═══
 // Stats son números enteros. El rango letra se deriva del valor.
-// Rangos: F=0-17, E=18-37, D=38-69, C=70-114, B=115-169, A=170-237, S=238-337, SS=338-449, SSS=450+
+// Rangos: F=0-20, E=21-40, D=41-70, C=71-120, B=121-170, A=171-240, S=241-340, SS=341-450, SSS=450+
 const RANK_THRESHOLDS = [
-  [450, 'SSS'], [338, 'SS'], [238, 'S'], [170, 'A'], [115, 'B'],
-  [70, 'C'], [38, 'D'], [18, 'E'], [0, 'F']
+  [450, 'SSS'], [341, 'SS'], [241, 'S'], [171, 'A'], [121, 'B'],
+  [71, 'C'], [41, 'D'], [21, 'E'], [0, 'F']
 ];
-const RANK_CAP = { F:17, E:37, D:69, C:114, B:169, A:237, S:337, SS:449, SSS:600 };
+const RANK_CAP = { F:20, E:40, D:70, C:120, B:170, A:240, S:340, SS:450, SSS:600 };
 
 function rankFromValue(val) {
   for(const [threshold, rank] of RANK_THRESHOLDS) {
