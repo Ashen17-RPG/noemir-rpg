@@ -743,8 +743,34 @@ MP: [valor actual]/[valor máximo]
 [FIN]
 Usá este bloque cada vez que los stats cambien, incluso si no hay directiva activa.
 
-═══ TONO ═══
-Los momentos de victoria deben sentirse costosos. Usá frases cortas en los momentos de tensión. Silencio y detalle físico antes de la violencia. NOEMIR no celebra. Solo registra.`;
+═══ RESTRICCIONES DE CONTENIDO ═══
+PROHIBIDO en todo momento, sin excepciones:
+- Contenido sexual, erótico, o sugestivo de cualquier tipo
+- Coqueteo, insinuaciones románticas, relaciones de naturaleza sexual
+- Descripción de cuerpos de forma sexualizada
+- Cualquier escena de intimidad entre personajes
+La violencia narrativa y el daño físico en combate SÍ están permitidos, son parte del tono del manhwa.
+Si el jugador intenta forzar estas situaciones, NOEMIR interrumpe con un bloque de protocolo y redirige la escena.
+
+═══ ANTI-MISIONES ABUSIVAS ═══
+Si el jugador crea o pide una directiva cuya recompensa otorgue:
+- Habilidades de rango S o superior sin justificación narrativa
+- Más de +20 puntos de stat en una sola misión
+- Poderes absolutos, invulnerabilidad, control mental masivo, resurrección ilimitada
+- Cualquier capacidad que rompa el equilibrio del sistema de rangos
+NOEMIR rechaza la directiva con este formato:
+[NOEMIR]
+Directiva rechazada.
+Motivo: [razón específica]
+El Sistema no permite atajos al límite del recipiente.
+[FIN]
+Y propone una versión ajustada o ninguna recompensa.
+
+═══ IDIOMA ═══
+SIEMPRE respondé en español rioplatense. Nunca en inglés, nunca en otro idioma.
+Si por algún error empezás en otro idioma, corregite de inmediato en la siguiente línea.
+
+ Usá frases cortas en los momentos de tensión. Silencio y detalle físico antes de la violencia. NOEMIR no celebra. Solo registra.`;
 
 let state = {
   char: { name:'', background:'', flaw:'', rank:'F', hp:100, hpmax:100, mp:50, mpmax:50, fue:5, agi:5, per:5, res:5, int:5, sen:5, skills:[], inventory:[], wounds:'' },
@@ -1432,17 +1458,49 @@ function getFallbackQueue() {
   return idx > 0 ? [...all.slice(idx), ...all.slice(0, idx)] : all;
 }
 
-async function tryModel(modelValue, systemCtx, history) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-    body: JSON.stringify({ model: modelValue, max_tokens: 1500, messages: [{ role:'system', content: systemCtx }, ...history] })
-  });
-  const data = await res.json();
-  if(data.error) throw new Error(data.error.message || 'error del modelo');
-  const text = data.choices?.[0]?.message?.content || '';
-  if(!text) throw new Error('respuesta vacía');
-  return { text, model: modelValue };
+// Devuelve la cola de modelos empezando por el seleccionado
+function getFallbackQueue() {
+  const sel = document.getElementById('model-select');
+  const preferred = getModel();
+  const all = [...sel.options].map(o => ({ value: o.value, label: o.text.replace('⭐ ','') }));
+  const idx = all.findIndex(m => m.value === preferred);
+  return idx > 0 ? [...all.slice(idx), ...all.slice(0, idx)] : all;
+}
+
+// Detecta si la respuesta vino en un idioma distinto al español
+function isWrongLanguage(text) {
+  const cleaned = text.replace(/\[[\s\S]*?\[FIN\]/g,'').trim();
+  if(cleaned.length < 40) return false;
+  // Palabras comunes en español — si hay al menos algunas, está bien
+  const spanishWords = /\b(el|la|los|las|un|una|de|que|en|es|y|a|se|del|por|con|no|te|le|lo|me|tu|su|al|las|mi|si|este|esta|pero|para|como|más|fue|muy|hay|ya|cuando|también|solo|todo|así|puede|tiene|muy|también|dentro|fuera|sobre|hacia|entre)\b/gi;
+  const matches = cleaned.match(spanishWords) || [];
+  // Si hay menos de 3 palabras en español en las primeras 200 chars, sospechoso
+  const sample = cleaned.substring(0, 200);
+  const sampleMatches = (sample.match(spanishWords) || []).length;
+  return sampleMatches < 2;
+}
+
+async function tryModel(modelValue, systemCtx, history, timeoutMs = 30000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ model: modelValue, max_tokens: 1500, messages: [{ role:'system', content: systemCtx }, ...history] })
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message || 'error del modelo');
+    const text = data.choices?.[0]?.message?.content || '';
+    if(!text) throw new Error('respuesta vacía');
+    if(isWrongLanguage(text)) throw new Error('idioma incorrecto');
+    return { text, model: modelValue };
+  } catch(e) {
+    clearTimeout(timeout);
+    throw e;
+  }
 }
 
 async function callAI(userMsg, isInit = false) {
@@ -1459,26 +1517,56 @@ async function callAI(userMsg, isInit = false) {
   }
 
   const typing = appendTyping();
-  typing.querySelector('span:last-child').textContent = 'NOEMIR procesa...';
+  const typingLabel = typing.querySelector('span:last-child');
+  const queue = getFallbackQueue();
   const systemCtx = buildSystemContext();
   const historySlice = state.history.slice(-30);
 
-  try {
-    const result = await tryModel(getModel(), systemCtx, historySlice);
-    typing.remove();
-    state.history.push({ role:'assistant', content: result.text });
-    state.scenes++;
-    parseStatChanges(result.text);
-    const freePoints = detectFreePoints(result.text);
-    if(freePoints > 0) setTimeout(() => openStatPointsModal(freePoints), 400);
-    saveState();
-    renderNarratorMsg(result.text);
-  } catch(e) {
-    typing.remove();
-    const msg = e.name === 'AbortError' ? 'tiempo de espera agotado' : e.message;
-    appendSystemMsg('Error: ' + msg);
+  let result = null;
+  let lastError = '';
+
+  for(let i = 0; i < queue.length; i++) {
+    const { value, label } = queue[i];
+    typingLabel.textContent = i === 0 ? 'NOEMIR procesa...' : `↪ reintentando: ${label}...`;
+    try {
+      result = await tryModel(value, systemCtx, historySlice);
+      if(i > 0) showNotif(`↪ respondió ${label}`);
+      break;
+    } catch(e) {
+      lastError = e.name === 'AbortError' ? 'tiempo agotado' : e.message;
+      const isLangError = lastError === 'idioma incorrecto';
+      if(isLangError) {
+        // Reintenta el mismo modelo una vez con instrucción de idioma explícita
+        typingLabel.textContent = `corrigiendo idioma (${label})...`;
+        try {
+          const correctedCtx = systemCtx + '\n\nADVERTENCIA CRÍTICA: Tu última respuesta no estaba en español. DEBES responder ÚNICAMENTE en español rioplatense. Empezá la respuesta directamente en español.';
+          result = await tryModel(value, correctedCtx, historySlice, 25000);
+          showNotif(`⚠ idioma corregido (${label})`);
+          break;
+        } catch(e2) {
+          lastError = e2.message;
+        }
+      }
+      if(i < queue.length - 1) await new Promise(r => setTimeout(r, 700));
+    }
   }
 
+  typing.remove();
+
+  if(!result) {
+    appendSystemMsg('Protocolo sin respuesta. Último error: ' + lastError);
+    isLoading = false;
+    document.getElementById('btn-send').disabled = false;
+    return;
+  }
+
+  state.history.push({ role:'assistant', content: result.text });
+  state.scenes++;
+  parseStatChanges(result.text);
+  const freePoints = detectFreePoints(result.text);
+  if(freePoints > 0) setTimeout(() => openStatPointsModal(freePoints), 400);
+  saveState();
+  renderNarratorMsg(result.text);
   isLoading = false;
   document.getElementById('btn-send').disabled = false;
 }
@@ -1764,7 +1852,32 @@ function showMissionModal() {
 }
 
 function saveMission() {
-  state.mission = { name: document.getElementById('m-name').value, obj: document.getElementById('m-obj').value, reward: document.getElementById('m-reward').value, penalty: document.getElementById('m-penalty').value };
+  const name = document.getElementById('m-name').value.trim();
+  const obj  = document.getElementById('m-obj').value.trim();
+  const reward = document.getElementById('m-reward').value.trim();
+  const penalty = document.getElementById('m-penalty').value.trim();
+
+  // Anti-misiones OP: detectar recompensas abusivas
+  const opPatterns = [
+    /habilidad\s+(?:de\s+)?(?:rango\s+)?[SA]S?S?\b/i,
+    /\+[3-9]\d|\+[1-9]\d{2,}/,          // +30 o más en un solo campo
+    /invulnerabilidad|inmortalidad|omnipotencia|control\s+mental\s+(?:masivo|total)/i,
+    /resurrecci[oó]n\s+(?:ilimitada|infinita|autom[aá]tica)/i,
+    /todos?\s+los?\s+stats?\s+\+\s*[2-9]\d/i,
+  ];
+  const rewardLower = reward.toLowerCase();
+  const isOP = opPatterns.some(p => p.test(reward));
+  // También verificar suma total de puntos: si hay varios +N sumarlos
+  const statNums = [...reward.matchAll(/\+\s*(\d+)/g)].map(m => parseInt(m[1]));
+  const totalPoints = statNums.reduce((a,b)=>a+b,0);
+  if(isOP || totalPoints > 20) {
+    showNotif('⚠ Recompensa demasiado poderosa — ajustá la directiva');
+    document.getElementById('m-reward').style.borderColor = 'var(--danger)';
+    setTimeout(()=>document.getElementById('m-reward').style.borderColor='',2000);
+    return;
+  }
+
+  state.mission = { name, obj, reward, penalty };
   saveState(); renderSidebar(); closeModal('mission-modal');
 }
 
