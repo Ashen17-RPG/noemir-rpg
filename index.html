@@ -308,8 +308,14 @@ textarea#player-input::placeholder { color: var(--text3); }
 .wizard-section.active { display:block; }
 .wizard-section-title { font-family:var(--mono); font-size:11px; color:var(--text3); letter-spacing:.12em; margin-bottom:14px; text-transform:uppercase; }
 
+/* CLASS TABS */
+.class-tabs { display:flex; gap:6px; margin-bottom:14px; }
+.class-tab { background:transparent; border:1px solid var(--border2); color:var(--text2); font-family:var(--mono); font-size:11px; padding:5px 14px; border-radius:4px; cursor:pointer; transition:all .15s; }
+.class-tab:hover { border-color:var(--accent); color:var(--accent); }
+.class-tab.active { border-color:var(--accent); color:var(--accent); background:#6c8eff15; }
+
 /* CLASS CARDS */
-.class-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:10px; margin-bottom:16px; }
+.class-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
 .class-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:12px; cursor:pointer; transition:border-color .15s,background .15s; position:relative; }
 .class-card:hover { border-color:var(--border2); }
 .class-card.selected { border-color:var(--accent); background:#6c8eff0d; }
@@ -355,6 +361,7 @@ textarea#player-input::placeholder { color: var(--text3); }
 @media(max-width:768px) {
   .wizard-card { padding:18px 16px; }
   .class-grid { grid-template-columns:1fr 1fr; }
+  .class-tab { font-size:10px; padding:4px 10px; }
   .story-grid { grid-template-columns:1fr; }
   .identity-grid { grid-template-columns:1fr; }
 }
@@ -492,7 +499,12 @@ textarea#player-input::placeholder { color: var(--text3); }
         <!-- STEP 0: CLASE -->
         <div class="wizard-section active" id="wiz-step-0">
           <div class="wizard-section-title">// clase del cazador</div>
-          <div class="class-grid" id="class-grid"></div>
+          <div class="class-tabs">
+            <button class="class-tab active" id="ctab-1" onclick="switchClassTab(1)">página 1 / 2</button>
+            <button class="class-tab" id="ctab-2" onclick="switchClassTab(2)">página 2 / 2</button>
+          </div>
+          <div class="class-grid" id="class-grid-1"></div>
+          <div class="class-grid" id="class-grid-2" style="display:none"></div>
         </div>
 
         <!-- STEP 1: HISTORIA -->
@@ -1531,22 +1543,33 @@ let wizStep = 0;
 let wizClass = null;
 let wizStory = null;
 
+function switchClassTab(n) {
+  document.getElementById('class-grid-1').style.display = n===1 ? 'grid' : 'none';
+  document.getElementById('class-grid-2').style.display = n===2 ? 'grid' : 'none';
+  document.getElementById('ctab-1').classList.toggle('active', n===1);
+  document.getElementById('ctab-2').classList.toggle('active', n===2);
+}
+
 function initWizard() {
-  // Render class cards
-  const cg = document.getElementById('class-grid');
-  cg.innerHTML = '';
-  CLASSES.forEach(cls => {
-    const d = document.createElement('div');
-    d.className = 'class-card';
-    d.dataset.id = cls.id;
-    d.innerHTML = `
-      <div class="cc-icon">${cls.icon}</div>
-      <div class="cc-name">${cls.name}</div>
-      <div class="cc-desc">${cls.desc}</div>
-      <div class="cc-stats">${cls.statBonus.split(' · ').map(s=>`<span class="cc-stat-tag">${s}</span>`).join('')}</div>
-      <div class="cc-skill">▶ ${cls.skills[0].split('(')[0].trim()}</div>`;
-    d.onclick = () => selectClass(cls.id);
-    cg.appendChild(d);
+  // Render class cards split into two pages
+  const half = Math.ceil(CLASSES.length / 2);
+  [1, 2].forEach(page => {
+    const cg = document.getElementById('class-grid-' + page);
+    cg.innerHTML = '';
+    const slice = page === 1 ? CLASSES.slice(0, half) : CLASSES.slice(half);
+    slice.forEach(cls => {
+      const d = document.createElement('div');
+      d.className = 'class-card';
+      d.dataset.id = cls.id;
+      d.innerHTML = `
+        <div class="cc-icon">${cls.icon}</div>
+        <div class="cc-name">${cls.name}</div>
+        <div class="cc-desc">${cls.desc}</div>
+        <div class="cc-stats">${cls.statBonus.split(' · ').map(s=>`<span class="cc-stat-tag">${s}</span>`).join('')}</div>
+        <div class="cc-skill">▶ ${cls.skills[0].split('(')[0].trim()}</div>`;
+      d.onclick = () => selectClass(cls.id);
+      cg.appendChild(d);
+    });
   });
 
   // Render story cards
@@ -1567,7 +1590,7 @@ function initWizard() {
 
 function selectClass(id) {
   wizClass = CLASSES.find(c => c.id === id);
-  document.querySelectorAll('.class-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
+  document.querySelectorAll('#class-grid-1 .class-card, #class-grid-2 .class-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
   document.getElementById('wiz-next-btn').disabled = false;
 }
 
