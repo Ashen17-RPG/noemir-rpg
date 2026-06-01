@@ -165,6 +165,7 @@ textarea#player-input::placeholder { color: var(--text3); }
 .setup-sub { font-size: 12px; color: var(--text3); margin-bottom: 24px; font-family: var(--mono); }
 .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+.eq-tab.active { border-color: var(--accent) !important; color: var(--accent) !important; }
 .hidden { display: none !important; }
 
 
@@ -466,6 +467,7 @@ textarea#player-input::placeholder { color: var(--text3); }
       <button class="btn-sm" onclick="showAffinityModal()">+ afinidad</button>
       <button class="btn-sm" onclick="showMissionModal()">+ directiva</button>
       <button class="btn-sm" onclick="showRankLegend()">📊 rangos</button>
+      <button class="btn-sm" onclick="showEquipCatalog()">📦 equipo</button>
       <button class="btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="confirmReset()">reset</button>
     </div>
   </div>
@@ -714,7 +716,18 @@ MP: [valor actual]/[valor máximo]
 [FIN]
 Usá este bloque cada vez que los stats cambien, incluso si no hay directiva activa.
 
-═══ RESTRICCIONES DE CONTENIDO ═══
+═══ EQUIPO DEL MUNDO ═══
+El mundo tiene tres categorías de equipo obtenible mediante misiones y exploración. La IA debe otorgarlos narrativamente — nunca como lista de ítems. Describí cómo el personaje lo encuentra, lo obtiene, o se lo dan.
+
+ARMAS DE MISIÓN (70 disponibles, rangos E a A): desde dagas de hueso hasta katanas del protocolo y báculos del eco roto. Otorgalas según el rango de la misión completada. Una misión de rango E otorga armas de rango E máximo.
+
+ARTEFACTOS (60 disponibles, rangos E a S): anillos, amuletos, sellos, núcleos. Mejoran stats pasivamente o tienen efectos únicos. Se pueden llevar simultáneamente pero NOEMIR limita a 3 artefactos activos por escena. El Fragmento del Rey Oscuro es el único de rango S y NOEMIR no lo registra.
+
+ARMADURAS (30 conjuntos, rangos F a S): desde ropa de calle hasta la Armadura del Rey de las Sombras (fragmentada, de Jin-Woo). La Capa del Protocolo aparece sola en escena 20+. Las de rango S no se obtienen por misiones normales.
+
+REGLA: El equipo otorgado debe ser coherente con el rango actual del personaje. No se pueden obtener armas o armaduras de rango superior al rango del personaje +1.
+
+
 PROHIBIDO en todo momento, sin excepciones:
 - Contenido sexual, erótico, o sugestivo de cualquier tipo
 - Coqueteo, insinuaciones románticas, relaciones de naturaleza sexual
@@ -1104,58 +1117,351 @@ const CLASSES = [
   {
     id:'asesino', icon:'🗡️', name:'Asesino',
     desc:'Velocidad letal. Opera en las sombras. Elimina antes de ser visto.',
-    stats:{fue:5,agi:12,per:10,res:5,int:5,sen:8},
-    hp:80, mp:60,
-    skills:['Paso silencioso (pasiva)','Golpe crítico (activa, costo 8 MP)'],
-    statBonus:'AGI +7 · PER +5 · SEN +3',
+    stats:{fue:5,agi:14,per:10,res:4,int:5,sen:7},
+    hp:75, mp:65,
+    skills:['Paso silencioso (pasiva: movimiento inaudible en sigilo)','Golpe crítico (activa, costo 8 MP: daño x2.5 desde las sombras)'],
+    statBonus:'AGI +9 · PER +5 · SEN +2',
     affinity:'sombra'
   },
   {
-    id:'mago', icon:'🔮', name:'Mago',
-    desc:'Domina la magia elemental. Frágil pero devastador a distancia.',
-    stats:{fue:5,agi:6,per:8,res:5,int:14,sen:7},
-    hp:70, mp:100,
-    skills:['Lectura de mana (pasiva)','Proyectil arcano (activa, costo 12 MP)'],
-    statBonus:'INT +9 · PER +3 · SEN +2',
-    affinity:'destruccion'
+    id:'invocador', icon:'🌑', name:'Invocador de Sombras',
+    desc:'Extrae esencias de criaturas caídas. Invoca fragmentos de sombra como extensiones de su voluntad.',
+    stats:{fue:5,agi:7,per:8,res:5,int:10,sen:10},
+    hp:80, mp:90,
+    skills:['Extracción de esencia (pasiva: chance de obtener fragmento al matar)','Invocar sombra menor (activa, costo 20 MP: una entidad débil lucha por vos)'],
+    statBonus:'INT +5 · SEN +5 · PER +3',
+    affinity:'sombra'
   },
   {
-    id:'tanque', icon:'🛡️', name:'Guardián',
-    desc:'Cuerpo como fortaleza. Absorbe castigo que mataría a cualquier otro.',
-    stats:{fue:10,agi:5,per:5,res:14,int:5,sen:6},
-    hp:140, mp:40,
-    skills:['Piel de hierro (pasiva)','Golpe aplastante (activa, costo 6 MP)'],
-    statBonus:'RES +9 · FUE +5 · SEN +1',
-    affinity:'bestia'
-  },
-  {
-    id:'curandero', icon:'✦', name:'Sanador',
-    desc:'Canaliza energía vital. Sostiene al grupo cuando todo falla.',
-    stats:{fue:5,agi:6,per:9,res:8,int:8,sen:9},
-    hp:90, mp:90,
-    skills:['Regeneración lenta (pasiva)','Pulso curativo (activa, costo 15 MP)'],
-    statBonus:'SEN +4 · INT +3 · RES +3 · PER +4',
+    id:'guerrero', icon:'⚔️', name:'Guerrero de Vanguardia',
+    desc:'Nacido para el combate frontal. Disciplina militar, resistencia brutal, técnica de armas superior.',
+    stats:{fue:13,agi:7,per:5,res:10,int:5,sen:5},
+    hp:125, mp:40,
+    skills:['Postura de combate (pasiva: +RES mientras está en pie)','Tajo profundo (activa, costo 10 MP: ignora parte de la defensa enemiga)'],
+    statBonus:'FUE +8 · RES +6 · AGI +2',
     affinity:'gobernante'
   },
   {
-    id:'berserker', icon:'⚔️', name:'Berserker',
-    desc:'Fuerza bruta sin límites. Cuanto más daño recibe, más peligroso se vuelve.',
-    stats:{fue:15,agi:7,per:5,res:8,int:5,sen:5},
-    hp:120, mp:50,
-    skills:['Furia (pasiva: +FUE al recibir daño)','Carga devastadora (activa, costo 10 MP)'],
-    statBonus:'FUE +10 · RES +3 · AGI +2',
+    id:'chamán', icon:'🔥', name:'Chamán de Ruinas',
+    desc:'Lee las fracturas del mundo. Canaliza energía elemental de las Puertas directamente en su cuerpo.',
+    stats:{fue:6,agi:6,per:9,res:5,int:13,sen:6},
+    hp:70, mp:110,
+    skills:['Lectura de grietas (pasiva: detecta trampas y nodos de energía)','Sello de fuego (activa, costo 14 MP: área de daño elemental)'],
+    statBonus:'INT +8 · PER +5 · SEN +3',
     affinity:'destruccion'
+  },
+  {
+    id:'centinela', icon:'🛡️', name:'Centinela',
+    desc:'Cuerpo construido como muro. Protege, resiste, desgasta. Un centinela no muere primero.',
+    stats:{fue:9,agi:4,per:6,res:15,int:5,sen:6},
+    hp:150, mp:35,
+    skills:['Piel de hierro (pasiva: reducción de daño fijo por golpe)','Provocar (activa, costo 6 MP: fuerza al enemigo a atacarte)'],
+    statBonus:'RES +10 · FUE +5 · SEN +1',
+    affinity:'bestia'
   },
   {
     id:'explorador', icon:'👁️', name:'Explorador',
     desc:'Percepción sobrehumana. Detecta trampas, rutas y debilidades antes que nadie.',
     stats:{fue:6,agi:10,per:14,res:6,int:7,sen:12},
     hp:85, mp:65,
-    skills:['Sentido agudizado (pasiva)','Marca de presa (activa, costo 7 MP)'],
+    skills:['Sentido agudizado (pasiva: detecta criaturas ocultas en 15m)','Marca de presa (activa, costo 7 MP: el objetivo marcado recibe +20% daño por 2 escenas)'],
     statBonus:'PER +9 · SEN +7 · AGI +5',
     affinity:'bestia'
   },
+  {
+    id:'sanador', icon:'✦', name:'Sanador',
+    desc:'Canaliza energía vital. Sostiene al grupo cuando todo falla. No es suave — es lo que mantiene todo en pie.',
+    stats:{fue:5,agi:6,per:9,res:8,int:8,sen:9},
+    hp:90, mp:90,
+    skills:['Regeneración lenta (pasiva: recupera 3 HP por escena fuera de combate)','Pulso curativo (activa, costo 15 MP: restaura 30 HP, elimina un estado alterado)'],
+    statBonus:'SEN +4 · INT +3 · RES +3 · PER +4',
+    affinity:'gobernante'
+  },
+  {
+    id:'berserker', icon:'💢', name:'Berserker',
+    desc:'Fuerza bruta sin límites. Cuanto más daño recibe, más peligroso se vuelve. Sin técnica. Solo destrucción.',
+    stats:{fue:15,agi:7,per:5,res:8,int:5,sen:5},
+    hp:120, mp:50,
+    skills:['Furia (pasiva: +2 FUE cada vez que recibe daño, se acumula hasta fin de combate)','Carga devastadora (activa, costo 10 MP: embiste en línea recta, derriba todo en el camino)'],
+    statBonus:'FUE +10 · RES +3 · AGI +2',
+    affinity:'destruccion'
+  },
+  {
+    id:'espectro', icon:'🌫️', name:'Espectro de Umbral',
+    desc:'Existe en el límite entre el mundo físico y el interior de las Puertas. Puede desvanecerse brevemente, leer el entorno como si fuera su propio cuerpo.',
+    stats:{fue:5,agi:9,per:11,res:4,int:8,sen:13},
+    hp:72, mp:85,
+    skills:['Lectura de umbral (pasiva: en mazmorras, percibe presencias a través de paredes y puertas cerradas)','Desvanecerse (activa, costo 18 MP: el personaje se vuelve intangible por un instante, evadiendo un ataque físico o mágico)'],
+    statBonus:'SEN +8 · PER +6 · AGI +4',
+    affinity:'sombra'
+  },
+  {
+    id:'mago', icon:'🔮', name:'Mago',
+    desc:'Domina la magia elemental. Frágil pero devastador a distancia. En Solo Leveling, los magos de alto rango redefinen los campos de batalla.',
+    stats:{fue:4,agi:6,per:8,res:4,int:16,sen:7},
+    hp:65, mp:115,
+    skills:['Lectura de mana (pasiva: detecta concentraciones de energía y hechizos activos en el entorno)','Proyectil arcano (activa, costo 12 MP: proyectil de mana concentrado, escala con INT)'],
+    statBonus:'INT +11 · PER +4 · SEN +2',
+    affinity:'destruccion'
+  },
+  {
+    id:'arquero', icon:'🏹', name:'Arquero',
+    desc:'Precisión quirúrgica. En Solo Leveling los arqueros de rango alto son francotiradores capaces de perforar barreras mágicas desde kilómetros.',
+    stats:{fue:6,agi:12,per:13,res:5,int:5,sen:9},
+    hp:80, mp:55,
+    skills:['Ojo de cazador (pasiva: los primeros ataques contra un objetivo nuevo tienen +30% de precisión)','Flecha perforante (activa, costo 9 MP: un disparo que ignora armadura ligera y barreras de rango E)'],
+    statBonus:'PER +8 · AGI +7 · SEN +4',
+    affinity:'gobernante'
+  },
+  {
+    id:'luchador', icon:'👊', name:'Luchador',
+    desc:'Combate cuerpo a cuerpo sin armas. Velocidad explosiva, golpes precisos. Los luchadores de rango A pueden pulverizar piedra con las manos.',
+    stats:{fue:12,agi:13,per:7,res:7,int:4,sen:7},
+    hp:105, mp:55,
+    skills:['Endurecimiento (pasiva: los puños y pies del personaje resisten impactos que romperían acero común)','Combo explosivo (activa, costo 11 MP: tres golpes rápidos en sucesión, el tercero inflige daño doble)'],
+    statBonus:'FUE +7 · AGI +8 · RES +3',
+    affinity:'bestia'
+  },
+  {
+    id:'nigromante', icon:'💀', name:'Nigromante',
+    desc:'Manipula la frontera entre la vida y la muerte. Distinto al Invocador: el nigromante no extrae sombras, levanta cadáveres y fragmentos de voluntad.',
+    stats:{fue:4,agi:5,per:9,res:5,int:14,sen:13},
+    hp:70, mp:100,
+    skills:['Olfato de muerte (pasiva: detecta criaturas muertas o agonizantes en 20m, incluso detrás de obstáculos)','Reanimar menor (activa, costo 22 MP: levanta un cadáver de rango E como servidor temporal por 1 escena)'],
+    statBonus:'INT +9 · SEN +8 · PER +5',
+    affinity:'sombra'
+  },
+  {
+    id:'espadachin', icon:'🌙', name:'Espadachín',
+    desc:'Técnica de espada llevada al límite. No fuerza bruta — economía de movimiento perfecta. Un espadachín de rango B supera a un guerrero de rango A en duelo individual.',
+    stats:{fue:8,agi:13,per:10,res:6,int:6,sen:12},
+    hp:90, mp:60,
+    skills:['Lectura de blade (pasiva: después de recibir un ataque de arma, el personaje aprende el patrón del atacante y esquiva mejor)','Corte de umbral (activa, costo 13 MP: un corte que atraviesa el espacio entre dos puntos, ignorando distancia menor a 3m)'],
+    statBonus:'AGI +8 · SEN +7 · PER +5',
+    affinity:'gobernante'
+  },
+  {
+    id:'sacerdote', icon:'✚', name:'Sacerdote de Puerta',
+    desc:'Canaliza la energía residual de las Puertas como fuerza sagrada. Purifica, escuda, destruye lo no-muerto. Raro. La Asociación los busca activamente.',
+    stats:{fue:5,agi:5,per:10,res:9,int:9,sen:12},
+    hp:95, mp:95,
+    skills:['Barrera de luz (pasiva: reduce daño de criaturas no-muertas y de oscuridad en 20%)','Purificación (activa, costo 16 MP: elimina estados alterados en el área, daña criaturas de oscuridad)'],
+    statBonus:'SEN +7 · INT +5 · RES +5 · PER +3',
+    affinity:'gobernante'
+  },
+  {
+    id:'ladron', icon:'🪤', name:'Ladrón de Mazmorra',
+    desc:'Especialista en recuperar objetos, información y rutas antes de que nadie las vea. En Solo Leveling, los ladrones de alto rango pueden robar habilidades activas de enemigos.',
+    stats:{fue:5,agi:14,per:12,res:4,int:7,sen:13},
+    hp:70, mp:70,
+    skills:['Dedos rápidos (pasiva: puede tomar objetos del entorno o enemigos sin ser detectado si AGI supera al objetivo)','Robo de atención (activa, costo 10 MP: genera un destello de distracción, el próximo movimiento del personaje no es rastreado)'],
+    statBonus:'AGI +9 · SEN +8 · PER +6',
+    affinity:'sombra'
+  },
 ];
+
+
+// ─── 70 ARMAS DE MISIÓN (no iniciales) ───────────────────────────────────────
+// Se obtienen mediante recompensas de misiones. La IA las menciona en narrativa.
+const MISSION_WEAPONS = [
+  // ── DAGAS Y CUCHILLOS (rango E-D) ──
+  { name:'Daga de hueso de mazmorra',     rank:'E', type:'daga',    desc:'Tallada de un hueso de criatura. Rezuma frío.' },
+  { name:'Cuchillo envenenado',           rank:'E', type:'cuchillo',desc:'Hoja delgada. El filo lleva una resina tóxica oscura.' },
+  { name:'Daga de garra de kobold',       rank:'E', type:'daga',    desc:'Ligera. Serrada. Rompe armadura blanda.' },
+  { name:'Estilete de mana cristalizado', rank:'D', type:'daga',    desc:'La hoja vibra levemente. Corta barreras mágicas.' },
+  { name:'Daga gemela de sombra',         rank:'D', type:'daga',    desc:'Vienen en par. El segundo golpe siempre sorprende.' },
+  { name:'Cuchillo de obsidiana',         rank:'D', type:'cuchillo',desc:'Filo perfecto. Se astilla si golpea metal duro.' },
+
+  // ── ESPADAS (rango E-C) ──
+  { name:'Espada de cazador de rango E',  rank:'E', type:'espada',  desc:'Estándar de la Asociación. Funcional, sin más.' },
+  { name:'Sable de hueso ígneo',          rank:'E', type:'espada',  desc:'Hueso quemado de criatura ígnea. Tibio al tacto.' },
+  { name:'Espada corta de mithril gris',  rank:'D', type:'espada',  desc:'Aleación inestable. Más ligera que el acero.' },
+  { name:'Espadón de guardian caído',     rank:'D', type:'espada',  desc:'Pesada. Requiere dos manos. Aplasta más que corta.' },
+  { name:'Hoja del pacto',                rank:'D', type:'espada',  desc:'Grabados arcanos en la hoja. Reacciona al mana.' },
+  { name:'Espada de umbral',              rank:'C', type:'espada',  desc:'Forjada en la frontera entre dos Puertas. Rarísima.' },
+  { name:'Lamento del ejecutor',          rank:'C', type:'espada',  desc:'Larga, negra. Dicen que recuerda a quienes mató.' },
+
+  // ── LANZAS Y ASTAS (rango E-C) ──
+  { name:'Lanza de guardia de mazmorra',  rank:'E', type:'lanza',   desc:'Reglamentaria. Encontrada sobre un cadáver.' },
+  { name:'Asta de canalización',          rank:'D', type:'lanza',   desc:'Hueca. Conduce mana hacia la punta.' },
+  { name:'Lanza de colmillo de bestia',   rank:'D', type:'lanza',   desc:'Punta de colmillo natural. Penetra magia pasiva.' },
+  { name:'Tridente de profundidad',       rank:'C', type:'lanza',   desc:'Diseñado para criaturas acuáticas. Efectivo igual.' },
+  { name:'Pica del Centinela Roto',       rank:'C', type:'lanza',   desc:'De un centinela de rango B. Ya no responde al dueño.' },
+
+  // ── HACHAS (rango E-C) ──
+  { name:'Hacha de excavación reforzada', rank:'E', type:'hacha',   desc:'Herramienta de minero adaptada al combate.' },
+  { name:'Hacha de guerra de gremio',     rank:'D', type:'hacha',   desc:'Marca del Gremio Escudo Rojo. Bien equilibrada.' },
+  { name:'Hacha de runa menor',           rank:'D', type:'hacha',   desc:'Una runa de impacto grabada. Activa al golpear.' },
+  { name:'Hacha doble del berserker',     rank:'C', type:'hacha',   desc:'Dos filos. El primero corta; el segundo remata.' },
+
+  // ── MAZAS Y CONTUNDENTES (rango E-C) ──
+  { name:'Maza de guardia de Puerta',     rank:'E', type:'maza',    desc:'Estándar. Pesada. Rompe escudos menores.' },
+  { name:'Mazo de impacto de onda',       rank:'D', type:'maza',    desc:'Al golpear genera una vibración breve. Aturde.' },
+  { name:'Maza de hierro negro',          rank:'D', type:'maza',    desc:'Metal de la Puerta. Pesa el doble de lo normal.' },
+  { name:'Martillo de juicio',            rank:'C', type:'maza',    desc:'Enorme. Un golpe en el torso tumba a un E fácil.' },
+
+  // ── ARCOS Y A DISTANCIA (rango E-C) ──
+  { name:'Arco de cuerno de criatura',    rank:'E', type:'arco',    desc:'Resistente. Las flechas convencionales funcionan.' },
+  { name:'Arco largo de caza mayor',      rank:'D', type:'arco',    desc:'Pensado para criaturas grandes. Largo alcance.' },
+  { name:'Ballesta de precisión',         rank:'D', type:'arco',    desc:'Mecanismo suizo. Tarda en recargar pero no falla.' },
+  { name:'Arco de nervio de troll',       rank:'C', type:'arco',    desc:'Necesita fuerza E mínima para tensar. Devastador.' },
+  { name:'Arco arcano de ojo de aguja',   rank:'C', type:'arco',    desc:'Las flechas se curvan levemente hacia el punto de mira.' },
+
+  // ── ARMAS DE MANA / ARCANAS (rango D-B) ──
+  { name:'Varita de concentración',       rank:'D', type:'arcana',  desc:'Amplifica proyectiles de mana. Reduce costo en 2 MP.' },
+  { name:'Báculo de fragmento de Puerta', rank:'D', type:'arcana',  desc:'El cristal de la punta absorbe pequeñas cantidades de mana ambiental.' },
+  { name:'Orbe de resonancia',            rank:'C', type:'arcana',  desc:'Flota levemente. Amplifica hechizos de área.' },
+  { name:'Llave de sello',                rank:'C', type:'arcana',  desc:'Cierra Puertas inestables. Ofensivamente letal contra demonios.' },
+  { name:'Báculo del eco roto',           rank:'B', type:'arcana',  desc:'Duplica el siguiente hechizo. Costo: el doble de MP.' },
+
+  // ── ARMAS FLEXIBLES Y CADENAS (rango E-C) ──
+  { name:'Látigo de tendón de bestia',    rank:'E', type:'flexible',desc:'Largo alcance. Envuelve extremidades.' },
+  { name:'Cadena de mana',                rank:'D', type:'flexible',desc:'Conduce descarga eléctrica menor al impactar.' },
+  { name:'Látigo de cola de escorpión',   rank:'D', type:'flexible',desc:'Veneno de parálisis en la punta.' },
+  { name:'Cadena doble de sombra',        rank:'C', type:'flexible',desc:'Dos extremos. Simultáneos. Difícil de esquivar.' },
+
+  // ── ARMAS DE DOS MANOS PESADAS (rango D-B) ──
+  { name:'Mandoble del cazador mayor',    rank:'D', type:'espada',  desc:'Requiere FUE mínima E. Corta en arco amplio.' },
+  { name:'Espadón de ceniza de Puerta',   rank:'C', type:'espada',  desc:'Absorbió energía de una Puerta de rango C.' },
+  { name:'Gran martillo del Titan Menor', rank:'C', type:'maza',    desc:'Requiere RES mínima D. El impacto crea onda de choque.' },
+  { name:'Hacha-espada del Carnicero',    rank:'B', type:'hacha',   desc:'Híbrido brutal. Corta y aplasta en el mismo movimiento.' },
+
+  // ── ARMAS ESPECIALES / ÚNICAS (rango C-A) ──
+  { name:'Cuchillas del vacío',           rank:'C', type:'daga',    desc:'Par de dagas. La derecha corta materia; la izquierda, mana.' },
+  { name:'Espada resonante',              rank:'C', type:'espada',  desc:'Vibra al acercarse a criaturas de rango superior. Alerta activa.' },
+  { name:'Lanza del primer cazador',      rank:'B', type:'lanza',   desc:'Perteneció al primer cazador registrado. Nadie sabe cómo murió.' },
+  { name:'Katana del protocolo',          rank:'B', type:'espada',  desc:'Grabados de NOEMIR en la hoja. Reacciona al estado mental del portador.' },
+  { name:'Arco de la silueta',            rank:'B', type:'arco',    desc:'Las flechas se vuelven translúcidas. Difíciles de rastrear.' },
+  { name:'Guantelete de ruptura',         rank:'A', type:'garras',  desc:'No es un arma. Es una extensión. Rompe barreras de rango B.' },
+
+  // ── ARMAS INVOCADAS / SOMBRAS (rango C-S) ──
+  { name:'Fragmento de sombra solidificada', rank:'C', type:'daga', desc:'Solo funciona en manos de un Invocador. Drena vida al impactar.' },
+  { name:'Espada de sombra de rango menor',  rank:'D', type:'espada',desc:'Invocada del vacío. Dura 10 minutos. Reabsorbida si se suelta.' },
+  { name:'Lanza espectral',               rank:'C', type:'lanza',   desc:'Proyectil de mana solidificado. Se disuelve al impactar.' },
+  { name:'Garras de la noche',            rank:'B', type:'garras',  desc:'Cuatro extensiones de sombra. Se curvan alrededor de defensas.' },
+
+  // ── ARMAS ELEMENTALES (rango D-A) ──
+  { name:'Espada de llama contenida',     rank:'D', type:'espada',  desc:'El filo arde levemente. Daño extra contra criaturas de hielo.' },
+  { name:'Hacha de tormenta',             rank:'C', type:'hacha',   desc:'Cada golpe libera una chispa eléctrica menor.' },
+  { name:'Lanza de glaciar',              rank:'C', type:'lanza',   desc:'Ralentiza lo que penetra. Criaturas de fuego: daño doble.' },
+  { name:'Espada de tormenta de arena',   rank:'B', type:'espada',  desc:'Al blandir crea interferencia visual. Dificulta la lectura de movimientos.' },
+  { name:'Báculo del ojo de la tormenta', rank:'A', type:'arcana',  desc:'El centro está siempre quieto. Todo alrededor no.' },
+];
+
+// ─── 60 ARTEFACTOS (equipables, obtenibles en misiones) ──────────────────────
+const ARTIFACTS = [
+  // ── PASIVOS DE COMBATE ──
+  { name:'Anillo de filo',              slot:'anillo',   rank:'E', desc:'Aumenta el daño base de armas de filo en +1.' },
+  { name:'Amuleto de impacto',          slot:'amuleto',  rank:'E', desc:'Reduce el tiempo de recuperación tras recibir un golpe.' },
+  { name:'Brazalete de tensión',        slot:'brazo',    rank:'E', desc:'+1 a las tiradas de FUE al escalar o forcejear.' },
+  { name:'Colgante de guardia',         slot:'amuleto',  rank:'E', desc:'Reduce daño del primer golpe recibido por escena.' },
+  { name:'Sello de velocidad menor',    slot:'anillo',   rank:'E', desc:'+1 AGI pasivo. Se destruye si AGI supera rango D.' },
+  { name:'Marca de resistencia',        slot:'piel',     rank:'E', desc:'Tatuaje activado. +2 RES mientras HP sea menor al 50%.' },
+  { name:'Ojo de cuarzo',               slot:'cabeza',   rank:'D', desc:'+2 PER. Detecta criaturas invisibles de rango E.' },
+  { name:'Guantes de reacción',         slot:'manos',    rank:'D', desc:'+2 AGI al esquivar. Solo activo si no portás escudo.' },
+  { name:'Faja de combate',             slot:'cintura',  rank:'D', desc:'+3 RES. Reduce daño de golpes al torso.' },
+  { name:'Medallón del primer umbral',  slot:'amuleto',  rank:'D', desc:'Al caer bajo 25% HP, recuperás 10 MP automáticamente.' },
+
+  // ── PASIVOS DE MANA Y HABILIDADES ──
+  { name:'Cristal de mana menor',       slot:'bolsillo', rank:'E', desc:'Recupera 5 MP al inicio de cada escena de combate.' },
+  { name:'Sello arcano grabado',        slot:'piel',     rank:'E', desc:'Tatuaje. Reduce el costo de la próxima habilidad en 2 MP.' },
+  { name:'Piedra resonante',            slot:'bolsillo', rank:'D', desc:'Al activar una habilidad activa, 10% de chance de no gastar MP.' },
+  { name:'Anillo del canal',            slot:'anillo',   rank:'D', desc:'+3 INT. Primer hechizo por escena cuesta -4 MP.' },
+  { name:'Fragmento de corazón de Puerta', slot:'amuleto', rank:'C', desc:'+5 INT. Genera 2 MP por escena pasivamente.' },
+  { name:'Esfera de absorción',         slot:'mano',     rank:'C', desc:'Absorbe hasta 15 MP de ataques mágicos recibidos.' },
+  { name:'Núcleo de invocación',        slot:'pecho',    rank:'C', desc:'Solo para Invocadores. Las sombras invocadas duran 2 escenas más.' },
+
+  // ── DETECCIÓN Y PERCEPCIÓN ──
+  { name:'Lente de ojo de araña',       slot:'cabeza',   rank:'E', desc:'Ve en la oscuridad absoluta de mazmorras básicas.' },
+  { name:'Oído de murciélago',          slot:'cabeza',   rank:'E', desc:'Detecta movimiento por vibración a 10 metros.' },
+  { name:'Nariz de sabueso',            slot:'cabeza',   rank:'D', desc:'+3 SEN. Rastrea por olor hasta 1 hora después del paso.' },
+  { name:'Ojo de la profundidad',       slot:'cabeza',   rank:'D', desc:'Lee el rango aproximado de criaturas al mirarlas.' },
+  { name:'Marca de rastreo',            slot:'piel',     rank:'C', desc:'Una vez marcada una presa, siempre sabés su dirección.' },
+  { name:'Lente de grieta',             slot:'cabeza',   rank:'C', desc:'Ve líneas de inestabilidad en estructuras y Puertas.' },
+
+  // ── MOVILIDAD Y EVASIÓN ──
+  { name:'Botas de paso suave',         slot:'pies',     rank:'E', desc:'Movimiento silencioso en superficies duras.' },
+  { name:'Tobilleras de salto',         slot:'pies',     rank:'D', desc:'+2 AGI al saltar o trepar.' },
+  { name:'Capa de distracción',         slot:'espalda',  rank:'D', desc:'Ante el primer ataque de una criatura nueva, chance de esquivar.' },
+  { name:'Botas de viento menor',       slot:'pies',     rank:'C', desc:'+4 AGI. Al correr, dejas rastro de polvo que confunde a criaturas lentas.' },
+  { name:'Anillo de paso velado',       slot:'anillo',   rank:'C', desc:'Una vez por escena: reposicionarte sin ser detectado.' },
+
+  // ── CURACIÓN Y SUPERVIVENCIA ──
+  { name:'Parche de regeneración',      slot:'piel',     rank:'E', desc:'Aplicado sobre una herida: cierra cortes menores entre escenas.' },
+  { name:'Colgante vital',              slot:'amuleto',  rank:'E', desc:'Al llegar a 0 HP por primera vez: sobrevivís con 1 HP. Se destruye.' },
+  { name:'Frasco de linfa de mazmorra', slot:'bolsillo', rank:'D', desc:'Consumible. Recupera 25 HP al usarlo. Un uso.' },
+  { name:'Núcleo de regeneración',      slot:'pecho',    rank:'D', desc:'Recupera 3 HP al inicio de cada escena si no estás en combate.' },
+  { name:'Amuleto de los caídos',       slot:'amuleto',  rank:'C', desc:'Al recibir daño letal: una vez por sesión, reducís el daño a la mitad.' },
+  { name:'Esencia de vitalidad mayor',  slot:'bolsillo', rank:'C', desc:'Consumible. Recupera 60 HP y elimina un estado alterado. Un uso.' },
+
+  // ── SOMBRAS E INVOCACIÓN ──
+  { name:'Sello de extracción',         slot:'manos',    rank:'D', desc:'Solo Invocadores. +20% de chance de extraer esencia al matar.' },
+  { name:'Fragmento del primer sol oscuro', slot:'amuleto', rank:'C', desc:'Las sombras invocadas tienen +3 a todos sus stats.' },
+  { name:'Máscara de la noche vacía',   slot:'cabeza',   rank:'C', desc:'Invisibilidad parcial en zonas sin luz. Solo visible si atacás.' },
+  { name:'Núcleo de sombra densa',      slot:'pecho',    rank:'B', desc:'Las invocaciones de sombra no cuestan MP en la primera escena de combate.' },
+
+  // ── RESISTENCIAS ELEMENTALES ──
+  { name:'Anillo de escudo ígneo',      slot:'anillo',   rank:'D', desc:'Reduce daño de fuego en un 15%.' },
+  { name:'Amuleto de escarcha',         slot:'amuleto',  rank:'D', desc:'Inmune a ralentización por frío de rango E.' },
+  { name:'Piedra de tierra firme',      slot:'bolsillo', rank:'D', desc:'Reduce daño por aplastamiento y derrumbe.' },
+  { name:'Anillo de la corriente',      slot:'anillo',   rank:'C', desc:'Reduce daño eléctrico en 25%. Conduce sin daño.' },
+  { name:'Núcleo de neutralización',    slot:'pecho',    rank:'C', desc:'Cada escena, anula un efecto de estado elemental automáticamente.' },
+
+  // ── ARTEFACTOS DE RANGO B+ ──
+  { name:'Ojo del protocolo',           slot:'cabeza',   rank:'B', desc:'Lee la estructura de habilidades enemigas al observar 2 ataques.' },
+  { name:'Corazón de la fractura',      slot:'pecho',    rank:'B', desc:'+5 a todos los stats. Solo activo si HP está bajo 40%.' },
+  { name:'Guantes del vacío',           slot:'manos',    rank:'B', desc:'Golpe sin arma inflige daño de rango D base. Sin costo de MP.' },
+  { name:'Sello del Monarca menor',     slot:'piel',     rank:'B', desc:'Aumenta la afinidad dominante del portador en +10.' },
+  { name:'Anillo del receptor',         slot:'anillo',   rank:'A', desc:'Una vez por sesión: absorbe la próxima habilidad recibida y la almacena.' },
+  { name:'Fragmento del Rey Oscuro',    slot:'amuleto',  rank:'S', desc:'Inerte. Pulsa levemente. NOEMIR no lo registra en el inventario oficial.' },
+];
+
+// ─── 30 CONJUNTOS DE ARMADURA ─────────────────────────────────────────────────
+const ARMOR_SETS = [
+  // ── RANGO F-E (iniciales, básicas) ──
+  { name:'Ropa de calle reforzada',      rank:'F', desc:'Capas interiores endurecidas. No es armadura. Pero algo es algo.', bonus:'+1 RES' },
+  { name:'Cuero de trabajo',             rank:'F', desc:'Cuero grueso de trabajo manual. Cubre torso y brazos.', bonus:'+2 RES' },
+  { name:'Armadura ligera de rango F',   rank:'E', desc:'Estándar de la Asociación para nuevos cazadores. Cubre lo básico.', bonus:'+3 RES · +1 AGI' },
+  { name:'Conjunto de cuero de criatura',rank:'E', desc:'Curtido de una bestia de la Puerta. Más resistente que el cuero animal.', bonus:'+4 RES · +1 SEN' },
+  { name:'Cota de malla ligera',         rank:'E', desc:'Anillos de metal menudo. Pesa pero aguanta más que el cuero.', bonus:'+5 RES · -1 AGI' },
+
+  // ── RANGO D (primer equipo real) ──
+  { name:'Armadura de explorador',       rank:'D', desc:'Ligera, articulada. El estándar de cazadores de campo independientes.', bonus:'+4 RES · +3 AGI · +1 PER' },
+  { name:'Cota de placas de cazador',    rank:'D', desc:'Placas metálicas sobre cuero de criatura. Equilibrio entre defensa y movimiento.', bonus:'+7 RES · +1 FUE · -1 AGI' },
+  { name:'Conjunto del asesino menor',   rank:'D', desc:'Diseñado para sigilo. Tela oscura, sin partes metálicas que brillen.', bonus:'+3 RES · +4 AGI · +2 SEN' },
+  { name:'Armadura de aprendiz de mago', rank:'D', desc:'Refuerzos mágicos en los hombros. Reduce dispersión de hechizos propios.', bonus:'+3 RES · +4 INT · +1 MP por escena' },
+  { name:'Coraza del gremio menor',      rank:'D', desc:'De un gremio que ya no existe. Buena calidad, historia pesada.', bonus:'+8 RES · +2 FUE' },
+
+  // ── RANGO C (equipo de cazador establecido) ──
+  { name:'Armadura de caparazón de bestia', rank:'C', desc:'Placas de una criatura de rango C. Absorbe magia menor pasivamente.', bonus:'+10 RES · +3 FUE · -2 AGI' },
+  { name:'Conjunto del cazador élite',   rank:'C', desc:'Grado C de la Asociación. Otorgado, no comprado.', bonus:'+8 RES · +4 AGI · +2 PER' },
+  { name:'Armadura del invocador',       rank:'C', desc:'Tela reforzada con hilos de mana. Las invocaciones cercanas son más estables.', bonus:'+5 RES · +6 INT · +3 SEN' },
+  { name:'Cota de escamas de dragón menor', rank:'C', desc:'Material rarísimo para este rango. Escamas de una criatura pre-Puerta.', bonus:'+12 RES · +2 RES elemental' },
+  { name:'Armadura del umbral',          rank:'C', desc:'Forjada en los límites de una Puerta de rango C. Inestable pero poderosa.', bonus:'+9 RES · +4 FUE · +2 INT' },
+
+  // ── RANGO B (equipo de élite) ──
+  { name:'Conjunto del cazador de sombras', rank:'B', desc:'Cuero de criatura del vacío. Absorbe algo de luz en movimiento.', bonus:'+8 RES · +6 AGI · +5 SEN · invisibilidad parcial en sombras' },
+  { name:'Armadura de hierro oscuro',    rank:'B', desc:'Metal extraído de Puertas de rango B. Extremadamente denso.', bonus:'+18 RES · +5 FUE · -3 AGI' },
+  { name:'Ropajes del arcanista mayor',  rank:'B', desc:'Siete capas de tela tratada. Cada capa lleva un sello diferente.', bonus:'+6 RES · +10 INT · +4 SEN · -15% costo MP' },
+  { name:'Coraza del centinela de Puerta', rank:'B', desc:'Del personal de protección de Puertas de nivel alto. Ya no existe ese cuerpo.', bonus:'+20 RES · +6 FUE · +2 RES elemental' },
+  { name:'Conjunto del primer recipiente', rank:'B', desc:'NOEMIR lo generó para un recipiente anterior. Nunca fue usado.', bonus:'+10 RES · +5 a todos los stats · marcado por el protocolo' },
+
+  // ── RANGO A-S (legendario) ──
+  { name:'Armadura del ejecutor',        rank:'A', desc:'Una pieza completa. Ningún gremio la fabrica. Nadie sabe de dónde vino.', bonus:'+25 RES · +8 FUE · +5 AGI · -25% daño recibido de rango B o menos' },
+  { name:'Velo de la sombra mayor',      rank:'A', desc:'No es una armadura. Es una presencia. Se adhiere al cuerpo del portador.', bonus:'+12 RES · +10 AGI · +8 SEN · movimiento no detectable bajo rango A' },
+  { name:'Coraza del Monarca Menor',     rank:'A', desc:'Un fragmento de la armadura de un Monarca. No completa. Pero activa.', bonus:'+30 RES · +10 FUE · +5 INT · afinidad dominante +15' },
+  { name:'Vestiduras del Gobernante',    rank:'S', desc:'No pesa. No cubre. Y aun así nada la atraviesa. NOEMIR no la registra.', bonus:'+15 a todos los stats · inmune a estados alterados de rango B o menos' },
+  { name:'Armadura del Rey de las Sombras', rank:'S', desc:'Fragmentada. Inerte. Perteneció al primer recipiente que llegó al límite. Perteneció a Jin-Woo.', bonus:'Desconocido hasta que NOEMIR la evalúe' },
+
+  // ── CONJUNTOS PARCIALES / ESPECIALES ──
+  { name:'Medio equipo del asesino',     rank:'D', desc:'Solo capucha, pechera y guantes. Liviano, incompleto, efectivo.', bonus:'+4 RES · +5 AGI · +2 SEN' },
+  { name:'Casco de combate de rango E',  rank:'E', desc:'Protege la cabeza. Solo eso.', bonus:'+2 RES · +1 PER' },
+  { name:'Escudo de placa liviano',      rank:'D', desc:'No es armadura pero bloquea. Se lleva en el brazo izquierdo.', bonus:'+5 RES · bloqueo pasivo ante primer ataque de escena' },
+  { name:'Guanteletes del cazador',      rank:'C', desc:'Solo las manos. Refuerzan el agarre y protegen contra contraataques.', bonus:'+3 RES · +3 FUE en ataques desarmados' },
+  { name:'Capa del protocolo',           rank:'C', desc:'Genera NOEMIR en recipientes con más de 20 escenas. Aparece sin aviso.', bonus:'+4 a todos los stats · afinidad dominante +5 · reemplaza ropa actual' },
+];
+
+
 
 const STORIES = [
   {
@@ -1858,6 +2164,34 @@ function copySummary() {
 
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
+// ═══ CATÁLOGO DE EQUIPO ═══
+function showEquipCatalog() {
+  document.getElementById('equip-catalog-modal').classList.remove('hidden');
+  renderEquipTab('weapons');
+}
+
+function renderEquipTab(tab) {
+  document.querySelectorAll('.eq-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const body = document.getElementById('eq-body');
+  const rankColors = {F:'var(--text3)',E:'var(--text2)',D:'var(--text)',C:'var(--warn)',B:'var(--danger)',A:'var(--accent)',S:'var(--success)'};
+
+  let items = [];
+  if(tab === 'weapons') items = MISSION_WEAPONS.map(w => ({ name:w.name, sub:w.type+' · '+w.rank, rank:w.rank, desc:w.desc }));
+  else if(tab === 'artifacts') items = ARTIFACTS.map(a => ({ name:a.name, sub:a.slot+' · '+a.rank, rank:a.rank, desc:a.desc }));
+  else if(tab === 'armor') items = ARMOR_SETS.map(a => ({ name:a.name, sub:'Rango '+a.rank, rank:a.rank, desc:a.desc+' — '+a.bonus }));
+
+  body.innerHTML = items.map(it => `
+    <div style="border-bottom:1px solid var(--border);padding:8px 0;display:flex;gap:10px;align-items:flex-start">
+      <span style="font-family:var(--mono);font-size:11px;min-width:28px;color:${rankColors[it.rank]||'var(--text)'}">${it.rank}</span>
+      <div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text)">${it.name}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${it.sub}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">${it.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+
 function exportState() {
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -2013,6 +2347,22 @@ function toggleSidebar() {
     </div>
     <div class="modal-actions">
       <button class="btn-primary" id="sp-confirm-btn" onclick="confirmStatPoints()">Confirmar</button>
+    </div>
+  </div>
+</div>
+<!-- EQUIP CATALOG MODAL -->
+<div class="modal-overlay hidden" id="equip-catalog-modal">
+  <div class="modal" style="width:580px;max-height:80vh;display:flex;flex-direction:column">
+    <h2>// catálogo de equipo NOEMIR</h2>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-shrink:0">
+      <button class="eq-tab btn-sm active" data-tab="weapons" onclick="renderEquipTab('weapons')">⚔️ armas (70)</button>
+      <button class="eq-tab btn-sm" data-tab="artifacts" onclick="renderEquipTab('artifacts')">💎 artefactos (60)</button>
+      <button class="eq-tab btn-sm" data-tab="armor" onclick="renderEquipTab('armor')">🛡️ armaduras (30)</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;flex-shrink:0">// solo obtenibles mediante misiones y exploración · no disponibles al inicio</div>
+    <div id="eq-body" style="overflow-y:auto;flex:1;padding-right:4px"></div>
+    <div class="modal-actions" style="flex-shrink:0">
+      <button class="btn-primary" onclick="closeModal('equip-catalog-modal')">cerrar</button>
     </div>
   </div>
 </div>
