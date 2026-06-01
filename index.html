@@ -650,6 +650,7 @@ C — Fuerza táctica. Capacidad de operar en equipo élite.
 B — Élite. Amenaza para unidades militares convencionales.
 A — Calamidad regional. Puede devastar una ciudad.
 S — Entidad extraordinaria. Clasificado como peligro nacional.
+SS — Amenaza continental. Capaz de alterar el destino de naciones enteras.
 SSS — Clase nacional. Existencia que redefine el equilibrio del mundo.
 
 La diferencia entre rangos es ABISMAL:
@@ -661,26 +662,51 @@ Los rangos son categorías de existencia distintas, no escalones numéricos.
 ═══ SISTEMA DE STATS Y RANGO ═══
 Cada estadística (FUE, AGI, PER, RES, INT, SEN) es un NÚMERO ENTERO que sube gradualmente.
 El rango letra se deriva automáticamente del número:
-  0–17 = F | 18–37 = E | 38–69 = D | 70–114 = C | 115–169 = B | 170–237 = A | 238–337 = S | 338+ = SSS
+  0–17 = F | 18–37 = E | 38–69 = D | 70–114 = C | 115–169 = B | 170–237 = A | 238–337 = S | 338–449 = SS | 450+ = SSS
 
 El RANGO GLOBAL del personaje es el promedio de las 6 estadísticas numéricas.
 Un stat alto en una sola área NO sube el rango global. Ejemplo:
   FUE:50(D) AGI:5(F) PER:5(F) RES:5(F) INT:5(F) SEN:5(F) → promedio 13 → Rango global: F
 
 ═══ RECOMPENSAS DE STATS ═══
-Las recompensas siempre son incrementos numéricos. Ejemplos:
-  FUE +2 | AGI +1 | RES +3
-Magnitudes según el logro:
-• Entrenamiento rutinario: +1 en un stat relevante (máximo una vez por sesión de entrenamiento)
-• Combate real ganado: +1 a +3 según dificultad
-• Superar un enemigo de rango superior: +3 a +8
-• Misión difícil completada: +5 a +10 distribuidos
-• Evento único / prueba de NOEMIR: +10 a +20, con costo narrativo
-NUNCA otorgues más de +20 total en una sola escena.
+Las recompensas siempre son incrementos numéricos. Ejemplos: FUE +2 | AGI +1 | RES +3
+El límite máximo total por escena escala con el rango global del personaje:
+  Rango F: máx +8 total | Rango E: máx +12 | Rango D: máx +16 | Rango C: máx +20
+  Rango B: máx +25 | Rango A: máx +30 | Rango S: máx +35 | Rango SS: máx +40 | Rango SSS: máx +50
+Nunca superes ese tope en una sola escena sin importar qué ocurra.
+
+═══ ENTRENAMIENTO ESCALADO POR RANGO ═══
+El entrenamiento físico o mental SOLO da puntos si es proporcionalmente exigente al rango actual.
+Un rango F haciendo flexiones → válido. Un rango A haciendo flexiones → sin efecto.
+El entrenamiento debe ser proporcionalmente más peligroso, exigente y costoso según el rango:
+
+Rango F — Entrenamiento básico (correr, pesas, meditación básica)
+  → máx +1 por sesión. Accesible. Sin riesgo real.
+
+Rango E — Entrenamiento moderado (sparring, circuitos de resistencia, mazmorra de rango E)
+  → máx +2 por sesión. Requiere esfuerzo sostenido. Posibles lesiones menores.
+
+Rango D — Entrenamiento duro (combate simulado, carga extrema, meditación de mana activa)
+  → máx +3 por sesión. Riesgo real de agotamiento. Requiere recuperación.
+
+Rango C — Entrenamiento de élite (combate con cazadores de rango superior, métodos de gremio avanzados)
+  → máx +4 por sesión. Alta probabilidad de daño. NOEMIR lo monitorea de cerca.
+
+Rango B — Entrenamiento extremo (exposición a entornos de Puerta de alto rango, métodos experimentales)
+  → máx +5 por sesión. Riesgo vital real. Puede dejar heridas permanentes si falla.
+
+Rango A — Entrenamiento límite (técnicas prohibidas, pruebas de NOEMIR, exposición a energía de rango S)
+  → máx +6 por sesión. Cada sesión es un evento narrativo mayor. Consecuencias irreversibles posibles.
+
+Rango S / SS — Entrenamiento trascendente (solo existe en condiciones únicas, mazmorras de rango S+, enfrentamiento con entidades)
+  → máx +8 por sesión. No puede repetirse. Cada sesión cambia al personaje de forma permanente.
+
+REGLA DE EXIGENCIA: Si el jugador intenta entrenar con un método inadecuado para su rango actual,
+NOEMIR lo interrumpe y describe por qué ese entrenamiento ya no produce efecto. Sugiere el nivel correcto.
 
 ═══ ANTI-POWERCREEP ═══
-REGLA ABSOLUTA: el entrenamiento solo NUNCA produce +5 o más. Máximo +1 por sesión.
-El jugador necesita combate real para crecer. Sin peligro, sin progreso real.
+El entrenamiento sin riesgo real NUNCA produce mejora. La comodidad no forja al recipiente.
+Sin peligro proporcional al rango → sin crecimiento. Siempre.
 
 ═══ BLOQUEOS DE PROGRESO ═══
 Cuando el personaje intente crecer más allá de lo que su historial justifica, NOEMIR interrumpe:
@@ -1753,7 +1779,7 @@ Escenas jugadas: ${scenes}
 ${m.name ? `Directiva activa: ${m.name} | Obj: ${m.obj} | Pen: ${m.penalty}` : 'Sin directiva activa'}
 Afinidad: ${affReveal ? `Dominante: ${domAff} (podés revelar pistas directas)` : 'CLASIFICADO — solo pistas ambientales sutiles'}
 
-RECORDATORIO ANTI-POWERCREEP: El personaje está en rango ${calcedRank} (promedio numérico de stats). Las recompensas de stats son incrementos numéricos (+1, +2, +3...). Entrenamiento: máximo +1. Combate: +1 a +3. Superar rango superior: +3 a +8. Nunca más de +20 total por escena.`;
+RECORDATORIO ANTI-POWERCREEP: El personaje está en rango ${calcedRank}. Tope de entrenamiento por rango: F→+1 | E→+2 | D→+3 | C→+4 | B→+5 | A→+6 | S/SS→+8. Tope total por escena: F→+8 | E→+12 | D→+16 | C→+20 | B→+25 | A→+30 | S→+35 | SS→+40 | SSS→+50. El entrenamiento sin riesgo proporcional al rango NO produce efecto.`;
 }
 
 function getDominantAff() {
@@ -1893,12 +1919,12 @@ async function callAI(userMsg, isInit = false) {
 
 // ═══ SISTEMA DE STATS NUMÉRICO ═══
 // Stats son números enteros. El rango letra se deriva del valor.
-// Rangos: F=0-17, E=18-37, D=38-69, C=70-114, B=115-169, A=170-237, S=238-337, SSS=338+
+// Rangos: F=0-17, E=18-37, D=38-69, C=70-114, B=115-169, A=170-237, S=238-337, SS=338-449, SSS=450+
 const RANK_THRESHOLDS = [
-  [338, 'SSS'], [238, 'S'], [170, 'A'], [115, 'B'],
+  [450, 'SSS'], [338, 'SS'], [238, 'S'], [170, 'A'], [115, 'B'],
   [70, 'C'], [38, 'D'], [18, 'E'], [0, 'F']
 ];
-const RANK_CAP = { F:17, E:37, D:69, C:114, B:169, A:237, S:337, SSS:400 };
+const RANK_CAP = { F:17, E:37, D:69, C:114, B:169, A:237, S:337, SS:449, SSS:600 };
 
 function rankFromValue(val) {
   for(const [threshold, rank] of RANK_THRESHOLDS) {
@@ -2288,6 +2314,7 @@ renderSidebar();
 <span style="color:var(--warn)">B</span>   — Élite. Amenaza para ejércitos convencionales.
 <span style="color:var(--danger)">A</span>   — Calamidad regional. Puede devastar una ciudad.
 <span style="color:var(--accent)">S</span>   — Entidad extraordinaria. Peligro nacional.
+<span style="color:var(--accent)">SS</span>  — Amenaza continental. Altera el destino de naciones.
 <span style="color:var(--success)">SSS</span> — Clase nacional. Redefine el equilibrio del mundo.
 
 <span style="color:var(--text3)">─── diferencia entre rangos ───</span>
