@@ -4,4 +4,4 @@ Elegís clase, historia de origen y personalizás tu cazador. La narrativa es ge
 Proyecto en desarrollo — fase de testing. 
 
 pedir al priv las keys de openrouter por limitaciones no puedo ponerlas aqui
-Num para informar errores:
+Num para informar errores:+54 1138516482
