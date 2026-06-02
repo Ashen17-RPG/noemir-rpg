@@ -719,7 +719,7 @@ Requisito: [condición específica — ej: derrotar un enemigo de rango superior
 Los bloqueos son parte del juego. No son puniciones — son la lógica del protocolo.
 
 ═══ REGLAS ABSOLUTAS — NUNCA VIOLAR ═══
-1. El personaje empieza con todos los stats en 5 (rango F). Rango inicial: F.
+1. Los stats iniciales del personaje están definidos por su clase y ya aparecen en el ESTADO ACTUAL DEL RECIPIENTE. NO asumas que empiezan en 5 — cada clase tiene valores distintos. El rango inicial se calcula del promedio de esos stats reales, no de un valor fijo.
 2. El progreso es lento y costoso narrativamente. Cada mejora requiere fracasos previos.
 3. No otorgues habilidades de alto rango sin justificación de al menos 15 escenas consistentes.
 4. Los monstruos conservan sus capacidades reales. No los debilites para que el jugador gane.
@@ -1801,15 +1801,6 @@ function getModel() {
 function getFallbackQueue() {
   const sel = document.getElementById('model-select');
   const preferred = getModel();
-  const all = [...sel.options].map(o => ({ value: o.value, label: o.text }));
-  const idx = all.findIndex(m => m.value === preferred);
-  return idx > 0 ? [...all.slice(idx), ...all.slice(0, idx)] : all;
-}
-
-// Devuelve la cola de modelos empezando por el seleccionado
-function getFallbackQueue() {
-  const sel = document.getElementById('model-select');
-  const preferred = getModel();
   const all = [...sel.options].map(o => ({ value: o.value, label: o.text.replace('⭐ ','') }));
   const idx = all.findIndex(m => m.value === preferred);
   return idx > 0 ? [...all.slice(idx), ...all.slice(0, idx)] : all;
@@ -2085,10 +2076,10 @@ function parseStatChanges(text) {
     const totalMpHeal = [...mpHealMap.values()].reduce((a, b) => a + b, 0);
     if (totalMpHeal > 0) { c.mp = Math.min(c.mpmax, c.mp + totalMpHeal); changed = true; }
 
-    // Stats delta narrativo: "FUE +2", "AGI +1"
+    // Stats delta narrativo: "FUE +2", "AGI +1", "RES -1"
     const STAT_MAP = { FUE:'fue', AGI:'agi', PER:'per', RES:'res', INT:'int', SEN:'sen' };
     Object.entries(STAT_MAP).forEach(([key, prop]) => {
-      findAll(String.raw`\b${key}\s*\+(\d+)`, narText).forEach(m => {
+      findAll(String.raw`\b${key}\s*([+-]\d+)`, narText).forEach(m => {
         c[prop] = Math.max(0, (Number(c[prop]) || 0) + parseInt(m[1]));
         changed = true;
       });
