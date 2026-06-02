@@ -7,3 +7,4 @@ Proyecto en desarrollo — fase de testing.
 
 pedir al priv las keys de openrouter por limitaciones no puedo ponerlas aqui
 Num para informar errores y pedir las keys:+54 1138516482
+Mercado pago para donaciones:ocampo.ian.mp
