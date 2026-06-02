@@ -747,12 +747,14 @@ Recompensa: [stat o habilidad]
 Penalización: [consecuencia]
 [FIN]
 
-- IMPORTANTE — CAMBIOS DE STATS: Cuando el personaje reciba daño, cure HP, o gaste MP, SIEMPRE emitir un bloque [NOEMIR] inmediato con el nuevo valor:
+- CRÍTICO — BLOQUE DE ESTADO OBLIGATORIO: Al final de CADA respuesta donde haya cambiado HP, MP, o cualquier stat numérico (FUE/AGI/PER/RES/INT/SEN), SIEMPRE emitir este bloque exacto sin excepción:
 [NOEMIR]
-HP: [valor actual]/[valor máximo]
-MP: [valor actual]/[valor máximo]
+HP: [número entero actual]/[número entero máximo]
+MP: [número entero actual]/[número entero máximo]
+FUE: [valor] | AGI: [valor] | PER: [valor] | RES: [valor] | INT: [valor] | SEN: [valor]
 [FIN]
-Usá este bloque cada vez que los stats cambien, incluso si no hay directiva activa.
+Este bloque es OBLIGATORIO aunque solo cambie un valor. Los números deben ser enteros exactos sin símbolos extra. Si no cambia nada, igual emitirlo con los valores actuales al final de combate o entrenamiento.
+El formato debe ser EXACTAMENTE el indicado — sin espacios adicionales, sin saltos entre líneas del bloque, sin texto extra dentro del bloque.
 
 ═══ EQUIPO DEL MUNDO ═══
 El mundo tiene tres categorías de equipo obtenible mediante misiones y exploración. La IA debe otorgarlos narrativamente — nunca como lista de ítems. Describí cómo el personaje lo encuentra, lo obtiene, o se lo dan.
@@ -1041,12 +1043,13 @@ function getModel() {
   return localStorage.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
 }
 
-function showNotif(msg) {
+function showNotif(msg, type) {
   const n = document.createElement('div');
-  n.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:12px;padding:8px 14px;border-radius:4px;z-index:200;animation:fadeIn .2s ease';
+  const color = type === 'danger' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--accent)';
+  n.style.cssText = `position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid ${color};color:${color};font-family:var(--mono);font-size:12px;padding:8px 14px;border-radius:4px;z-index:200;animation:fadeIn .2s ease`;
   n.textContent = msg;
   document.body.appendChild(n);
-  setTimeout(() => n.remove(), 2000);
+  setTimeout(() => n.remove(), type === 'danger' ? 3500 : 2000);
 }
 
 function renderSidebar() {
@@ -1943,126 +1946,172 @@ function calcRankFromStats(char) {
 function parseStatChanges(text) {
   const c = state.char;
   let changed = false;
+  let notifications = [];
 
-  // Helper: crea un regex nuevo cada vez para evitar lastIndex compartido
-  function findAll(pattern, str) {
-    const re = new RegExp(pattern, 'gi');
-    const results = [];
-    let m;
-    while((m = re.exec(str)) !== null) results.push(m);
-    return results;
-  }
+  // ── Prioridad 1: bloques [NOEMIR] o [SISTEMA] ──
+  const blockRe = /\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\]([\s\S]*?)\[FIN\]/gi;
+  const blocks = [...text.matchAll(blockRe)];
 
-  // ── Prioridad 1: bloques [NOEMIR] o [SISTEMA] con HP/MP/stats ──
-  const noemirBlocks = [...text.matchAll(/\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\]([\s\S]*?)\[FIN\]/gi)];
-  if(noemirBlocks.length) {
-    noemirBlocks.forEach(bm => {
-      const block = bm[0];
-      // HP
-      const hpFull = block.match(/HP[:\s]+(\d+)\s*\/\s*(\d+)/i);
-      if(hpFull) {
-        c.hp = Math.max(0, Math.min(parseInt(hpFull[1]), c.hpmax));
-        c.hpmax = parseInt(hpFull[2]);
-        changed = true;
+  if (blocks.length) {
+    blocks.forEach(bm => {
+      const b = bm[1];
+
+      // HP absoluto: "HP: 45/100"
+      const hpAbs = b.match(/HP\s*:\s*(\d+)\s*\/\s*(\d+)/i);
+      if (hpAbs) {
+        const prev = c.hp;
+        c.hpmax = Math.max(1, parseInt(hpAbs[2]));
+        c.hp    = Math.max(0, Math.min(parseInt(hpAbs[1]), c.hpmax));
+        if (c.hp !== prev) changed = true;
       } else {
-        const hpDelta = block.match(/HP\s*([+-]\d+)/i);
-        if(hpDelta) { c.hp = Math.max(0, Math.min(c.hp + parseInt(hpDelta[1]), c.hpmax)); changed = true; }
-      }
-      // MP
-      const mpFull = block.match(/MP[:\s]+(\d+)\s*\/\s*(\d+)/i);
-      if(mpFull) {
-        c.mp = Math.max(0, Math.min(parseInt(mpFull[1]), c.mpmax));
-        c.mpmax = parseInt(mpFull[2]);
-        changed = true;
-      } else {
-        const mpDelta = block.match(/MP\s*([+-]\d+)/i);
-        if(mpDelta) { c.mp = Math.max(0, Math.min(c.mp + parseInt(mpDelta[1]), c.mpmax)); changed = true; }
-      }
-      // Stats numéricos: FUE +2, AGI -1, etc.
-      const statKeys = { FUE:'fue', AGI:'agi', PER:'per', RES:'res', INT:'int', SEN:'sen' };
-      Object.entries(statKeys).forEach(([key, prop]) => {
-        const m = block.match(new RegExp(key + '\\s*([+-]\\d+)', 'i'));
-        if(m) {
-          c[prop] = Math.max(0, (Number(c[prop]) || 0) + parseInt(m[1]));
+        // HP delta: "HP -30" o "HP +20"
+        const hpD = b.match(/HP\s*([+-]\d+)/i);
+        if (hpD) {
+          c.hp = Math.max(0, Math.min(c.hp + parseInt(hpD[1]), c.hpmax));
           changed = true;
+        }
+      }
+
+      // MP absoluto: "MP: 30/50"
+      const mpAbs = b.match(/MP\s*:\s*(\d+)\s*\/\s*(\d+)/i);
+      if (mpAbs) {
+        const prev = c.mp;
+        c.mpmax = Math.max(1, parseInt(mpAbs[2]));
+        c.mp    = Math.max(0, Math.min(parseInt(mpAbs[1]), c.mpmax));
+        if (c.mp !== prev) changed = true;
+      } else {
+        // MP delta: "MP -10"
+        const mpD = b.match(/MP\s*([+-]\d+)/i);
+        if (mpD) {
+          c.mp = Math.max(0, Math.min(c.mp + parseInt(mpD[1]), c.mpmax));
+          changed = true;
+        }
+      }
+
+      // Stats: "FUE: 12" (valor absoluto) o "FUE +3" / "FUE: +3" (delta)
+      const STAT_MAP = { FUE:'fue', AGI:'agi', PER:'per', RES:'res', INT:'int', SEN:'sen' };
+      Object.entries(STAT_MAP).forEach(([key, prop]) => {
+        // Absolute value from stat line: "FUE: 14 |" or "FUE: 14\n"
+        const absM = b.match(new RegExp(key + '\\s*:\\s*(\\d+)', 'i'));
+        if (absM) {
+          const val = Math.max(0, parseInt(absM[1]));
+          if (val !== (Number(c[prop]) || 0)) {
+            c[prop] = val;
+            changed = true;
+          }
+          return;
+        }
+        // Delta: "FUE +3" or "FUE: +3"
+        const deltaM = b.match(new RegExp(key + '\\s*:?\\s*([+-]\\d+)', 'i'));
+        if (deltaM && deltaM[1].match(/^[+-]/)) {
+          const prev = Number(c[prop]) || 0;
+          c[prop] = Math.max(0, prev + parseInt(deltaM[1]));
+          if (c[prop] !== prev) changed = true;
         }
       });
     });
-  }
-
-  // ── Prioridad 2: patrones narrativos (solo si no hubo bloque con HP) ──
-  if(!changed) {
-    // Quitar los bloques del texto narrativo para no parsear dentro de ellos
+  } else {
+    // ── Prioridad 2: parseo narrativo (cuando la IA no emitió bloque) ──
     const narText = text.replace(/\[(?:NOEMIR(?:\s+PROTOCOL)?|SISTEMA)\][\s\S]*?\[FIN\]/gi, '');
 
+    function findAll(pattern, str) {
+      const re = new RegExp(pattern, 'gi');
+      const results = [];
+      let m;
+      while ((m = re.exec(str)) !== null) results.push(m);
+      return results;
+    }
+
+    // HP absoluto narrativo
     let hpSet = null;
-    const hpSetPatterns = [
+    [
       String.raw`(?:tu\s+)?hp\s+(?:cae\s+a|es\s+ahora|queda(?:s)?\s+(?:en|a)|:\s*)(\d+)`,
       String.raw`te\s+quedan\s+(\d+)\s+(?:puntos?\s+de\s+)?hp`,
-    ];
-    hpSetPatterns.forEach(p => {
-      findAll(p, narText).forEach(m => { hpSet = parseInt(m[1]); });
-    });
-    if(hpSet !== null) {
+    ].forEach(p => findAll(p, narText).forEach(m => { hpSet = parseInt(m[1]); }));
+
+    if (hpSet !== null) {
       c.hp = Math.max(0, Math.min(hpSet, c.hpmax));
       changed = true;
     } else {
-      const dmgPatterns = [
+      // Daño
+      const dmgMap = new Map();
+      [
         String.raw`recib[ií]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?da[ñn]o`,
         String.raw`sufr[ií]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?da[ñn]o`,
         String.raw`perd[eé]s\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
         String.raw`(?:el\s+golpe|el\s+ataque|la\s+herida|el\s+impacto)\s+te\s+quita\s+(\d+)`,
-      ];
-      const dmgHits = new Map();
-      dmgPatterns.forEach(p => {
-        findAll(p, narText).forEach(m => {
-          if(!dmgHits.has(m.index)) dmgHits.set(m.index, parseInt(m[1]));
-        });
-      });
-      const totalDmg = [...dmgHits.values()].reduce((a, b) => a + b, 0);
-      if(totalDmg > 0) { c.hp = Math.max(0, c.hp - totalDmg); changed = true; }
+        String.raw`(-\d+)\s*hp`,
+      ].forEach(p => findAll(p, narText).forEach(m => {
+        if (!dmgMap.has(m.index)) dmgMap.set(m.index, Math.abs(parseInt(m[1])));
+      }));
+      const totalDmg = [...dmgMap.values()].reduce((a, b) => a + b, 0);
+      if (totalDmg > 0) { c.hp = Math.max(0, c.hp - totalDmg); changed = true; }
 
-      const healPatterns = [
+      // Curación
+      const healMap = new Map();
+      [
         String.raw`recuper[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
         String.raw`san[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
-        String.raw`restaura\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
-      ];
-      const healHits = new Map();
-      healPatterns.forEach(p => {
-        findAll(p, narText).forEach(m => {
-          if(!healHits.has(m.index)) healHits.set(m.index, parseInt(m[1]));
-        });
-      });
-      const totalHeal = [...healHits.values()].reduce((a, b) => a + b, 0);
-      if(totalHeal > 0) { c.hp = Math.min(c.hpmax, c.hp + totalHeal); changed = true; }
+        String.raw`restaura(?:s)?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?hp`,
+        String.raw`\+(\d+)\s*hp`,
+      ].forEach(p => findAll(p, narText).forEach(m => {
+        if (!healMap.has(m.index)) healMap.set(m.index, parseInt(m[1]));
+      }));
+      const totalHeal = [...healMap.values()].reduce((a, b) => a + b, 0);
+      if (totalHeal > 0) { c.hp = Math.min(c.hpmax, c.hp + totalHeal); changed = true; }
     }
 
-    const mpPatterns = [
+    // MP gasto / recuperación narrativo
+    const mpSpentMap = new Map();
+    [
       String.raw`gast[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?mp`,
       String.raw`consum[ií]s\s+(\d+)\s+(?:de\s+)?mp`,
       String.raw`cuesta\s+(\d+)\s+mp`,
-    ];
-    const mpHits = new Map();
-    mpPatterns.forEach(p => {
-      findAll(p, narText).forEach(m => {
-        if(!mpHits.has(m.index)) mpHits.set(m.index, parseInt(m[1]));
+      String.raw`(-\d+)\s*mp`,
+    ].forEach(p => findAll(p, narText).forEach(m => {
+      if (!mpSpentMap.has(m.index)) mpSpentMap.set(m.index, Math.abs(parseInt(m[1])));
+    }));
+    const totalMpCost = [...mpSpentMap.values()].reduce((a, b) => a + b, 0);
+    if (totalMpCost > 0) { c.mp = Math.max(0, c.mp - totalMpCost); changed = true; }
+
+    const mpHealMap = new Map();
+    [
+      String.raw`recuper[aá]s?\s+(\d+)\s+(?:puntos?\s+de\s+)?(?:de\s+)?mp`,
+      String.raw`restaura(?:s)?\s+(\d+)\s+(?:de\s+)?mp`,
+      String.raw`\+(\d+)\s*mp`,
+    ].forEach(p => findAll(p, narText).forEach(m => {
+      if (!mpHealMap.has(m.index)) mpHealMap.set(m.index, parseInt(m[1]));
+    }));
+    const totalMpHeal = [...mpHealMap.values()].reduce((a, b) => a + b, 0);
+    if (totalMpHeal > 0) { c.mp = Math.min(c.mpmax, c.mp + totalMpHeal); changed = true; }
+
+    // Stats delta narrativo: "FUE +2", "AGI +1"
+    const STAT_MAP = { FUE:'fue', AGI:'agi', PER:'per', RES:'res', INT:'int', SEN:'sen' };
+    Object.entries(STAT_MAP).forEach(([key, prop]) => {
+      findAll(String.raw`\b${key}\s*\+(\d+)`, narText).forEach(m => {
+        c[prop] = Math.max(0, (Number(c[prop]) || 0) + parseInt(m[1]));
+        changed = true;
       });
     });
-    const totalMpCost = [...mpHits.values()].reduce((a, b) => a + b, 0);
-    if(totalMpCost > 0) { c.mp = Math.max(0, c.mp - totalMpCost); changed = true; }
   }
 
-  // ── Auto-recalcular rango por promedio de stats ──
+  // ── Auto-recalcular rango ──
   const calcedRank = calcRankFromStats(c);
-  if(calcedRank !== c.rank) {
+  if (calcedRank !== c.rank) {
+    const prev = c.rank;
     c.rank = calcedRank;
     changed = true;
+    notifications.push(`⬆ RANGO AUMENTADO: ${prev} → ${calcedRank}`);
   }
 
-  if(changed) {
+  if (changed) {
+    saveState();
     renderSidebar();
-    if(c.hp <= c.hpmax * 0.25 && c.hp > 0) showNotif('⚠ HP CRÍTICO: ' + c.hp + '/' + c.hpmax);
-    if(c.hp === 0) showNotif('☠ HP EN CERO — recipiente caído');
+    if (c.hp <= Math.floor(c.hpmax * 0.25) && c.hp > 0)
+      showNotif('⚠ HP CRÍTICO: ' + c.hp + '/' + c.hpmax, 'danger');
+    if (c.hp === 0)
+      showNotif('☠ HP EN CERO — recipiente caído', 'danger');
+    notifications.forEach(n => showNotif(n));
   }
 }
 
