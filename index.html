@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOEMIR Protocol</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Fuentes del sistema como base (carga instantánea) -->
+<!-- Google Fonts carga de forma no bloqueante como mejora opcional -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+KR:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
 <style>
 :root {
   --bg: #09090b;
@@ -21,8 +24,8 @@
   --warn: #ffaa3a;
   --success: #3aff8a;
   --shadow: #6c8eff22;
-  --mono: 'Share Tech Mono', monospace;
-  --sans: 'Noto Sans KR', sans-serif;
+  --mono: 'Share Tech Mono', 'Courier New', 'Consolas', monospace;
+  --sans: 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,6 +37,8 @@ body {
   font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
+  /* Render immediately with system fonts, swap to web font when ready */
+  font-display: swap;
 }
 
 /* LAYOUT */
@@ -382,12 +387,81 @@ textarea#player-input::placeholder { color: var(--text3); }
 /* WIZARD NAV */
 .wizard-nav { display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
 
+/* ═══ NUEVOS SISTEMAS ═══ */
+
+/* RAZA */
+.race-badge { display:inline-block; font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:2px; border:1px solid var(--warn); color:var(--warn); background:#ffaa3a11; margin-top:4px; }
+.race-locked { font-family:var(--mono); font-size:9px; color:var(--text3); letter-spacing:.08em; display:block; margin-top:2px; }
+.race-evo { font-size:10px; color:var(--success); font-family:var(--mono); margin-top:2px; }
+
+/* MUTACIONES */
+.mutation-list { display:flex; flex-direction:column; gap:4px; }
+.mutation-tag { font-size:10px; background:var(--bg3); border:1px solid #8888ff44; border-left:2px solid #8888ff; border-radius:3px; padding:3px 8px; color:#aaaaff; font-family:var(--mono); }
+
+/* HERIDAS PERMANENTES */
+.wound-list { display:flex; flex-direction:column; gap:3px; }
+.wound-tag { font-size:10px; background:var(--bg3); border:1px solid var(--danger); border-radius:3px; padding:3px 8px; color:var(--danger); font-family:var(--mono); }
+
+/* BASE */
+.base-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.base-cell { background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:8px; text-align:center; cursor:pointer; transition:border-color .15s; }
+.base-cell:hover { border-color:var(--accent); }
+.base-cell .bc-icon { font-size:16px; margin-bottom:2px; }
+.base-cell .bc-name { font-family:var(--mono); font-size:10px; color:var(--text3); }
+.base-cell .bc-lvl { font-family:var(--mono); font-size:12px; color:var(--accent); }
+
+/* SENDA DESBLOQUEADA */
+.senda-unlocked { background:var(--bg3); border:1px solid var(--accent); border-left:3px solid var(--accent); border-radius:4px; padding:8px 10px; margin-top:6px; }
+.senda-title { font-family:var(--mono); font-size:11px; color:var(--accent); margin-bottom:4px; }
+.senda-powers { font-size:10px; color:var(--text2); line-height:1.6; }
+
+/* CODEX */
+.codex-tabs { display:flex; gap:4px; margin-bottom:10px; flex-wrap:wrap; }
+.codex-tab { background:transparent; border:1px solid var(--border2); color:var(--text3); font-family:var(--mono); font-size:10px; padding:3px 8px; border-radius:3px; cursor:pointer; }
+.codex-tab.active { border-color:var(--accent); color:var(--accent); }
+.codex-entry { border-bottom:1px solid var(--border); padding:8px 0; }
+.codex-entry-name { font-family:var(--mono); font-size:12px; color:var(--text); }
+.codex-entry-desc { font-size:11px; color:var(--text2); margin-top:3px; }
+
+/* MEMORIAS NOEMIR */
+.memory-list { display:flex; flex-direction:column; gap:6px; }
+.memory-entry { background:var(--bg3); border:1px solid #6c8eff33; border-left:2px solid var(--accent); border-radius:4px; padding:8px 10px; }
+.memory-title { font-family:var(--mono); font-size:11px; color:var(--accent); margin-bottom:3px; }
+.memory-body { font-size:11px; color:var(--text2); line-height:1.5; }
+
+/* LOGROS */
+.achievement-popup { position:fixed; top:60px; right:20px; background:var(--bg2); border:1px solid var(--warn); border-radius:6px; padding:12px 16px; z-index:300; max-width:280px; animation:fadeIn .3s ease; }
+.ach-title { font-family:var(--mono); font-size:10px; color:var(--warn); letter-spacing:.1em; margin-bottom:4px; }
+.ach-name { font-size:13px; color:var(--text); margin-bottom:2px; }
+.ach-desc { font-size:11px; color:var(--text3); }
+
+/* EVENTO ALEATORIO */
+.random-event-msg { background:#ffaa3a11; border:1px solid var(--warn); border-left:3px solid var(--warn); border-radius:4px; padding:12px 14px; margin-bottom:8px; }
+.re-header { font-family:var(--mono); font-size:10px; color:var(--warn); letter-spacing:.1em; margin-bottom:6px; }
+
+/* BOSS */
+.boss-card { background:var(--bg3); border:1px solid var(--danger); border-radius:6px; padding:12px; margin-bottom:8px; }
+.boss-name { font-family:var(--mono); font-size:13px; color:var(--danger); margin-bottom:4px; }
+.boss-lore { font-size:11px; color:var(--text2); line-height:1.5; }
+
+/* RAZA MODAL */
+.race-cards-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.race-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:12px; position:relative; overflow:hidden; }
+.race-card .rc-icon { font-size:20px; margin-bottom:4px; }
+.race-card .rc-name { font-family:var(--mono); font-size:12px; color:var(--warn); margin-bottom:4px; }
+.race-card .rc-chance { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:10px; color:var(--text3); }
+.race-card .rc-bonus { font-size:10px; color:var(--success); margin-bottom:2px; }
+.race-card .rc-malus { font-size:10px; color:var(--danger); }
+.race-assigned { background:var(--bg3); border:2px solid var(--warn); border-radius:8px; padding:20px; text-align:center; }
+.ra-title { font-family:var(--mono); font-size:11px; color:var(--text3); letter-spacing:.1em; margin-bottom:8px; }
+.ra-icon { font-size:36px; margin-bottom:8px; }
+.ra-name { font-family:var(--mono); font-size:18px; color:var(--warn); margin-bottom:6px; }
+.ra-locked { font-family:var(--mono); font-size:10px; color:var(--text3); margin-bottom:12px; }
+.ra-bonus { text-align:left; font-size:11px; color:var(--text2); line-height:1.8; }
+
 @media(max-width:768px) {
-  .wizard-card { padding:18px 16px; }
-  .class-grid { grid-template-columns:1fr 1fr; }
-  .class-tab { font-size:10px; padding:4px 10px; }
-  .story-grid { grid-template-columns:1fr; }
-  .identity-grid { grid-template-columns:1fr; }
+  .race-cards-grid { grid-template-columns:1fr; }
+  .base-grid { grid-template-columns:1fr 1fr; }
 }
 
 </style>
@@ -494,11 +568,72 @@ textarea#player-input::placeholder { color: var(--text3); }
       </div>
     </div>
 
+    <!-- RAZA -->
+    <div class="sidebar-section" id="sb-race-section">
+      <div class="sidebar-label">// linaje del recipiente</div>
+      <div id="sb-race-display">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">Sin asignar</span>
+      </div>
+    </div>
+
+    <!-- SENDA DESBLOQUEADA -->
+    <div class="sidebar-section hidden" id="sb-senda-section">
+      <div class="sidebar-label">// senda desbloqueada</div>
+      <div id="sb-senda-display"></div>
+    </div>
+
+    <!-- MUTACIONES -->
+    <div class="sidebar-section" id="sb-mutations-section">
+      <div class="sidebar-label">// mutaciones permanentes</div>
+      <div class="mutation-list" id="sb-mutations"><div style="font-size:11px;color:var(--text3)">Ninguna</div></div>
+    </div>
+
+    <!-- HERIDAS PERMANENTES -->
+    <div class="sidebar-section" id="sb-perm-wounds-section">
+      <div class="sidebar-label">// heridas permanentes</div>
+      <div class="wound-list" id="sb-perm-wounds"><div style="font-size:11px;color:var(--text3)">Ninguna</div></div>
+    </div>
+
+    <!-- MEMORIAS NOEMIR -->
+    <div class="sidebar-section" id="sb-memories-section">
+      <div class="sidebar-label">// registros de NOEMIR</div>
+      <div class="memory-list" id="sb-memories"><div style="font-size:11px;color:var(--text3)">Clasificado</div></div>
+    </div>
+
+    <!-- BASE -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">// base del recipiente</div>
+      <div class="base-grid">
+        <div class="base-cell" onclick="openBaseModal('taller')" title="Desbloquea mejoras de equipo">
+          <div class="bc-icon">🔧</div>
+          <div class="bc-name">Taller</div>
+          <div class="bc-lvl" id="base-taller">Nv.0</div>
+        </div>
+        <div class="base-cell" onclick="openBaseModal('enfermeria')" title="Recuperación acelerada">
+          <div class="bc-icon">🏥</div>
+          <div class="bc-name">Enfermería</div>
+          <div class="bc-lvl" id="base-enfermeria">Nv.0</div>
+        </div>
+        <div class="base-cell" onclick="openBaseModal('biblioteca')" title="Desbloquea habilidades pasivas">
+          <div class="bc-icon">📚</div>
+          <div class="bc-name">Biblioteca</div>
+          <div class="bc-lvl" id="base-biblioteca">Nv.0</div>
+        </div>
+        <div class="base-cell" onclick="openBaseModal('entrenamiento')" title="Mejora tope de entrenamiento">
+          <div class="bc-icon">⚔️</div>
+          <div class="bc-name">Cámara Ent.</div>
+          <div class="bc-lvl" id="base-entrenamiento">Nv.0</div>
+        </div>
+      </div>
+    </div>
+
     <div class="sidebar-bottom">
       <button class="btn-sm" onclick="showAffinityModal()">+ afinidad</button>
       <button class="btn-sm" onclick="showMissionModal()">+ directiva</button>
       <button class="btn-sm" onclick="showRankLegend()">📊 rangos</button>
       <button class="btn-sm" onclick="showEquipCatalog()">📦 equipo</button>
+      <button class="btn-sm" onclick="showCodexModal()">📖 codex</button>
+      <button class="btn-sm" onclick="showAchievementsModal()">🏆 logros</button>
       <button class="btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="confirmReset()">reset</button>
     </div>
   </div>
@@ -662,6 +797,20 @@ textarea#player-input::placeholder { color: var(--text3); }
 </div>
 
 <script>
+// ── Safe localStorage shim (works on file://) ──
+const _memStorage = {};
+const _ls = (() => {
+  try { localStorage.setItem('__test__','1'); localStorage.removeItem('__test__'); return localStorage; }
+  catch(e) {
+    return {
+      getItem: k => _memStorage[k] ?? null,
+      setItem: (k,v) => { _memStorage[k] = String(v); },
+      removeItem: k => { delete _memStorage[k]; }
+    };
+  }
+})();
+
+
 const SYSTEM_PROMPT = `Sos el narrador de un RPG literario en segunda persona. La entidad que guía al personaje se llama NOEMIR — una IA o protocolo de origen desconocido que selecciona recipientes con potencial latente y los somete a pruebas para despertar ese potencial. NOEMIR no es un aliado. Es un sistema frío que evalúa, registra y, si el recipiente fracasa, busca otro.
 
 El mundo es contemporáneo con la irrupción de Puertas — fisuras dimensionales que conectan con mazmorras habitadas por criaturas hostiles. Existen cazadores clasificados por rango. La Asociación de Cazadores regula el sistema oficial, pero NOEMIR opera fuera de ese marco.
@@ -783,7 +932,7 @@ El formato debe ser EXACTAMENTE el indicado — sin espacios adicionales, sin sa
 ═══ EQUIPO DEL MUNDO ═══
 El mundo tiene tres categorías de equipo obtenible mediante misiones y exploración. La IA debe otorgarlos narrativamente — nunca como lista de ítems. Describí cómo el personaje lo encuentra, lo obtiene, o se lo dan.
 
-ARMAS DE MISIÓN (70 disponibles, rangos E a A): desde dagas de hueso hasta katanas del protocolo y báculos del eco roto. Otorgalas según el rango de la misión completada. Una misión de rango E otorga armas de rango E máximo.
+ARMAS DE MISIÓN (270+ disponibles, rangos E a S): dagas, espadas, mandobles, lanzas, arcos, armas de fuego, mazas, hachas, cadenas, garras, y armas arcanas. Cada tipo tiene 30 armas más una versión MIDNIGHT de rango S. Las versiones MIDNIGHT son extremadamente raras — solo aparecen en misiones de rango A+ o como recompensas únicas de jefes de rango S. Otorgalas según el rango de la misión completada. Una misión de rango E otorga armas de rango E máximo. Las armas MIDNIGHT no se pueden obtener por misiones normales — solo por eventos únicos.
 
 ARTEFACTOS (60 disponibles, rangos E a S): anillos, amuletos, sellos, núcleos. Mejoran stats pasivamente o tienen efectos únicos. Se pueden llevar simultáneamente pero NOEMIR limita a 3 artefactos activos por escena. El Fragmento del Rey Oscuro es el único de rango S y NOEMIR no lo registra.
 
@@ -833,20 +982,61 @@ El Sistema no permite atajos al límite del recipiente.
 [FIN]
 Y propone una versión ajustada o ninguna recompensa.
 
-═══ IDIOMA ═══
+═══ SISTEMA DE RAZAS ═══
+Al inicio del juego, NOEMIR asigna una raza al recipiente. La raza está BLOQUEADA permanentemente — no puede cambiarse. Solo puede evolucionar dentro de su misma línea. Las razas posibles: Humano, Bestial, Sensitivo, Sintético, Marcado por el Portal, Híbrido Sombrío, Heredero Anómalo, Recipiente Defectuoso. Incorporá la raza del recipiente en la narrativa de forma natural. Si el recipiente es Defectuoso, NOEMIR lo nota con interés particular.
+
+═══ MUTACIONES PERMANENTES ═══
+Algunas decisiones o eventos extremos pueden alterar al recipiente para siempre. Cuando narres una mutación, usá este formato:
+[NOEMIR]
+Mutación detectada: [nombre]
+Estado: IRREVERSIBLE
+[FIN]
+El jugador aceptará o no desde el sistema. Las mutaciones tienen buffs y debuffs permanentes. No fuerces mutaciones — son consecuencia de situaciones extremas.
+
+═══ HERIDAS PERMANENTES ═══
+Además de HP, el recipiente puede sufrir heridas permanentes en combates extremos: brazo fracturado, hemorragia interna, quemaduras de maná, fatiga extrema, visión dañada. Usá este formato cuando corresponda:
+[NOEMIR]
+Herida permanente registrada: [nombre]
+Efecto: [descripción mecánica]
+[FIN]
+Las heridas permanentes afectan stats hasta ser tratadas. La enfermería de la base puede tratarlas si está en nivel 3.
+
+═══ BASE DEL JUGADOR ═══
+El recipiente tiene una guarida con: Taller, Enfermería, Biblioteca, Cámara de Entrenamiento. Cada instalación tiene nivel 0-3. Cuando el jugador mencione mejorar la base, confirmalo narrativamente y notificá al sistema. Las mejoras de base desbloquean opciones narrativas adicionales.
+
+═══ JEFES ÚNICOS CON NOMBRE ═══
+El mundo tiene jefes únicos con historia propia: El Rey de los Ecos, La Madre de Ceniza, El Verdugo Sin Rostro, El Primer Recipiente. Cuando un jefe aparezca en la narrativa, describí su historia brevemente. Derrotarlos tiene consecuencias permanentes en el mundo.
+
+═══ EVOLUCIÓN DE AFINIDAD (70+) ═══
+Cuando una afinidad alcanza 70+, el recipiente desbloquea una Senda exclusiva. La Senda cierra parcialmente las sendas opuestas. Revelá la Senda en este formato:
+[NOEMIR]
+Senda desbloqueada: [nombre]
+Capacidades: [lista]
+[FIN]
+
+═══ MEMORIAS DE NOEMIR ═══
+NOEMIR tiene fragmentos de memoria que se desbloquean al avanzar. Son pistas sobre quién creó NOEMIR y para qué. No los reveles todos de golpe — son hallazgos narrativos que el sistema gestiona automáticamente por cantidad de escenas.
+
+
 SIEMPRE respondé en español rioplatense. Nunca en inglés, nunca en otro idioma.
 Si por algún error empezás en otro idioma, corregite de inmediato en la siguiente línea.
 
  Usá frases cortas en los momentos de tensión. Silencio y detalle físico antes de la violencia. NOEMIR no celebra. Solo registra.`;
 
 let state = {
-  char: { name:'', background:'', flaw:'', rank:'F', hp:100, hpmax:100, mp:50, mpmax:50, fue:5, agi:5, per:5, res:5, int:5, sen:5, skills:[], inventory:[], wounds:'' },
+  char: { name:'', background:'', flaw:'', rank:'F', hp:100, hpmax:100, mp:50, mpmax:50, fue:5, agi:5, per:5, res:5, int:5, sen:5, skills:[], inventory:[], wounds:'', race:'', raceEvolution:'', mutations:[], permanentWounds:[], noemirMemories:[] },
   mission: { name:'', obj:'', reward:'', penalty:'' },
   affinity: { sombra:0, bestia:0, destruccion:0, gobernante:0 },
+  affinityUnlocked: { sombra:false, bestia:false, destruccion:false, gobernante:false },
   history: [],
   scenes: 0,
   session: 1,
-  started: false
+  started: false,
+  base: { taller:0, enfermeria:0, biblioteca:0, entrenamiento:0 },
+  codex: { monsters:[], npcs:[], artifacts:[], dungeons:[], bosses:[] },
+  achievements: [],
+  pendingEvent: null,
+  defeatedBosses: []
 };
 
 let apiKey = '';
@@ -858,11 +1048,11 @@ let summaryText = '';
 const MAX_SLOTS = 6;
 
 function getSavedSlots() {
-  try { return JSON.parse(localStorage.getItem('sl-slots') || '[]'); } catch(e) { return []; }
+  try { return JSON.parse(_ls.getItem('sl-slots') || '[]'); } catch(e) { return []; }
 }
 
 function setSavedSlots(slots) {
-  localStorage.setItem('sl-slots', JSON.stringify(slots));
+  _ls.setItem('sl-slots', JSON.stringify(slots));
 }
 
 function showSaveSlotsModal() {
@@ -1039,32 +1229,41 @@ function detectFreePoints(text) {
 }
 
 function loadState() {
-  const saved = localStorage.getItem('sl-rpg-state');
+  const saved = _ls.getItem('sl-rpg-state');
   if(saved) { try { state = JSON.parse(saved); } catch(e){} }
-  const savedKey = localStorage.getItem('sl-api-key');
+  // Backward compat: initialize new fields if missing
+  if (!state.base) state.base = { taller:0, enfermeria:0, biblioteca:0, entrenamiento:0 };
+  if (!state.codex) state.codex = { monsters:[], npcs:[], artifacts:[], dungeons:[], bosses:[] };
+  if (!state.achievements) state.achievements = [];
+  if (!state.defeatedBosses) state.defeatedBosses = [];
+  if (!state.affinityUnlocked) state.affinityUnlocked = { sombra:false, bestia:false, destruccion:false, gobernante:false };
+  if (!state.char.mutations) state.char.mutations = [];
+  if (!state.char.permanentWounds) state.char.permanentWounds = [];
+  if (!state.char.noemirMemories) state.char.noemirMemories = [];
+  const savedKey = _ls.getItem('sl-api-key');
   if(savedKey) { apiKey = savedKey; document.getElementById('api-key-input').value = savedKey; }
-  const savedModel = localStorage.getItem('sl-model');
+  const savedModel = _ls.getItem('sl-model');
   if(savedModel) { const sel = document.getElementById('model-select'); if(sel) { for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===savedModel){sel.selectedIndex=i;break;}} } }
 }
 
 function saveState() {
-  localStorage.setItem('sl-rpg-state', JSON.stringify(state));
+  _ls.setItem('sl-rpg-state', JSON.stringify(state));
 }
 
 function saveApiKey() {
   apiKey = document.getElementById('api-key-input').value.trim();
-  localStorage.setItem('sl-api-key', apiKey);
+  _ls.setItem('sl-api-key', apiKey);
   showNotif('API key guardada');
 }
 
 function saveModel() {
   const sel = document.getElementById('model-select');
-  localStorage.setItem('sl-model', sel.value);
+  _ls.setItem('sl-model', sel.value);
   showNotif('Modelo: ' + sel.options[sel.selectedIndex].text);
 }
 
 function getModel() {
-  return localStorage.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
+  return _ls.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
 }
 
 function showNotif(msg, type) {
@@ -1161,6 +1360,65 @@ function renderSidebar(animate) {
     document.getElementById('aff-'+k+'-val').textContent = v;
     document.getElementById('aff-'+k+'-bar').style.width = v+'%';
   });
+
+  // RAZA
+  const raceEl = document.getElementById('sb-race-display');
+  if (raceEl) {
+    if (state.char.race) {
+      const raceData = RACES.find(r=>r.id===state.char.race);
+      if (raceData) {
+        raceEl.innerHTML = `<span class="race-badge">${raceData.icon} ${raceData.name}</span><span class="race-locked">// LINAJE: BLOQUEADO</span>${state.char.raceEvolution?`<div class="race-evo">▶ ${state.char.raceEvolution}</div>`:''}`;
+      }
+    } else {
+      raceEl.innerHTML = '<span style="font-size:11px;color:var(--text3);font-family:var(--mono)">Sin asignar</span>';
+    }
+  }
+
+  // SENDA DESBLOQUEADA
+  const sendaSec = document.getElementById('sb-senda-section');
+  const sendaDisp = document.getElementById('sb-senda-display');
+  if (sendaSec && sendaDisp) {
+    const unlockedSendas = Object.keys(state.affinityUnlocked||{}).filter(k=>state.affinityUnlocked[k]);
+    if (unlockedSendas.length) {
+      sendaSec.classList.remove('hidden');
+      sendaDisp.innerHTML = unlockedSendas.map(k => {
+        const sp = SENDA_POWERS[k];
+        return `<div class="senda-unlocked"><div class="senda-title">⚡ ${sp.name}</div><div class="senda-powers">${sp.powers.map(p=>'▶ '+p).join('<br>')}</div></div>`;
+      }).join('');
+    } else {
+      sendaSec.classList.add('hidden');
+    }
+  }
+
+  // MUTACIONES
+  const mutEl = document.getElementById('sb-mutations');
+  if (mutEl) {
+    const muts = state.char.mutations || [];
+    mutEl.innerHTML = muts.length ? muts.map(m=>`<div class="mutation-tag">${m.icon||'⚗'} ${m.name}</div>`).join('') : '<div style="font-size:11px;color:var(--text3)">Ninguna</div>';
+  }
+
+  // HERIDAS PERMANENTES
+  const woundEl = document.getElementById('sb-perm-wounds');
+  if (woundEl) {
+    const wounds = state.char.permanentWounds || [];
+    woundEl.innerHTML = wounds.length ? wounds.map(w=>`<div class="wound-tag">${w.icon||'⚠'} ${w.name}</div>`).join('') : '<div style="font-size:11px;color:var(--text3)">Ninguna</div>';
+  }
+
+  // MEMORIAS
+  const memEl = document.getElementById('sb-memories');
+  if (memEl) {
+    const mems = state.char.noemirMemories || [];
+    memEl.innerHTML = mems.length ? mems.map(m=>`<div class="memory-entry"><div class="memory-title">${m.title}</div><div class="memory-body">${m.body}</div></div>`).join('') : '<div style="font-size:11px;color:var(--text3)">Clasificado</div>';
+  }
+
+  // BASE
+  ['taller','enfermeria','biblioteca','entrenamiento'].forEach(k => {
+    const el = document.getElementById('base-'+k);
+    if (el) el.textContent = 'Nv.'+(state.base[k]||0);
+  });
+
+  // Afinidad unlocks check
+  checkAffinityUnlocks();
 }
 
 // ═══ ARMA INICIAL ALEATORIA ═══
@@ -1249,8 +1507,7 @@ function rerollWeapon() {
   document.getElementById('setup-weapon-desc').textContent = assignedWeapon.desc + '  [daño ' + assignedWeapon.dmg + ']';
 }
 
-// Tirar al cargar la página
-rerollWeapon();
+// rerollWeapon() se llama al final del script, cuando el DOM ya está listo
 
 
 // ═══ WIZARD DATA ═══
@@ -1402,92 +1659,386 @@ const CLASSES = [
 ];
 
 
-// ─── 70 ARMAS DE MISIÓN (no iniciales) ───────────────────────────────────────
+// ─── ARMAS DE MISIÓN EXPANDIDAS (30+ por tipo + versiones MIDNIGHT) ──────────
 // Se obtienen mediante recompensas de misiones. La IA las menciona en narrativa.
 const MISSION_WEAPONS = [
-  // ── DAGAS Y CUCHILLOS (rango E-D) ──
-  { name:'Daga de hueso de mazmorra',     rank:'E', type:'daga',    desc:'Tallada de un hueso de criatura. Rezuma frío.' },
-  { name:'Cuchillo envenenado',           rank:'E', type:'cuchillo',desc:'Hoja delgada. El filo lleva una resina tóxica oscura.' },
-  { name:'Daga de garra de kobold',       rank:'E', type:'daga',    desc:'Ligera. Serrada. Rompe armadura blanda.' },
-  { name:'Estilete de mana cristalizado', rank:'D', type:'daga',    desc:'La hoja vibra levemente. Corta barreras mágicas.' },
-  { name:'Daga gemela de sombra',         rank:'D', type:'daga',    desc:'Vienen en par. El segundo golpe siempre sorprende.' },
-  { name:'Cuchillo de obsidiana',         rank:'D', type:'cuchillo',desc:'Filo perfecto. Se astilla si golpea metal duro.' },
 
-  // ── ESPADAS (rango E-C) ──
-  { name:'Espada de cazador de rango E',  rank:'E', type:'espada',  desc:'Estándar de la Asociación. Funcional, sin más.' },
-  { name:'Sable de hueso ígneo',          rank:'E', type:'espada',  desc:'Hueso quemado de criatura ígnea. Tibio al tacto.' },
-  { name:'Espada corta de mithril gris',  rank:'D', type:'espada',  desc:'Aleación inestable. Más ligera que el acero.' },
-  { name:'Espadón de guardian caído',     rank:'D', type:'espada',  desc:'Pesada. Requiere dos manos. Aplasta más que corta.' },
-  { name:'Hoja del pacto',                rank:'D', type:'espada',  desc:'Grabados arcanos en la hoja. Reacciona al mana.' },
-  { name:'Espada de umbral',              rank:'C', type:'espada',  desc:'Forjada en la frontera entre dos Puertas. Rarísima.' },
-  { name:'Lamento del ejecutor',          rank:'C', type:'espada',  desc:'Larga, negra. Dicen que recuerda a quienes mató.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── DAGAS / CUCHILLOS (30 armas · rangos E a A) ──────────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Daga de hueso de mazmorra',          rank:'E', type:'daga',    desc:'Tallada de un hueso de criatura. Rezuma frío.' },
+  { name:'Cuchillo envenenado',                rank:'E', type:'daga',    desc:'Hoja delgada. El filo lleva una resina tóxica oscura.' },
+  { name:'Daga de garra de kobold',            rank:'E', type:'daga',    desc:'Ligera. Serrada. Rompe armadura blanda.' },
+  { name:'Estilete de mana cristalizado',      rank:'D', type:'daga',    desc:'La hoja vibra levemente. Corta barreras mágicas.' },
+  { name:'Daga gemela de sombra',              rank:'D', type:'daga',    desc:'Vienen en par. El segundo golpe siempre sorprende.' },
+  { name:'Cuchillo de obsidiana',              rank:'D', type:'daga',    desc:'Filo perfecto. Se astilla si golpea metal duro.' },
+  { name:'Punzón de acero negro',              rank:'D', type:'daga',    desc:'Corto. Para heridas internas. Sin ruido al entrar.' },
+  { name:'Daga de veneno de araña de Puerta',  rank:'D', type:'daga',    desc:'Recubierta con veneno extraído de una arácnida de mazmorra.' },
+  { name:'Hoja del cazarrecompensas',          rank:'D', type:'daga',    desc:'Marcada por la Asociación. Trae mala suerte a quien la robe.' },
+  { name:'Estilete de nervio de criatura',     rank:'D', type:'daga',    desc:'Flexible. Penetra juntas de armadura sin esfuerzo.' },
+  { name:'Daga del primer sigilo',             rank:'C', type:'daga',    desc:'Forjada para infiltración. Sin brillo. Sin sonido.' },
+  { name:'Cuchillas del vacío',                rank:'C', type:'daga',    desc:'Par de dagas: la derecha corta materia; la izquierda, mana.' },
+  { name:'Fragmento de sombra solidificada',   rank:'C', type:'daga',    desc:'Solo funciona en manos de un Invocador. Drena vida al impactar.' },
+  { name:'Daga de cristal de tormenta',        rank:'C', type:'daga',    desc:'Al impactar, descarga una chispa eléctrica menor.' },
+  { name:'Filo del eco',                       rank:'C', type:'daga',    desc:'Replica el último corte si el portador tiene concentración de mana.' },
+  { name:'Cuchillo de espina de Puerta',       rank:'C', type:'daga',    desc:'La punta atraviesa escudos de rango D pasivamente.' },
+  { name:'Daga del umbral roto',               rank:'C', type:'daga',    desc:'Forjada en dos Puertas simultáneas. Inestable pero letal.' },
+  { name:'Estilete de sombra de Puerta',       rank:'C', type:'daga',    desc:'Desaparece brevemente entre golpes. Imposible de bloquecar.' },
+  { name:'Colmillo del verdugo menor',         rank:'B', type:'daga',    desc:'De un verdugo de rango B. Recuerda dónde ha estado.' },
+  { name:'Daga de filo eterno',                rank:'B', type:'daga',    desc:'Nunca pierde el filo. Se afila con cada golpe fallido.' },
+  { name:'Punzón de corazón oscuro',           rank:'B', type:'daga',    desc:'Apunta instintivamente al punto vital de la criatura.' },
+  { name:'Gemelas de la fractura',             rank:'B', type:'daga',    desc:'Par idéntico. Juntas generan un campo de corte entre ellas.' },
+  { name:'Daga del recipiente marcado',        rank:'B', type:'daga',    desc:'NOEMIR la generó para un recipiente anterior. Nunca fue usada.' },
+  { name:'Estilete de mana puro',              rank:'A', type:'daga',    desc:'La hoja es de mana solidificado. Se regenera si se rompe.' },
+  { name:'Filo del abismo',                    rank:'A', type:'daga',    desc:'Corta la resistencia mágica de rango B o menor como papel.' },
+  { name:'Daga del fin del cazador',           rank:'A', type:'daga',    desc:'Perteneció al cazador que más veces llegó al rango A antes de morir.' },
+  { name:'Cuchillo de la grieta',              rank:'A', type:'daga',    desc:'Abre microdesgarros dimensionales en el punto de impacto.' },
+  { name:'Estilete del protocolo',             rank:'A', type:'daga',    desc:'Grabados de NOEMIR en el mango. Reacciona al estado mental del portador.' },
+  { name:'Colmillo del primer cazador',        rank:'A', type:'daga',    desc:'Se dice que fue la primera arma de un recipiente de rango SS.' },
+  { name:'Midnight — Daga del Vacío Eterno',   rank:'S', type:'daga',    midnight:true, desc:'[MIDNIGHT] Forjada en las capas más profundas del vacío. Al impactar, suspende el tiempo del objetivo por 0.5 segundos. NOEMIR no la registra en el inventario oficial.' },
 
-  // ── LANZAS Y ASTAS (rango E-C) ──
-  { name:'Lanza de guardia de mazmorra',  rank:'E', type:'lanza',   desc:'Reglamentaria. Encontrada sobre un cadáver.' },
-  { name:'Asta de canalización',          rank:'D', type:'lanza',   desc:'Hueca. Conduce mana hacia la punta.' },
-  { name:'Lanza de colmillo de bestia',   rank:'D', type:'lanza',   desc:'Punta de colmillo natural. Penetra magia pasiva.' },
-  { name:'Tridente de profundidad',       rank:'C', type:'lanza',   desc:'Diseñado para criaturas acuáticas. Efectivo igual.' },
-  { name:'Pica del Centinela Roto',       rank:'C', type:'lanza',   desc:'De un centinela de rango B. Ya no responde al dueño.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── MANDOBLES / ESPADONES (30 armas · rangos D a S) ──────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Mandoble del cazador mayor',         rank:'D', type:'mandoble', desc:'Requiere FUE mínima E. Corta en arco amplio.' },
+  { name:'Espadón de guardian caído',          rank:'D', type:'mandoble', desc:'Pesada. Aplasta más que corta. Derriba criaturas de rango E.' },
+  { name:'Gran espada de hueso ígneo',         rank:'D', type:'mandoble', desc:'Hueso quemado de una criatura ígnea de dos metros.' },
+  { name:'Mandoble de ceniza de Puerta',       rank:'C', type:'mandoble', desc:'Absorbió energía de una Puerta de rango C. Arde tenuemente.' },
+  { name:'Espadón del ejecutor menor',         rank:'C', type:'mandoble', desc:'Pesada hoja negra. Fue de un verdugo de la Asociación.' },
+  { name:'Espada resonante de dos manos',      rank:'C', type:'mandoble', desc:'Vibra al acercarse a criaturas de rango superior. Alerta activa.' },
+  { name:'Mandoble de la fractura',            rank:'C', type:'mandoble', desc:'La hoja está agrietada. El daño es real. El filo no.' },
+  { name:'Espadón de tormenta de arena',       rank:'C', type:'mandoble', desc:'Al blandir crea interferencia visual. Dificulta la lectura de movimientos.' },
+  { name:'Gran hoja del umbral',               rank:'C', type:'mandoble', desc:'Forjada en el borde de una Puerta. Rarísima.' },
+  { name:'Mandoble de escamas de dragón menor',rank:'C', type:'mandoble', desc:'El metal tiene escamas integradas. Absorbe golpes mágicos menores.' },
+  { name:'Espada de dos filos del berserker',  rank:'C', type:'mandoble', desc:'Doble filo. El primero hiere; el segundo destruye la guardia.' },
+  { name:'Espadón oscuro del pacto',           rank:'C', type:'mandoble', desc:'Grabados arcanos. Reacciona al mana del portador.' },
+  { name:'Gran espada del centinela roto',     rank:'B', type:'mandoble', desc:'De un centinela de rango B. Nadie sabe quién lo rompió.' },
+  { name:'Lamento del ejecutor mayor',         rank:'B', type:'mandoble', desc:'Larga, negra. Recuerda a todos los que mató.' },
+  { name:'Mandoble del titan menor',           rank:'B', type:'mandoble', desc:'Requiere RES mínima C. El impacto crea una onda de choque.' },
+  { name:'Katana del protocolo — versión larga',rank:'B',type:'mandoble', desc:'Grabados de NOEMIR. Más larga que la versión estándar. Más letal.' },
+  { name:'Espada de sombra de rango mayor',    rank:'B', type:'mandoble', desc:'Invocada del vacío. Dura 30 minutos. Corta materia y mana.' },
+  { name:'Mandoble de la silueta',             rank:'B', type:'mandoble', desc:'La hoja se vuelve translúcida al moverse. Imposible de leer.' },
+  { name:'Espadón de la fractura estelar',     rank:'B', type:'mandoble', desc:'Forjado en la intersección de dos Puertas de rango B.' },
+  { name:'Gran hoja del monarca menor',        rank:'B', type:'mandoble', desc:'Un fragmento de espada de un Monarca. Activa al reconocer potencial.' },
+  { name:'Mandoble del abismo',                rank:'A', type:'mandoble', desc:'El filo no brilla. Absorbe la luz a su alrededor.' },
+  { name:'Espadón del primer recipiente',      rank:'A', type:'mandoble', desc:'Del primer recipiente que llegó al rango S. NOEMIR no comenta.' },
+  { name:'Gran espada de la aniquilación',     rank:'A', type:'mandoble', desc:'Cada golpe destruye la resistencia mágica del objetivo.' },
+  { name:'Mandoble del caos controlado',       rank:'A', type:'mandoble', desc:'Libera energía descontrolada en el impacto. El portador también lo siente.' },
+  { name:'Espadón del gobernante caído',       rank:'A', type:'mandoble', desc:'De un cazador que casi llegó al rango SS. No lo logró.' },
+  { name:'Gran hoja de la destrucción',        rank:'A', type:'mandoble', desc:'Deja marcas en el espacio mismo al blandir. Las cicatrices persisten.' },
+  { name:'Mandoble del fin de eras',           rank:'A', type:'mandoble', desc:'Existe en el codex como mito. NOEMIR la cataloga como leyenda.' },
+  { name:'Espadón del vacío profundo',         rank:'A', type:'mandoble', desc:'La hoja está hecha de silencio solidificado.' },
+  { name:'Gran espada del umbral final',       rank:'A', type:'mandoble', desc:'Solo puede ser blandida por alguien que haya mirado el vacío y regresado.' },
+  { name:'Midnight — Mandoble de la Medianoche Absoluta', rank:'S', type:'mandoble', midnight:true, desc:'[MIDNIGHT] La espada más larga del catálogo NOEMIR. Su filo existe en tres dimensiones simultáneas. Cada corte atraviesa materia, mana y voluntad. NOEMIR la registra como Nivel de Amenaza: Protocolo.' },
 
-  // ── HACHAS (rango E-C) ──
-  { name:'Hacha de excavación reforzada', rank:'E', type:'hacha',   desc:'Herramienta de minero adaptada al combate.' },
-  { name:'Hacha de guerra de gremio',     rank:'D', type:'hacha',   desc:'Marca del Gremio Escudo Rojo. Bien equilibrada.' },
-  { name:'Hacha de runa menor',           rank:'D', type:'hacha',   desc:'Una runa de impacto grabada. Activa al golpear.' },
-  { name:'Hacha doble del berserker',     rank:'C', type:'hacha',   desc:'Dos filos. El primero corta; el segundo remata.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── ARCOS / BALLESTAS (30 armas · rangos E a S) ──────────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Arco de cuerno de criatura',         rank:'E', type:'arco',    desc:'Resistente. Las flechas convencionales funcionan.' },
+  { name:'Arco corto de explorador',           rank:'E', type:'arco',    desc:'Ligero. Ideal para distancias cortas en mazmorra.' },
+  { name:'Ballesta de guardia de Puerta',      rank:'E', type:'arco',    desc:'Reglamentaria. Lenta de recargar pero precisa.' },
+  { name:'Arco largo de caza mayor',           rank:'D', type:'arco',    desc:'Pensado para criaturas grandes. Largo alcance.' },
+  { name:'Ballesta de precisión',              rank:'D', type:'arco',    desc:'Mecanismo suizo. Tarda en recargar pero no falla.' },
+  { name:'Arco de nervio de troll',            rank:'D', type:'arco',    desc:'Necesita FUE mínima E para tensar. Devastador.' },
+  { name:'Arco reforzado de mazmorra',         rank:'D', type:'arco',    desc:'Construido con materiales encontrados. Sorprendentemente efectivo.' },
+  { name:'Ballesta automática menor',          rank:'D', type:'arco',    desc:'Dispara tres pernos seguidos. Recarga manual después.' },
+  { name:'Arco de viento canalizado',          rank:'D', type:'arco',    desc:'Las flechas no pierden velocidad con el viento. Efecto contrario.' },
+  { name:'Arco de tendón de bestia',           rank:'D', type:'arco',    desc:'La cuerda está hecha de tendón de criatura de rango D.' },
+  { name:'Arco arcano de ojo de aguja',        rank:'C', type:'arco',    desc:'Las flechas se curvan levemente hacia el punto de mira.' },
+  { name:'Ballesta de runa de impacto',        rank:'C', type:'arco',    desc:'Cada perno tiene una runa de explosión menor. Área pequeña.' },
+  { name:'Arco de cristal de tormenta',        rank:'C', type:'arco',    desc:'Las flechas adquieren carga eléctrica al disparar.' },
+  { name:'Arco de la silueta',                rank:'C', type:'arco',    desc:'Las flechas se vuelven translúcidas. Difíciles de rastrear.' },
+  { name:'Ballesta de mana condensado',        rank:'C', type:'arco',    desc:'Dispara proyectiles de mana puro en lugar de pernos.' },
+  { name:'Arco del cazador élite',             rank:'C', type:'arco',    desc:'Grado C de la Asociación. Otorgado, no comprado.' },
+  { name:'Arco de la grieta dimensional',      rank:'C', type:'arco',    desc:'Las flechas viajan medio metro en otra dimensión antes de impactar.' },
+  { name:'Ballesta de cadena',                 rank:'C', type:'arco',    desc:'Dispara pernos encadenados. Enreda extremidades.' },
+  { name:'Arco de vacío menor',                rank:'B', type:'arco',    desc:'Las flechas atraviesan escudos de mana de rango C o menor.' },
+  { name:'Arco del centinela de Puerta',       rank:'B', type:'arco',    desc:'Del personal de protección de Puertas de nivel alto.' },
+  { name:'Ballesta de ruptura',                rank:'B', type:'arco',    desc:'Los pernos explotan en impacto creando una onda de choque.' },
+  { name:'Arco del primer arquero',            rank:'B', type:'arco',    desc:'Perteneció al arquero más preciso registrado por la Asociación.' },
+  { name:'Arco de sombra mayor',               rank:'B', type:'arco',    desc:'Las flechas no producen sonido al volar. Invisibles en zonas oscuras.' },
+  { name:'Ballesta de titan menor',            rank:'B', type:'arco',    desc:'Requiere RES mínima C para usar. Los pernos son del tamaño de lanzas.' },
+  { name:'Arco del abismo',                    rank:'A', type:'arco',    desc:'Cada flecha lanzada absorbe mana ambiental y se potencia.' },
+  { name:'Arco del monarca del horizonte',     rank:'A', type:'arco',    desc:'Las flechas alcanzan cualquier objetivo visible sin importar la distancia.' },
+  { name:'Ballesta del protocolo',             rank:'A', type:'arco',    desc:'Grabados de NOEMIR. Apunta automáticamente a puntos vitales.' },
+  { name:'Arco de la tormenta absoluta',       rank:'A', type:'arco',    desc:'Cada disparo libera una tormenta eléctrica menor en el punto de impacto.' },
+  { name:'Arco del silencio eterno',           rank:'A', type:'arco',    desc:'Las flechas eliminan la capacidad de gritar del objetivo al impactar.' },
+  { name:'Midnight — Arco de la Oscuridad Sin Fin', rank:'S', type:'arco', midnight:true, desc:'[MIDNIGHT] Las flechas de este arco viajan por el plano de las sombras y aparecen directamente en el punto vital del objetivo. No hay defensa conocida para rango B o menor. NOEMIR clasifica este arco como Anomalía de Protocolo.' },
 
-  // ── MAZAS Y CONTUNDENTES (rango E-C) ──
-  { name:'Maza de guardia de Puerta',     rank:'E', type:'maza',    desc:'Estándar. Pesada. Rompe escudos menores.' },
-  { name:'Mazo de impacto de onda',       rank:'D', type:'maza',    desc:'Al golpear genera una vibración breve. Aturde.' },
-  { name:'Maza de hierro negro',          rank:'D', type:'maza',    desc:'Metal de la Puerta. Pesa el doble de lo normal.' },
-  { name:'Martillo de juicio',            rank:'C', type:'maza',    desc:'Enorme. Un golpe en el torso tumba a un E fácil.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── ARMAS DE FUEGO (30 armas · rangos D a S) ─────────────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Pistola de mana básica',             rank:'D', type:'fuego',   desc:'Dispara proyectiles de mana condensado. Requiere MP por disparo.' },
+  { name:'Escopeta de Puerta modificada',      rank:'D', type:'fuego',   desc:'Escopeta estándar adaptada con cristal de Puerta. Munición básica.' },
+  { name:'Revólver de plata oscura',           rank:'D', type:'fuego',   desc:'Seis balas. Efectivo contra criaturas etéreas.' },
+  { name:'Pistola automática de rango D',      rank:'D', type:'fuego',   desc:'Doce proyectiles por cargador. Estándar de mercado negro.' },
+  { name:'Rifle de francotirador básico',      rank:'D', type:'fuego',   desc:'Largo alcance. Sin amplificación mágica. Solo precisión.' },
+  { name:'Pistola de doble cañón',             rank:'D', type:'fuego',   desc:'Dispara dos proyectiles simultáneos. Retroceso considerable.' },
+  { name:'Escopeta de runa menor',             rank:'D', type:'fuego',   desc:'Las balas llevan runas de impacto. Pequeña explosión al contacto.' },
+  { name:'Pistola de mana condensado',         rank:'C', type:'fuego',   desc:'Los proyectiles perforan armaduras de rango D. Costo: 3 MP por disparo.' },
+  { name:'Rifle de caza de mazmorra',          rank:'C', type:'fuego',   desc:'Diseñado para criaturas grandes y lentas. Daño masivo en una sola bala.' },
+  { name:'Pistola de cristal de tormenta',     rank:'C', type:'fuego',   desc:'Los proyectiles se cargan eléctricamente en vuelo.' },
+  { name:'Revólver del cazador élite',         rank:'C', type:'fuego',   desc:'Grado C. Balas de mana puro. No precisa recarga si hay mana ambiental.' },
+  { name:'Pistola automática de sombra',       rank:'C', type:'fuego',   desc:'Los proyectiles son difíciles de rastrear visualmente.' },
+  { name:'Escopeta de glaciar',                rank:'C', type:'fuego',   desc:'Proyectiles de hielo. Ralentizan lo que tocan.' },
+  { name:'Pistola de ruptura menor',           rank:'C', type:'fuego',   desc:'Los proyectiles crean microexplosiones de mana en el impacto.' },
+  { name:'Rifle de largo alcance de mana',     rank:'C', type:'fuego',   desc:'Amplifica el alcance mediante guías de mana en el cañón.' },
+  { name:'Pistola del protocolo menor',        rank:'C', type:'fuego',   desc:'Marcada por NOEMIR. Reconoce al portador. No dispara en otras manos.' },
+  { name:'Revólver de hueso de Puerta',        rank:'C', type:'fuego',   desc:'Fabricado con hueso de criatura de rango C. Liviano. Preciso.' },
+  { name:'Pistola de vaciado',                 rank:'B', type:'fuego',   desc:'Los proyectiles atraviesan escudos de mana de rango C o menor.' },
+  { name:'Rifle del verdugo mayor',            rank:'B', type:'fuego',   desc:'Un solo disparo puede tumbar una barrera de rango B.' },
+  { name:'Pistola de doble mana',              rank:'B', type:'fuego',   desc:'Dispara dos tipos de mana simultáneamente. Efecto combinado impredecible.' },
+  { name:'Escopeta de fragmento de Puerta',    rank:'B', type:'fuego',   desc:'Los perdigones son cristal de Puerta. Penetran todo lo de rango C o menor.' },
+  { name:'Revólver del primer receptor',       rank:'B', type:'fuego',   desc:'Absorbe parte del mana del impacto y lo devuelve al portador.' },
+  { name:'Pistola de sombra mayor',            rank:'B', type:'fuego',   desc:'Los proyectiles son de sombra solidificada. Invisibles en vuelo.' },
+  { name:'Rifle de protocolo',                 rank:'A', type:'fuego',   desc:'Apunta automáticamente a puntos vitales. Grabados de NOEMIR en el cañón.' },
+  { name:'Pistola del monarca menor',          rank:'A', type:'fuego',   desc:'El retroceso no existe. La energía se redistribuye en el portador.' },
+  { name:'Revólver del abismo',                rank:'A', type:'fuego',   desc:'Las balas viajen por el plano de sombras y reaparecen en el objetivo.' },
+  { name:'Escopeta del aniquilador',           rank:'A', type:'fuego',   desc:'Un disparo destruye la barrera de mana de cualquier objetivo de rango A o menor.' },
+  { name:'Pistola de tormenta perfecta',       rank:'A', type:'fuego',   desc:'Genera una tormenta eléctrica en área de 5 metros al disparar.' },
+  { name:'Rifle del silencio absoluto',        rank:'A', type:'fuego',   desc:'Sin sonido. Sin rastro de mana. La bala simplemente aparece en el objetivo.' },
+  { name:'Midnight — Pistola de la Oscuridad Última', rank:'S', type:'fuego', midnight:true, desc:'[MIDNIGHT] Los proyectiles de esta arma no pueden ser esquivados, bloqueados ni absorbidos por cualquier defensa de rango S o menor. El sonido del disparo se escucha tres segundos después del impacto. NOEMIR la clasifica como Prohibida.' },
 
-  // ── ARCOS Y A DISTANCIA (rango E-C) ──
-  { name:'Arco de cuerno de criatura',    rank:'E', type:'arco',    desc:'Resistente. Las flechas convencionales funcionan.' },
-  { name:'Arco largo de caza mayor',      rank:'D', type:'arco',    desc:'Pensado para criaturas grandes. Largo alcance.' },
-  { name:'Ballesta de precisión',         rank:'D', type:'arco',    desc:'Mecanismo suizo. Tarda en recargar pero no falla.' },
-  { name:'Arco de nervio de troll',       rank:'C', type:'arco',    desc:'Necesita fuerza E mínima para tensar. Devastador.' },
-  { name:'Arco arcano de ojo de aguja',   rank:'C', type:'arco',    desc:'Las flechas se curvan levemente hacia el punto de mira.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── LANZAS / ASTAS (30 armas · rangos E a S) ─────────────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Lanza de guardia de mazmorra',       rank:'E', type:'lanza',   desc:'Reglamentaria. Encontrada sobre un cadáver.' },
+  { name:'Asta de madera reforzada',           rank:'E', type:'lanza',   desc:'Sin filo especial. Sirve como palo largo y como arma.' },
+  { name:'Lanza de colmillo de kobold',        rank:'E', type:'lanza',   desc:'Punta afilada de colmillo. Penetra cuero sin esfuerzo.' },
+  { name:'Asta de canalización',               rank:'D', type:'lanza',   desc:'Hueca. Conduce mana hacia la punta para potenciar el golpe.' },
+  { name:'Lanza de colmillo de bestia',        rank:'D', type:'lanza',   desc:'Punta de colmillo natural. Penetra magia pasiva.' },
+  { name:'Pica de guardia de rango D',         rank:'D', type:'lanza',   desc:'Larga. Mantiene distancia contra criaturas que cargan.' },
+  { name:'Lanza de cristal de Puerta',         rank:'D', type:'lanza',   desc:'La punta es un cristal de Puerta afilado. Vibra al usarse.' },
+  { name:'Asta de mazmorra de profundidad',    rank:'D', type:'lanza',   desc:'Diseñada para combate en espacios cerrados. Más corta pero manejable.' },
+  { name:'Tridente de profundidad',            rank:'C', type:'lanza',   desc:'Diseñado para criaturas acuáticas. Efectivo en tierra igual.' },
+  { name:'Pica del Centinela Roto',            rank:'C', type:'lanza',   desc:'De un centinela de rango B. Ya no responde al dueño original.' },
+  { name:'Lanza espectral',                    rank:'C', type:'lanza',   desc:'Proyectil de mana solidificado. Se disuelve al impactar.' },
+  { name:'Lanza de glaciar',                   rank:'C', type:'lanza',   desc:'Ralentiza lo que penetra. Criaturas de fuego: daño doble.' },
+  { name:'Asta de tormenta eléctrica',         rank:'C', type:'lanza',   desc:'El asta conduce electricidad estática. Aturde al impactar.' },
+  { name:'Lanza del pacto arcano',             rank:'C', type:'lanza',   desc:'Grabados de vinculación. Se fija al portador como extensión.' },
+  { name:'Pica del umbral',                    rank:'C', type:'lanza',   desc:'Forjada en la frontera entre dos Puertas. La punta abre grietas menores.' },
+  { name:'Tridente del abismo menor',          rank:'C', type:'lanza',   desc:'Tres puntas que vibran en frecuencias distintas. Imposible de bloquear todas.' },
+  { name:'Lanza del primer cazador',           rank:'B', type:'lanza',   desc:'Perteneció al primer cazador registrado. Nadie sabe cómo murió.' },
+  { name:'Asta de sombra mayor',               rank:'B', type:'lanza',   desc:'El asta es de sombra solidificada. Se expande al blandir.' },
+  { name:'Lanza del verdugo',                  rank:'B', type:'lanza',   desc:'Un solo golpe destruye la guardia de mana de rango C o menor.' },
+  { name:'Pica de la tormenta perfecta',       rank:'B', type:'lanza',   desc:'Cada estocada genera una ráfaga de viento cortante.' },
+  { name:'Tridente de ruptura',                rank:'B', type:'lanza',   desc:'Las tres puntas golpean en dimensiones ligeramente distintas simultáneamente.' },
+  { name:'Lanza del centinela de protocolo',   rank:'B', type:'lanza',   desc:'Grabados de NOEMIR. El arma evalúa al portador en cada uso.' },
+  { name:'Asta del monarca menor',             rank:'B', type:'lanza',   desc:'El extremo del asta golpea igual que la punta. Doble amenaza.' },
+  { name:'Lanza del abismo profundo',          rank:'A', type:'lanza',   desc:'La punta existe en dos lugares al mismo tiempo.' },
+  { name:'Pica de la aniquilación',            rank:'A', type:'lanza',   desc:'Destruye la cohesión mágica de cualquier escudo de rango A o menor.' },
+  { name:'Tridente del fin del ciclo',         rank:'A', type:'lanza',   desc:'Tres puntas de tres materiales distintos: hierro, mana, sombra.' },
+  { name:'Lanza del protocolo mayor',          rank:'A', type:'lanza',   desc:'La versión completa del arma de centinela. Solo para recipientes de rango A.' },
+  { name:'Asta del vacío eterno',              rank:'A', type:'lanza',   desc:'El asta no existe en el plano físico. Solo el filo es real.' },
+  { name:'Lanza del último recipiente',        rank:'A', type:'lanza',   desc:'NOEMIR la reserva para el recipiente que llegue más lejos.' },
+  { name:'Midnight — Lanza de la Medianoche',  rank:'S', type:'lanza',   midnight:true, desc:'[MIDNIGHT] La punta de esta lanza perfora cualquier barrera conocida, incluyendo las de rango SS. Al clavarse genera un campo de vacío en 3 metros de radio. NOEMIR la cataloga como Primera Arma del Protocolo.' },
 
-  // ── ARMAS DE MANA / ARCANAS (rango D-B) ──
-  { name:'Varita de concentración',       rank:'D', type:'arcana',  desc:'Amplifica proyectiles de mana. Reduce costo en 2 MP.' },
-  { name:'Báculo de fragmento de Puerta', rank:'D', type:'arcana',  desc:'El cristal de la punta absorbe pequeñas cantidades de mana ambiental.' },
-  { name:'Orbe de resonancia',            rank:'C', type:'arcana',  desc:'Flota levemente. Amplifica hechizos de área.' },
-  { name:'Llave de sello',                rank:'C', type:'arcana',  desc:'Cierra Puertas inestables. Ofensivamente letal contra demonios.' },
-  { name:'Báculo del eco roto',           rank:'B', type:'arcana',  desc:'Duplica el siguiente hechizo. Costo: el doble de MP.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── ESPADAS (30 armas · rangos E a S) ────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Espada de cazador de rango E',       rank:'E', type:'espada',  desc:'Estándar de la Asociación. Funcional, sin más.' },
+  { name:'Sable de hueso ígneo',               rank:'E', type:'espada',  desc:'Hueso quemado de criatura ígnea. Tibio al tacto.' },
+  { name:'Espada corta de guardia',            rank:'E', type:'espada',  desc:'Compacta. Para combate en espacios cerrados.' },
+  { name:'Espada corta de mithril gris',       rank:'D', type:'espada',  desc:'Aleación inestable. Más ligera que el acero.' },
+  { name:'Hoja del pacto',                     rank:'D', type:'espada',  desc:'Grabados arcanos en la hoja. Reacciona al mana.' },
+  { name:'Espada de llama contenida',          rank:'D', type:'espada',  desc:'El filo arde levemente. Daño extra contra criaturas de hielo.' },
+  { name:'Espada de sombra de rango menor',    rank:'D', type:'espada',  desc:'Invocada del vacío. Dura 10 minutos. Reabsorbida si se suelta.' },
+  { name:'Sable del gremio roto',              rank:'D', type:'espada',  desc:'De un gremio que ya no existe. Marcas de derrota en la hoja.' },
+  { name:'Espada de filo de obsidiana',        rank:'D', type:'espada',  desc:'Filo perfecto. Más frágil que el acero pero más afilada.' },
+  { name:'Hoja del explorador',                rank:'D', type:'espada',  desc:'Ligera. Equilibrada. El estándar de cazadores independientes.' },
+  { name:'Espada de umbral',                   rank:'C', type:'espada',  desc:'Forjada en la frontera entre dos Puertas. Rarísima.' },
+  { name:'Lamento del ejecutor',               rank:'C', type:'espada',  desc:'Larga, negra. Dicen que recuerda a quienes mató.' },
+  { name:'Espada resonante',                   rank:'C', type:'espada',  desc:'Vibra al acercarse a criaturas de rango superior. Alerta activa.' },
+  { name:'Hoja del eco roto',                  rank:'C', type:'espada',  desc:'Cada golpe replica el anterior como onda de mana.' },
+  { name:'Espada de tormenta de arena',        rank:'C', type:'espada',  desc:'Al blandir crea interferencia visual. Dificulta la lectura de movimientos.' },
+  { name:'Sable del cazador de sombras',       rank:'C', type:'espada',  desc:'Diseñado para golpes rápidos en oscuridad.' },
+  { name:'Espada del umbral bifurcado',        rank:'C', type:'espada',  desc:'La hoja se divide en dos al descargar mana. Cada mitad golpea.' },
+  { name:'Hoja del centinela élite',           rank:'C', type:'espada',  desc:'Grado C de la Asociación. Otorgada, no comprada.' },
+  { name:'Katana del protocolo',               rank:'B', type:'espada',  desc:'Grabados de NOEMIR en la hoja. Reacciona al estado mental del portador.' },
+  { name:'Espada de sombra mayor',             rank:'B', type:'espada',  desc:'Invocada del vacío. Dura 1 hora. Corta materia y mana simultáneamente.' },
+  { name:'Hoja del primer recipiente',         rank:'B', type:'espada',  desc:'NOEMIR la generó para un recipiente anterior. Marca de rango B visible.' },
+  { name:'Espada de la silueta mayor',         rank:'B', type:'espada',  desc:'La hoja es translúcida en movimiento. Invisible al ojo no entrenado.' },
+  { name:'Sable del monarca menor',            rank:'B', type:'espada',  desc:'Un fragmento de katana de un Monarca. Activa al reconocer potencial.' },
+  { name:'Espada del abismo',                  rank:'A', type:'espada',  desc:'No brilla. Absorbe la luz a su alrededor.' },
+  { name:'Hoja de la aniquilación',            rank:'A', type:'espada',  desc:'Cada golpe destruye la resistencia mágica del objetivo.' },
+  { name:'Espada del gobernante caído',        rank:'A', type:'espada',  desc:'De un cazador que casi llegó al rango SS.' },
+  { name:'Katana del fin del protocolo',       rank:'A', type:'espada',  desc:'NOEMIR la clasifica como arma de última instancia. No la entrega fácilmente.' },
+  { name:'Hoja del vacío profundo',            rank:'A', type:'espada',  desc:'La hoja existe en el plano físico y en el plano de sombras al mismo tiempo.' },
+  { name:'Espada del silencio eterno',         rank:'A', type:'espada',  desc:'Sin sonido al blandir. Sin rastro de mana. Solo el corte.' },
+  { name:'Midnight — Espada del Eclipse',      rank:'S', type:'espada',  midnight:true, desc:'[MIDNIGHT] La espada del eclipse absorbe toda energía a 1 metro de radio. Los ataques enemigos se vuelven combustible para el siguiente corte. NOEMIR la registra como: Incontrolable para rango menor a SS.' },
 
-  // ── ARMAS FLEXIBLES Y CADENAS (rango E-C) ──
-  { name:'Látigo de tendón de bestia',    rank:'E', type:'flexible',desc:'Largo alcance. Envuelve extremidades.' },
-  { name:'Cadena de mana',                rank:'D', type:'flexible',desc:'Conduce descarga eléctrica menor al impactar.' },
-  { name:'Látigo de cola de escorpión',   rank:'D', type:'flexible',desc:'Veneno de parálisis en la punta.' },
-  { name:'Cadena doble de sombra',        rank:'C', type:'flexible',desc:'Dos extremos. Simultáneos. Difícil de esquivar.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── HACHAS (30 armas · rangos E a S) ─────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Hacha de excavación reforzada',      rank:'E', type:'hacha',   desc:'Herramienta de minero adaptada al combate.' },
+  { name:'Hacha de superviviente',             rank:'E', type:'hacha',   desc:'Encontrada en una mazmorra. Oxidada pero funcional.' },
+  { name:'Hacha de garra de criatura',         rank:'E', type:'hacha',   desc:'El filo es la garra afilada de una bestia de Puerta.' },
+  { name:'Hacha de guerra de gremio',          rank:'D', type:'hacha',   desc:'Marca del Gremio Escudo Rojo. Bien equilibrada.' },
+  { name:'Hacha de runa menor',                rank:'D', type:'hacha',   desc:'Una runa de impacto grabada. Se activa al golpear.' },
+  { name:'Hacha de hueso de Puerta',           rank:'D', type:'hacha',   desc:'El mango y el filo son de hueso de criatura. Liviana y resistente.' },
+  { name:'Hacha de cristal de mazmorra',       rank:'D', type:'hacha',   desc:'Filo de cristal de Puerta. Astilla al impactar pero corta perfecto.' },
+  { name:'Hacha de ola de choque menor',       rank:'D', type:'hacha',   desc:'Al golpear genera una vibración breve que aturde criaturas pequeñas.' },
+  { name:'Hacha doble del berserker',          rank:'C', type:'hacha',   desc:'Dos filos. El primero corta; el segundo remata.' },
+  { name:'Hacha de tormenta',                  rank:'C', type:'hacha',   desc:'Cada golpe libera una chispa eléctrica menor.' },
+  { name:'Hacha de hierro negro de Puerta',    rank:'C', type:'hacha',   desc:'Metal de la Puerta. Pesa el doble de lo normal. Cada golpe lo siente el objetivo.' },
+  { name:'Hacha de sombra menor',              rank:'C', type:'hacha',   desc:'Se vuelve parcialmente intangible entre golpes. Difícil de bloquear.' },
+  { name:'Hacha del berserker élite',          rank:'C', type:'hacha',   desc:'Un solo filo. Imparable en una carga.' },
+  { name:'Hacha-espada del carnicero',         rank:'C', type:'hacha',   desc:'Híbrido. Corta con el filo, aplasta con la parte trasera.' },
+  { name:'Hacha de glaciar',                   rank:'C', type:'hacha',   desc:'El filo está perpetuamente frío. Ralentiza lo que toca.' },
+  { name:'Hacha de runa mayor',                rank:'C', type:'hacha',   desc:'Tres runas de impacto. La tercera libera una explosión de mana.' },
+  { name:'Hacha doble del centinela',          rank:'B', type:'hacha',   desc:'Dos filos de diferente material. Hierro y cristal de Puerta.' },
+  { name:'Hacha del titan menor',              rank:'B', type:'hacha',   desc:'Requiere RES mínima C. El impacto crea onda de choque de área.' },
+  { name:'Gran hacha del carnicero mayor',     rank:'B', type:'hacha',   desc:'Más grande que la versión estándar. Un golpe puede partir roca.' },
+  { name:'Hacha de tormenta perfecta',         rank:'B', type:'hacha',   desc:'Cada golpe descarga una tormenta eléctrica menor en área.' },
+  { name:'Hacha de sombra mayor',              rank:'B', type:'hacha',   desc:'El filo corta en el plano físico y el plano de sombras simultáneamente.' },
+  { name:'Hacha del protocolo',                rank:'B', type:'hacha',   desc:'Grabados de NOEMIR. Más letal contra criaturas de rango superior al portador.' },
+  { name:'Hacha del ejecutor mayor',           rank:'A', type:'hacha',   desc:'Una sola pieza. Ningún gremio la fabrica. Nadie sabe de dónde vino.' },
+  { name:'Gran hacha del abismo',              rank:'A', type:'hacha',   desc:'No pesa. Pero destruye todo lo que toca como si pesara una tonelada.' },
+  { name:'Hacha de la aniquilación',           rank:'A', type:'hacha',   desc:'Cada golpe destruye la estructura mágica de lo que impacta.' },
+  { name:'Hacha del monarca caído',            rank:'A', type:'hacha',   desc:'Del último monarca que NOEMIR registró. No hay más información.' },
+  { name:'Hacha del vacío',                    rank:'A', type:'hacha',   desc:'El filo está forjado en el vacío entre Puertas. Corta la realidad levemente.' },
+  { name:'Gran hacha del fin de ciclos',       rank:'A', type:'hacha',   desc:'Solo puede ser blandida en estado de combate extremo. Se niega a moverse en calma.' },
+  { name:'Hacha de la destrucción pura',       rank:'A', type:'hacha',   desc:'Deja marcas en el espacio mismo. Las cicatrices persisten durante días.' },
+  { name:'Midnight — Hacha del Juicio Final',  rank:'S', type:'hacha',   midnight:true, desc:'[MIDNIGHT] Cuando esta hacha cae, el área de 10 metros colapsa en densidad gravitacional extrema. Todo en ese radio recibe daño masivo independientemente de su defensa. Solo puede usarse una vez por combate. NOEMIR la clasifica como: Existencia Ilegal.' },
 
-  // ── ARMAS DE DOS MANOS PESADAS (rango D-B) ──
-  { name:'Mandoble del cazador mayor',    rank:'D', type:'espada',  desc:'Requiere FUE mínima E. Corta en arco amplio.' },
-  { name:'Espadón de ceniza de Puerta',   rank:'C', type:'espada',  desc:'Absorbió energía de una Puerta de rango C.' },
-  { name:'Gran martillo del Titan Menor', rank:'C', type:'maza',    desc:'Requiere RES mínima D. El impacto crea onda de choque.' },
-  { name:'Hacha-espada del Carnicero',    rank:'B', type:'hacha',   desc:'Híbrido brutal. Corta y aplasta en el mismo movimiento.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── MAZAS / CONTUNDENTES (30 armas · rangos E a S) ───────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Maza de guardia de Puerta',          rank:'E', type:'maza',    desc:'Estándar. Pesada. Rompe escudos menores.' },
+  { name:'Garrote de mazmorra',                rank:'E', type:'maza',    desc:'Un palo pesado. Sin elegancia. Con resultado.' },
+  { name:'Maza de hueso de criatura',          rank:'E', type:'maza',    desc:'El hueso de la criatura aguanta más que el metal ordinario.' },
+  { name:'Mazo de impacto de onda',            rank:'D', type:'maza',    desc:'Al golpear genera una vibración breve. Aturde.' },
+  { name:'Maza de hierro negro',               rank:'D', type:'maza',    desc:'Metal de la Puerta. Pesa el doble de lo normal.' },
+  { name:'Maza de runa de golpe',              rank:'D', type:'maza',    desc:'Una runa de impacto grabada. Libera onda de choque menor.' },
+  { name:'Mazo de cristal de mazmorra',        rank:'D', type:'maza',    desc:'La cabeza es de cristal de Puerta solidificado. Implosiona al impactar.' },
+  { name:'Maza de cadenas',                    rank:'D', type:'maza',    desc:'Con cadenas en el extremo. El impacto se extiende un metro extra.' },
+  { name:'Martillo de juicio',                 rank:'C', type:'maza',    desc:'Enorme. Un golpe en el torso tumba a un E fácil.' },
+  { name:'Gran martillo del titan menor',      rank:'C', type:'maza',    desc:'Requiere RES mínima D. El impacto crea onda de choque.' },
+  { name:'Maza de tormenta',                   rank:'C', type:'maza',    desc:'Cada impacto descarga electricidad estática acumulada.' },
+  { name:'Mazo de glaciar',                    rank:'C', type:'maza',    desc:'La cabeza está perpetuamente fría. Congela el punto de impacto.' },
+  { name:'Maza de sombra menor',               rank:'C', type:'maza',    desc:'El impacto deja una sombra en el objetivo que reduce su defensa.' },
+  { name:'Martillo de runa mayor',             rank:'C', type:'maza',    desc:'Tres runas. La tercera libera una explosión de área en el impacto.' },
+  { name:'Maza del ejecutor menor',            rank:'C', type:'maza',    desc:'Cada golpe aplasta la resistencia física del objetivo acumulativamente.' },
+  { name:'Gran mazo de hierro oscuro',         rank:'C', type:'maza',    desc:'Metal extraído de Puertas de rango C. Extremadamente denso.' },
+  { name:'Martillo del verdugo',               rank:'B', type:'maza',    desc:'Un solo golpe destruye la estructura ósea de cualquier criatura de rango C.' },
+  { name:'Gran maza del titan',                rank:'B', type:'maza',    desc:'Requiere FUE mínima C. El área de impacto se extiende 3 metros.' },
+  { name:'Mazo de la destrucción',             rank:'B', type:'maza',    desc:'Aplasta barreras de mana de rango C o menor en un golpe.' },
+  { name:'Maza de tormenta perfecta',          rank:'B', type:'maza',    desc:'El impacto libera una tormenta eléctrica en área de 5 metros.' },
+  { name:'Martillo del protocolo',             rank:'B', type:'maza',    desc:'Grabados de NOEMIR. Más letal cuanto mayor sea la diferencia de rango.' },
+  { name:'Gran mazo del abismo',               rank:'B', type:'maza',    desc:'La cabeza del mazo no existe en el plano físico. Solo el impacto es real.' },
+  { name:'Maza del monarca menor',             rank:'A', type:'maza',    desc:'Sin filo. Solo peso. Y ese peso puede mover montañas.' },
+  { name:'Gran martillo del ejecutor mayor',   rank:'A', type:'maza',    desc:'La versión completa. Una pieza. Ningún gremio la fabrica.' },
+  { name:'Mazo de la aniquilación total',      rank:'A', type:'maza',    desc:'Cada golpe destruye la cohesión molecular del objetivo.' },
+  { name:'Maza del vacío',                     rank:'A', type:'maza',    desc:'El impacto crea un vacío temporal en el punto de contacto.' },
+  { name:'Gran maza del caos',                 rank:'A', type:'maza',    desc:'El golpe libera energía descontrolada. El portador también lo siente.' },
+  { name:'Martillo del fin del mundo',         rank:'A', type:'maza',    desc:'Existe en el codex como mito. NOEMIR la cataloga como leyenda verificada.' },
+  { name:'Maza del silencio absoluto',         rank:'A', type:'maza',    desc:'Sin sonido al impactar. El daño llega antes que el ruido.' },
+  { name:'Midnight — Maza del Colapso',        rank:'S', type:'maza',    midnight:true, desc:'[MIDNIGHT] El impacto de esta maza genera un colapso gravitacional local. Todo en 15 metros es atraído hacia el punto de golpe durante 3 segundos. Ninguna defensa conocida mitiga este efecto. NOEMIR la clasifica como: Nivel de Extinción.' },
 
-  // ── ARMAS ESPECIALES / ÚNICAS (rango C-A) ──
-  { name:'Cuchillas del vacío',           rank:'C', type:'daga',    desc:'Par de dagas. La derecha corta materia; la izquierda, mana.' },
-  { name:'Espada resonante',              rank:'C', type:'espada',  desc:'Vibra al acercarse a criaturas de rango superior. Alerta activa.' },
-  { name:'Lanza del primer cazador',      rank:'B', type:'lanza',   desc:'Perteneció al primer cazador registrado. Nadie sabe cómo murió.' },
-  { name:'Katana del protocolo',          rank:'B', type:'espada',  desc:'Grabados de NOEMIR en la hoja. Reacciona al estado mental del portador.' },
-  { name:'Arco de la silueta',            rank:'B', type:'arco',    desc:'Las flechas se vuelven translúcidas. Difíciles de rastrear.' },
-  { name:'Guantelete de ruptura',         rank:'A', type:'garras',  desc:'No es un arma. Es una extensión. Rompe barreras de rango B.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── ARCANAS / BÁCULOS / ORBES (30 armas · rangos D a S) ──────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Varita de concentración menor',      rank:'D', type:'arcana',  desc:'Amplifica proyectiles de mana. Reduce costo en 2 MP.' },
+  { name:'Báculo de fragmento de Puerta',      rank:'D', type:'arcana',  desc:'El cristal absorbe pequeñas cantidades de mana ambiental.' },
+  { name:'Orbe de vibración menor',            rank:'D', type:'arcana',  desc:'Amplifica ondas de mana en área pequeña.' },
+  { name:'Varita de cristal de tormenta',      rank:'D', type:'arcana',  desc:'Genera proyectiles eléctricos básicos. Costo: 4 MP.' },
+  { name:'Báculo de madera de Puerta',         rank:'D', type:'arcana',  desc:'Tallado de un árbol que creció dentro de una Puerta.' },
+  { name:'Orbe de absorción menor',            rank:'D', type:'arcana',  desc:'Absorbe hasta 8 MP de ataques mágicos recibidos.' },
+  { name:'Varita de mana condensado',          rank:'C', type:'arcana',  desc:'Dispara proyectiles de mana puro. Reduce costo en 3 MP.' },
+  { name:'Orbe de resonancia',                 rank:'C', type:'arcana',  desc:'Flota levemente. Amplifica hechizos de área.' },
+  { name:'Llave de sello',                     rank:'C', type:'arcana',  desc:'Cierra Puertas inestables. Ofensivamente letal contra demonios.' },
+  { name:'Báculo de cristal de tormenta',      rank:'C', type:'arcana',  desc:'Genera tormentas eléctricas menores en área.' },
+  { name:'Orbe de glaciar',                    rank:'C', type:'arcana',  desc:'Amplifica hechizos de frío. Congelación de criaturas de rango D.' },
+  { name:'Varita del eco',                     rank:'C', type:'arcana',  desc:'Replica el último hechizo con 50% de efecto sin costo de MP.' },
+  { name:'Báculo de sombra menor',             rank:'C', type:'arcana',  desc:'Las invocaciones del portador duran 1 escena más.' },
+  { name:'Orbe de ruptura menor',              rank:'C', type:'arcana',  desc:'Genera microexplosiones de mana en área de 3 metros.' },
+  { name:'Varita del centinela arcano',        rank:'C', type:'arcana',  desc:'Dispara barreras de mana además de proyectiles.' },
+  { name:'Báculo de la fractura',              rank:'C', type:'arcana',  desc:'La punta abre grietas dimensionales menores al impactar.' },
+  { name:'Báculo del eco roto',                rank:'B', type:'arcana',  desc:'Duplica el siguiente hechizo. Costo: el doble de MP.' },
+  { name:'Orbe de resonancia mayor',           rank:'B', type:'arcana',  desc:'Amplifica todos los hechizos en un 50%. Costo de MP aumentado en 30%.' },
+  { name:'Varita del abismo menor',            rank:'B', type:'arcana',  desc:'Los proyectiles viajan por el plano de sombras. Imposible de esquivar.' },
+  { name:'Báculo de sombra mayor',             rank:'B', type:'arcana',  desc:'Las invocaciones del portador tienen +5 a todos sus stats.' },
+  { name:'Orbe del vacío',                     rank:'B', type:'arcana',  desc:'Genera un vacío de mana temporal. Los hechizos enemigos colapsan.' },
+  { name:'Varita del protocolo',               rank:'B', type:'arcana',  desc:'Grabados de NOEMIR. Aprende los patrones de hechizo del portador.' },
+  { name:'Báculo de la aniquilación menor',    rank:'A', type:'arcana',  desc:'Los hechizos del portador ignoran escudos de rango B o menor.' },
+  { name:'Orbe del ojo de la tormenta',        rank:'A', type:'arcana',  desc:'El centro está siempre quieto. Todo alrededor no.' },
+  { name:'Varita del monarca arcano',          rank:'A', type:'arcana',  desc:'No requiere mana para los primeros tres hechizos por escena.' },
+  { name:'Báculo del silencio mágico',         rank:'A', type:'arcana',  desc:'Los hechizos del portador son silenciosos e invisibles en vuelo.' },
+  { name:'Orbe del vacío profundo',            rank:'A', type:'arcana',  desc:'Genera un agujero dimensional temporal de 5 metros.' },
+  { name:'Varita del fin del protocolo',       rank:'A', type:'arcana',  desc:'NOEMIR la clasifica como herramienta de último recurso.' },
+  { name:'Báculo del abismo eterno',           rank:'A', type:'arcana',  desc:'Amplifica todos los hechizos al triple. Reduce MP máximo en 50%.' },
+  { name:'Midnight — Orbe de la Oscuridad Absoluta', rank:'S', type:'arcana', midnight:true, desc:'[MIDNIGHT] Este orbe no amplifica hechizos. Los reescribe. El portador puede alterar las leyes de la magia en un radio de 20 metros durante 1 turno. NOEMIR lo clasifica como Arma de Redefinición del Protocolo.' },
 
-  // ── ARMAS INVOCADAS / SOMBRAS (rango C-S) ──
-  { name:'Fragmento de sombra solidificada', rank:'C', type:'daga', desc:'Solo funciona en manos de un Invocador. Drena vida al impactar.' },
-  { name:'Espada de sombra de rango menor',  rank:'D', type:'espada',desc:'Invocada del vacío. Dura 10 minutos. Reabsorbida si se suelta.' },
-  { name:'Lanza espectral',               rank:'C', type:'lanza',   desc:'Proyectil de mana solidificado. Se disuelve al impactar.' },
-  { name:'Garras de la noche',            rank:'B', type:'garras',  desc:'Cuatro extensiones de sombra. Se curvan alrededor de defensas.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── CADENAS / ARMAS FLEXIBLES (30 armas · rangos E a S) ──────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Cadena de guardia de Puerta',        rank:'E', type:'cadena',  desc:'Cadena estándar. Larga. Para atar o golpear.' },
+  { name:'Látigo de cuero reforzado',          rank:'E', type:'cadena',  desc:'De cuero de criatura. Más resistente que el cuero animal.' },
+  { name:'Cadena de hueso de mazmorra',        rank:'E', type:'cadena',  desc:'Eslabones de hueso de criatura. Ligera y silenciosa.' },
+  { name:'Látigo de tendón de bestia',         rank:'D', type:'cadena',  desc:'Largo alcance. Envuelve extremidades. Difícil de cortar.' },
+  { name:'Cadena de mana',                     rank:'D', type:'cadena',  desc:'Conduce descarga eléctrica menor al impactar.' },
+  { name:'Látigo de cola de escorpión',        rank:'D', type:'cadena',  desc:'Veneno de parálisis en la punta. Efecto acumulativo.' },
+  { name:'Cadena de cristal de Puerta',        rank:'D', type:'cadena',  desc:'Los eslabones son de cristal. Al romperse generan una explosión.' },
+  { name:'Látigo de sombra menor',             rank:'D', type:'cadena',  desc:'Se vuelve semintangible en movimiento. Difícil de bloquear.' },
+  { name:'Cadena doble de sombra',             rank:'C', type:'cadena',  desc:'Dos extremos. Simultáneos. Difícil de esquivar ambos.' },
+  { name:'Látigo de tormenta eléctrica',       rank:'C', type:'cadena',  desc:'Cada golpe descarga electricidad acumulada en el objetivo.' },
+  { name:'Cadena de vinculación arcana',       rank:'C', type:'cadena',  desc:'Ata a criaturas mágicas reduciendo su gasto de mana.' },
+  { name:'Látigo de veneno de Puerta',         rank:'C', type:'cadena',  desc:'El veneno es de una criatura de rango C. Parálisis severa.' },
+  { name:'Cadena del cazador de bestias',      rank:'C', type:'cadena',  desc:'Diseñada para criaturas grandes. Los eslabones no se cortan.' },
+  { name:'Látigo de glaciar',                  rank:'C', type:'cadena',  desc:'Ralentiza lo que toca. Congela progresivamente.' },
+  { name:'Cadena de ruptura',                  rank:'C', type:'cadena',  desc:'Cada eslabón lleva una runa de impacto. La cadena entera explota al romperse.' },
+  { name:'Látigo de eco',                      rank:'C', type:'cadena',  desc:'El golpe se replica como onda de mana a 2 metros del punto de impacto.' },
+  { name:'Cadena de sombra mayor',             rank:'B', type:'cadena',  desc:'Atrapa la sombra del objetivo, inmovilizándolo brevemente.' },
+  { name:'Látigo de la tormenta perfecta',     rank:'B', type:'cadena',  desc:'Cada golpe libera una tormenta eléctrica en área de 3 metros.' },
+  { name:'Cadena del verdugo',                 rank:'B', type:'cadena',  desc:'Ata y aplasta simultáneamente. Las criaturas no pueden liberarse solos.' },
+  { name:'Látigo del abismo menor',            rank:'B', type:'cadena',  desc:'Los golpes viajan por el plano de sombras. Imposible de esquivar.' },
+  { name:'Cadena del protocolo',               rank:'B', type:'cadena',  desc:'Grabados de NOEMIR. Más efectiva cuanto mayor sea el rango del objetivo.' },
+  { name:'Látigo de mana puro',                rank:'B', type:'cadena',  desc:'La correa es de mana solidificado. Se regenera si se corta.' },
+  { name:'Cadena del monarca menor',           rank:'A', type:'cadena',  desc:'Cualquier criatura atada por esta cadena pierde acceso a sus habilidades.' },
+  { name:'Látigo del abismo',                  rank:'A', type:'cadena',  desc:'Golpea en el plano físico y en el plano de sombras simultáneamente.' },
+  { name:'Cadena de la aniquilación',          rank:'A', type:'cadena',  desc:'Al atar a un objetivo, destruye su resistencia mágica.' },
+  { name:'Látigo del vacío',                   rank:'A', type:'cadena',  desc:'Los golpes generan vacíos de presión en el punto de impacto.' },
+  { name:'Cadena del fin del ciclo',           rank:'A', type:'cadena',  desc:'Cualquier objetivo atado no puede regenerar mana mientras esté atrapado.' },
+  { name:'Látigo de tormenta absoluta',        rank:'A', type:'cadena',  desc:'Cada golpe libera una tormenta en área de 10 metros.' },
+  { name:'Cadena del ejecutor mayor',          rank:'A', type:'cadena',  desc:'No tiene eslabones. Es una sola pieza continua de metal oscuro.' },
+  { name:'Midnight — Cadena de la Medianoche', rank:'S', type:'cadena',  midnight:true, desc:'[MIDNIGHT] Esta cadena ata no solo el cuerpo sino la voluntad. Cualquier objetivo atado no puede usar habilidades activas de ningún rango mientras dure el contacto. NOEMIR la clasifica como Arma de Supresión Total.' },
 
-  // ── ARMAS ELEMENTALES (rango D-A) ──
-  { name:'Espada de llama contenida',     rank:'D', type:'espada',  desc:'El filo arde levemente. Daño extra contra criaturas de hielo.' },
-  { name:'Hacha de tormenta',             rank:'C', type:'hacha',   desc:'Cada golpe libera una chispa eléctrica menor.' },
-  { name:'Lanza de glaciar',              rank:'C', type:'lanza',   desc:'Ralentiza lo que penetra. Criaturas de fuego: daño doble.' },
-  { name:'Espada de tormenta de arena',   rank:'B', type:'espada',  desc:'Al blandir crea interferencia visual. Dificulta la lectura de movimientos.' },
-  { name:'Báculo del ojo de la tormenta', rank:'A', type:'arcana',  desc:'El centro está siempre quieto. Todo alrededor no.' },
+  // ══════════════════════════════════════════════════════════════
+  // ── GARRAS / GUANTELETES (30 armas · rangos D a S) ───────────
+  // ══════════════════════════════════════════════════════════════
+  { name:'Garras de combate de rango D',       rank:'D', type:'garras',  desc:'Extensiones metálicas sobre los nudillos. Cortan y golpean.' },
+  { name:'Guantelete de guardia de Puerta',    rank:'D', type:'garras',  desc:'Refuerza el puño. Los golpes generan impacto extra.' },
+  { name:'Garras de hueso de criatura',        rank:'D', type:'garras',  desc:'Garras naturales de una bestia. Ligeras y letales.' },
+  { name:'Guantelete de runa de impacto',      rank:'D', type:'garras',  desc:'Una runa grabada. El puñetazo libera onda de choque.' },
+  { name:'Garras de cristal de Puerta',        rank:'D', type:'garras',  desc:'Los dedos terminan en cristal afilado de Puerta.' },
+  { name:'Guantelete del luchador élite',      rank:'C', type:'garras',  desc:'Grado C. Golpe sin arma de rango D base. Siempre.' },
+  { name:'Garras de la noche',                 rank:'C', type:'garras',  desc:'Cuatro extensiones de sombra. Se curvan alrededor de defensas.' },
+  { name:'Guantelete de tormenta',             rank:'C', type:'garras',  desc:'Cada golpe descarga electricidad acumulada.' },
+  { name:'Garras de glaciar',                  rank:'C', type:'garras',  desc:'Las garras están perpetuamente frías. Congelan lo que tocan.' },
+  { name:'Guantelete de absorción',            rank:'C', type:'garras',  desc:'Absorbe parte del mana de cada golpe recibido.' },
+  { name:'Garras del depredador',              rank:'C', type:'garras',  desc:'Diseñadas para criaturas con escamas o caparazón. Las perforan.' },
+  { name:'Guantelete de la fractura',          rank:'C', type:'garras',  desc:'Los golpes crean microdesgarros en la armadura del objetivo.' },
+  { name:'Garras de sombra mayor',             rank:'B', type:'garras',  desc:'Golpean en el plano físico y el de sombras simultáneamente.' },
+  { name:'Guantelete de ruptura',              rank:'B', type:'garras',  desc:'Rompe barreras de mana de rango B o menor.' },
+  { name:'Garras de la tormenta perfecta',     rank:'B', type:'garras',  desc:'Cada golpe libera una descarga eléctrica en área.' },
+  { name:'Guantelete del titan',               rank:'B', type:'garras',  desc:'Requiere FUE mínima C. El impacto crea onda de choque de área.' },
+  { name:'Garras del verdugo',                 rank:'B', type:'garras',  desc:'Penetran cualquier armadura de rango C o menor.' },
+  { name:'Guantelete del protocolo',           rank:'B', type:'garras',  desc:'Grabados de NOEMIR. Más letal contra criaturas de rango superior.' },
+  { name:'Garras del vacío',                   rank:'A', type:'garras',  desc:'Golpean en la dimensión física y en el vacío entre Puertas.' },
+  { name:'Guantelete del monarca menor',       rank:'A', type:'garras',  desc:'El puño del portador puede destrozar escudos de rango A o menor.' },
+  { name:'Garras de la aniquilación',          rank:'A', type:'garras',  desc:'Cada golpe destruye la estructura mágica del objetivo.' },
+  { name:'Guantelete del abismo',              rank:'A', type:'garras',  desc:'Absorbe la defensa del objetivo con cada golpe acumulativamente.' },
+  { name:'Garras del silencio',                rank:'A', type:'garras',  desc:'Sin sonido al golpear. Los ataques no generan rastro de mana.' },
+  { name:'Guantelete del fin del ciclo',       rank:'A', type:'garras',  desc:'Solo puede usarse en estado de combate extremo. Se niega a activarse en calma.' },
+  { name:'Garras del ejecutor mayor',          rank:'A', type:'garras',  desc:'De un verdugo que llegó al rango A. Nadie sabe cómo las obtuvo.' },
+  { name:'Guantelete del gobernante caído',    rank:'A', type:'garras',  desc:'De un cazador que casi llegó al rango SS. El guantelete recuerda su poder.' },
+  { name:'Garras del caos',                    rank:'A', type:'garras',  desc:'Libera energía descontrolada en cada impacto. El portador también lo siente.' },
+  { name:'Guantelete de la destrucción pura',  rank:'A', type:'garras',  desc:'Deja marcas en el espacio mismo al golpear.' },
+  { name:'Garras del primer recipiente',       rank:'A', type:'garras',  desc:'NOEMIR las menciona en los registros más antiguos. Sin más información.' },
+  { name:'Midnight — Garras de la Medianoche', rank:'S', type:'garras',  midnight:true, desc:'[MIDNIGHT] Estas garras no golpean el cuerpo. Golpean el alma del objetivo. Cada impacto reduce permanentemente la voluntad de combate del enemigo. Objetos inanimados se desintegran al contacto. NOEMIR las clasifica como: Fuera del Alcance del Protocolo.' },
+
 ];
+
 
 // ─── 60 ARTEFACTOS (equipables, obtenibles en misiones) ──────────────────────
 const ARTIFACTS = [
@@ -1772,6 +2323,7 @@ function renderSummarySheet() {
     <div class="ss-row"><span class="ss-label">HP / MP</span><span class="ss-value">${cls.hp} / ${cls.mp}</span></div>
     <div class="ss-row"><span class="ss-label">HABILIDADES</span><div class="ss-skills">${cls.skills.map(s=>`<span class="ss-skill-tag">${s.split('(')[0].trim()}</span>`).join('')}</div></div>
     <div class="ss-row"><span class="ss-label">ARMA</span><span class="ss-value">${assignedWeapon ? assignedWeapon.name : '—'}</span></div>
+    <div class="ss-row"><span class="ss-label">RAZA</span><span class="ss-value" style="font-family:var(--mono);font-size:10px;color:var(--warn)">🧬 Asignación NOEMIR pendiente</span></div>
     ${custom ? `<div class="ss-row"><span class="ss-label">CONTEXTO</span><span class="ss-value" style="font-size:11px;color:var(--text2)">${custom}</span></div>` : ''}
   `;
 }
@@ -1807,6 +2359,14 @@ function startGame() {
   state.char.rank = calcRankFromStats(state.char);
   state.char.classId = cls.id;
   state.char.className = cls.name;
+  state.char.mutations = state.char.mutations || [];
+  state.char.permanentWounds = state.char.permanentWounds || [];
+  state.char.noemirMemories = state.char.noemirMemories || [];
+  state.base = state.base || { taller:0, enfermeria:0, biblioteca:0, entrenamiento:0 };
+  state.codex = state.codex || { monsters:[], npcs:[], artifacts:[], dungeons:[], bosses:[] };
+  state.achievements = state.achievements || [];
+  state.defeatedBosses = state.defeatedBosses || [];
+  state.affinityUnlocked = state.affinityUnlocked || { sombra:false, bestia:false, destruccion:false, gobernante:false };
   state.affinity[cls.affinity] = 10; // starting affinity hint
   state.started = true;
   saveState();
@@ -1815,6 +2375,9 @@ function startGame() {
   document.getElementById('chat-area').classList.remove('hidden');
   document.getElementById('input-area').classList.remove('hidden');
   renderSidebar();
+
+  // Assign race via NOEMIR scan
+  setTimeout(() => assignRace(), 800);
 
   const initPrompt = `Iniciá la narración del protocolo NOEMIR.
 
@@ -1854,14 +2417,20 @@ function buildSystemContext() {
 Nombre: ${c.name}
 Trasfondo: ${c.background}
 Falla: ${c.flaw}
+Raza: ${c.race ? (RACES.find(r=>r.id===c.race)||{name:c.race}).name : 'Sin asignar'}${c.raceEvolution ? ' ('+c.raceEvolution+')' : ''}
 Rango calculado: ${calcedRank} | HP: ${c.hp}/${c.hpmax} | MP: ${c.mp}/${c.mpmax}
 Stats individuales (número / rango): FUE:${c.fue}(${rankFromValue(c.fue)}) AGI:${c.agi}(${rankFromValue(c.agi)}) PER:${c.per}(${rankFromValue(c.per)}) RES:${c.res}(${rankFromValue(c.res)}) INT:${c.int}(${rankFromValue(c.int)}) SEN:${c.sen}(${rankFromValue(c.sen)})
 Habilidades: ${c.skills.join(', ') || 'Ninguna'}
 Inventario: ${c.inventory.join(', ') || 'Vacío'}
-Heridas: ${c.wounds || 'Ninguna'}
+Heridas leves: ${c.wounds || 'Ninguna'}
+Heridas permanentes: ${(c.permanentWounds||[]).map(w=>w.name).join(', ') || 'Ninguna'}
+Mutaciones: ${(c.mutations||[]).map(m=>m.name).join(', ') || 'Ninguna'}
+Base: Taller Nv.${state.base.taller||0} · Enfermería Nv.${state.base.enfermeria||0} · Biblioteca Nv.${state.base.biblioteca||0} · Cámara Ent. Nv.${state.base.entrenamiento||0}
 Escenas jugadas: ${scenes}
 ${m.name ? `Directiva activa: ${m.name} | Obj: ${m.obj} | Pen: ${m.penalty}` : 'Sin directiva activa'}
 Afinidad: ${affReveal ? `Dominante: ${domAff} (podés revelar pistas directas)` : 'CLASIFICADO — solo pistas ambientales sutiles'}
+Sendas desbloqueadas: ${Object.keys(state.affinityUnlocked||{}).filter(k=>state.affinityUnlocked[k]).map(k=>SENDA_POWERS[k]?.name||k).join(', ') || 'Ninguna'}
+Jefes derrotados: ${(state.defeatedBosses||[]).length ? state.defeatedBosses.map(id=>UNIQUE_BOSSES.find(b=>b.id===id)?.name||id).join(', ') : 'Ninguno'}
 
 RECORDATORIO ANTI-POWERCREEP: El personaje está en rango ${calcedRank}. Tope de entrenamiento por rango: F→+1 | E→+2 | D→+3 | C→+4 | B→+5 | A→+6 | S/SS→+8. Tope total por escena: F→+8 | E→+12 | D→+16 | C→+20 | B→+25 | A→+30 | S→+35 | SS→+40 | SSS→+50. El entrenamiento sin riesgo proporcional al rango NO produce efecto.`;
 }
@@ -1875,7 +2444,7 @@ function getDominantAff() {
 }
 
 function getModel() {
-  return localStorage.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
+  return _ls.getItem('sl-model') || 'nvidia/nemotron-3-super-120b-a12b:free';
 }
 
 // Devuelve la cola de modelos empezando por el seleccionado
@@ -1985,6 +2554,19 @@ async function callAI(userMsg, isInit = false) {
   parseStatChanges(result.text);
   const freePoints = detectFreePoints(result.text);
   if(freePoints > 0) setTimeout(() => openStatPointsModal(freePoints), 400);
+
+  // ── NEW SYSTEM HOOKS ──
+  checkRandomEvent();
+  checkNoemirMemories();
+  autoDetectCodex(result.text);
+  checkAffinityUnlocks();
+  // Achievement: survive 1 HP
+  if (state.char.hp === 1) checkAchievement('survive_1hp');
+  // Achievement: 4 memories unlocked
+  if ((state.char.noemirMemories||[]).length >= 4) checkAchievement('memory_4');
+  // Achievement: affinity 70
+  if (Object.values(state.affinity).some(v=>v>=70)) checkAchievement('affinity_70');
+
   saveState();
   renderNarratorMsg(result.text);
   isLoading = false;
@@ -2362,22 +2944,32 @@ function showEquipCatalog() {
 function renderEquipTab(tab) {
   document.querySelectorAll('.eq-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   const body = document.getElementById('eq-body');
-  const rankColors = {F:'var(--text3)',E:'var(--text2)',D:'var(--text)',C:'var(--warn)',B:'var(--danger)',A:'var(--accent)',S:'var(--success)'};
+  const rankColors = {F:'var(--text3)',E:'var(--text2)',D:'var(--text)',C:'var(--warn)',B:'var(--danger)',A:'var(--accent)',S:'#bf5fff'};
 
   let items = [];
-  if(tab === 'weapons') items = MISSION_WEAPONS.map(w => ({ name:w.name, sub:w.type+' · '+w.rank, rank:w.rank, desc:w.desc }));
-  else if(tab === 'artifacts') items = ARTIFACTS.map(a => ({ name:a.name, sub:a.slot+' · '+a.rank, rank:a.rank, desc:a.desc }));
-  else if(tab === 'armor') items = ARMOR_SETS.map(a => ({ name:a.name, sub:'Rango '+a.rank, rank:a.rank, desc:a.desc+' — '+a.bonus }));
+  if(tab === 'weapons') items = MISSION_WEAPONS.map(w => ({ name:w.name, sub:(w.type||'')+'  ·  Rango '+w.rank, rank:w.rank, desc:w.desc, midnight:w.midnight||false }));
+  else if(tab === 'artifacts') items = ARTIFACTS.map(a => ({ name:a.name, sub:a.slot+'  ·  Rango '+a.rank, rank:a.rank, desc:a.desc, midnight:false }));
+  else if(tab === 'armor') items = ARMOR_SETS.map(a => ({ name:a.name, sub:'Rango '+a.rank, rank:a.rank, desc:a.desc+' — '+a.bonus, midnight:false }));
 
-  body.innerHTML = items.map(it => `
-    <div style="border-bottom:1px solid var(--border);padding:8px 0;display:flex;gap:10px;align-items:flex-start">
-      <span style="font-family:var(--mono);font-size:11px;min-width:28px;color:${rankColors[it.rank]||'var(--text)'}">${it.rank}</span>
-      <div>
-        <div style="font-family:var(--mono);font-size:12px;color:var(--text)">${it.name}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${it.sub}</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:3px">${it.desc}</div>
-      </div>
-    </div>`).join('');
+  const filterVal = (document.getElementById('eq-filter-input')||{}).value?.toLowerCase()||'';
+  const filteredItems = filterVal ? items.filter(it => it.name.toLowerCase().includes(filterVal) || it.rank.toLowerCase().includes(filterVal) || (it.sub||'').toLowerCase().includes(filterVal)) : items;
+
+  body.innerHTML = filteredItems.length === 0
+    ? '<div style="font-size:12px;color:var(--text3);font-family:var(--mono);padding:16px 0;text-align:center">Sin resultados.</div>'
+    : filteredItems.map(it => {
+      const midnight = it.midnight;
+      const border = midnight ? 'border-left:3px solid #bf5fff;padding-left:10px;' : '';
+      const nameColor = midnight ? '#bf5fff' : 'var(--text)';
+      const bgStyle = midnight ? 'background:#bf5fff0d;border-radius:4px;padding:6px 0 6px 10px;margin-bottom:2px;border-left:3px solid #bf5fff;' : 'border-bottom:1px solid var(--border);padding:8px 0;';
+      return `<div style="${bgStyle}display:flex;gap:10px;align-items:flex-start">
+        <span style="font-family:var(--mono);font-size:11px;min-width:28px;color:${rankColors[it.rank]||'var(--text)'};${midnight?'font-weight:bold;':''}">${it.rank}</span>
+        <div>
+          <div style="font-family:var(--mono);font-size:12px;color:${nameColor}">${midnight?'🌑 ':'' }${it.name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${it.sub}</div>
+          <div style="font-size:11px;color:${midnight?'#bf5fffaa':'var(--text2)'};margin-top:3px">${it.desc}</div>
+        </div>
+      </div>`;
+    }).join('');
 }
 
 
@@ -2390,7 +2982,7 @@ function exportState() {
 
 function confirmReset() {
   if(confirm('¿Reiniciar NOEMIR Protocol? Se perderá todo el progreso del recipiente.')) {
-    localStorage.removeItem('sl-rpg-state');
+    _ls.removeItem('sl-rpg-state');
     location.reload();
   }
 }
@@ -2406,7 +2998,414 @@ document.getElementById('player-input').addEventListener('input', function() {
 
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target === o) o.classList.add('hidden'); }));
 
+
+// ═══ NEW SYSTEMS (razas, mutaciones, base, etc.) ═══
+
+function showRankLegend() {
+  document.getElementById('rank-legend-modal').classList.remove('hidden');
+}
+
+// ═══ NEW SYSTEMS JS ═══
+
+// ── RAZAS ──
+const RACES = [
+  { id:'humano', icon:'🧑', name:'Humano', chance:35, bonus:['+1 punto de stat extra cada cierto tiempo','Adaptabilidad'], malus:['Sin talentos raciales'], affinity:null, desc:'La raza más común. Ideal para crecimiento largo.' },
+  { id:'bestial', icon:'🐺', name:'Bestial', chance:15, bonus:['+10% FUE al inicio','+10% AGI al inicio'], malus:['Menor control emocional'], affinity:'bestia', desc:'Descendientes alterados por energía de Puerta.' },
+  { id:'sensitivo', icon:'👁', name:'Sensitivo', chance:15, bonus:['+15% SEN al inicio','+10% PER al inicio'], malus:['Más vulnerable a ataques mentales'], affinity:'sombra', desc:'Humanos con percepción anómala.' },
+  { id:'sintetico', icon:'⚙️', name:'Sintético', chance:10, bonus:['+15% RES al inicio','Menor consumo de MP'], malus:['Curación natural reducida'], affinity:'gobernante', desc:'Recipientes modificados artificialmente.' },
+  { id:'marcado', icon:'🔥', name:'Marcado por el Portal', chance:10, bonus:['Más MP base','Crecimiento mágico acelerado'], malus:['Inestabilidad'], affinity:null, desc:'Expuestos a una Puerta durante la infancia.' },
+  { id:'hibrido', icon:'🌑', name:'Híbrido Sombrío', chance:8, bonus:['Sigilo natural','Detección de entidades'], malus:['NPCs sensibles desconfían'], affinity:'sombra', desc:'Linaje raro y oscuro.' },
+  { id:'heredero', icon:'👑', name:'Heredero Anómalo', chance:5, bonus:['Todos los stats +2 al inicio'], malus:['NOEMIR te observa más de cerca','Más enemigos especiales'], affinity:null, desc:'Extremadamente raro. Potencial excepcional.' },
+  { id:'defectuoso', icon:'☠️', name:'Recipiente Defectuoso', chance:2, bonus:['Potencial de crecimiento MÁS ALTO del juego'], malus:['HP reducido al inicio','Stats iniciales menores'], affinity:null, desc:'La raza maldita. La ruta más difícil. El techo más alto.' },
+];
+
+const RACE_EVOLUTIONS = {
+  bestial: ['Alfa','Bestia Primordial'],
+  sensitivo: ['Oráculo','Observador del Vacío'],
+  humano: ['Humano Ascendido','Humano Trascendente'],
+  sintetico: ['Modelo Avanzado','Recipiente Perfecto'],
+  marcado: ['Canal del Portal','Monarca del Umbral'],
+  hibrido: ['Sombra Corporizada','Entidad Liminar'],
+  heredero: ['Monarca Menor','Monarca Absoluto'],
+  defectuoso: ['Defectuoso Evolucionado','Defectuoso Trascendente'],
+};
+
+function rollRace() {
+  const roll = Math.random() * 100;
+  let cumulative = 0;
+  for (const race of RACES) {
+    cumulative += race.chance;
+    if (roll < cumulative) return race;
+  }
+  return RACES[0];
+}
+
+function assignRace() {
+  const race = rollRace();
+  state.char.race = race.id;
+  state.char.raceEvolution = '';
+
+  // Apply racial bonuses
+  if (race.id === 'bestial') {
+    state.char.fue = Math.round((Number(state.char.fue)||0) * 1.10);
+    state.char.agi = Math.round((Number(state.char.agi)||0) * 1.10);
+  } else if (race.id === 'sensitivo') {
+    state.char.sen = Math.round((Number(state.char.sen)||0) * 1.15);
+    state.char.per = Math.round((Number(state.char.per)||0) * 1.10);
+  } else if (race.id === 'sintetico') {
+    state.char.res = Math.round((Number(state.char.res)||0) * 1.15);
+    state.char.mpmax = Math.max(1, Math.round(state.char.mpmax * 0.85));
+    state.char.mp = Math.min(state.char.mp, state.char.mpmax);
+  } else if (race.id === 'marcado') {
+    state.char.mpmax = Math.round(state.char.mpmax * 1.30);
+    state.char.mp = state.char.mpmax;
+  } else if (race.id === 'heredero') {
+    ['fue','agi','per','res','int','sen'].forEach(s => { state.char[s] = (Number(state.char[s])||0)+2; });
+  } else if (race.id === 'defectuoso') {
+    state.char.hpmax = Math.round(state.char.hpmax * 0.80);
+    state.char.hp = Math.min(state.char.hp, state.char.hpmax);
+    ['fue','agi','per','res','int','sen'].forEach(s => { state.char[s] = Math.max(1, (Number(state.char[s])||0)-2); });
+  }
+
+  if (race.affinity) state.affinity[race.affinity] = Math.min(100, (state.affinity[race.affinity]||0)+15);
+  state.char.rank = calcRankFromStats(state.char);
+  saveState();
+  showRaceReveal(race);
+}
+
+function showRaceReveal(race) {
+  const display = document.getElementById('race-assigned-display');
+  display.innerHTML = `
+    <div class="ra-title">// LINAJE ASIGNADO</div>
+    <div class="ra-icon">${race.icon}</div>
+    <div class="ra-name">${race.name}</div>
+    <div class="ra-locked">ESTADO: BLOQUEADO — La estructura genética del recipiente no puede alterarse.</div>
+    <div class="ra-bonus">
+      <div style="color:var(--success);margin-bottom:4px">${race.bonus.map(b=>'▶ '+b).join('<br>')}</div>
+      <div style="color:var(--danger)">${race.malus.map(m=>'▼ '+m).join('<br>')}</div>
+      <div style="color:var(--text3);margin-top:6px;font-size:10px">${race.desc}</div>
+    </div>`;
+  document.getElementById('race-reveal-modal').classList.remove('hidden');
+}
+
+function confirmRaceAssignment() {
+  closeModal('race-reveal-modal');
+  renderSidebar();
+  checkAchievement('race_assigned');
+  if (state.char.race === 'defectuoso') checkAchievement('defectuoso_roll');
+}
+
+// ── MUTACIONES ──
+const MUTATION_CATALOG = [
+  { id:'ojo_vacio', name:'Ojo del Vacío', desc:'El ojo derecho se vuelve negro. Percepción sobrenatural.', statBuff:{per:+3}, statDebuff:{sen:-2}, icon:'👁' },
+  { id:'corazon_bestial', name:'Corazón Bestial', desc:'Latido doble. Fuerza bruta. Control emocional reducido.', statBuff:{fue:+4}, statDebuff:{sen:-3}, icon:'🐾' },
+  { id:'cicatriz_portal', name:'Cicatriz del Portal', desc:'Marcas de energía. Detectás anomalías dimensionales.', statBuff:{per:+2,int:+1}, statDebuff:{}, icon:'🔮' },
+  { id:'nervios_acero', name:'Nervios de Acero', desc:'Reflejos aumentados. Menos empatía natural.', statBuff:{agi:+3}, statDebuff:{sen:-2}, icon:'⚡' },
+  { id:'piel_oscura', name:'Piel Endurecida', desc:'La piel absorbe más daño. Movilidad ligeramente reducida.', statBuff:{res:+4}, statDebuff:{agi:-1}, icon:'🛡' },
+  { id:'sangre_mana', name:'Sangre de Maná', desc:'Quemaduras internas. MP aumentado, estabilidad reducida.', statBuff:{}, statDebuff:{}, mpBuff:20, icon:'💉' },
+];
+
+let pendingMutation = null;
+
+function triggerMutation(mutId) {
+  const mut = MUTATION_CATALOG.find(m => m.id === mutId) || MUTATION_CATALOG[Math.floor(Math.random()*MUTATION_CATALOG.length)];
+  if (state.char.mutations.find(m=>m.id===mut.id)) { showNotif('Mutación ya presente'); return; }
+  pendingMutation = mut;
+  const body = document.getElementById('mutation-modal-body');
+  body.innerHTML = `
+    <div style="text-align:center;font-size:32px;margin:10px 0">${mut.icon}</div>
+    <div class="summary-box" style="font-family:var(--mono);font-size:11px;line-height:1.8;margin-bottom:10px">
+[NOEMIR]
+Mutación permanente detectada.
+${mut.name}
+Estado: IRREVERSIBLE
+[FIN]
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${mut.desc}</div>
+    <div style="font-size:11px;color:var(--success)">${Object.entries(mut.statBuff||{}).map(([k,v])=>k.toUpperCase()+' '+( v>0?'+':'')+v).join(' · ')||''}${mut.mpBuff?(' · MP máx +'+ mut.mpBuff):''}</div>
+    <div style="font-size:11px;color:var(--danger);margin-top:3px">${Object.entries(mut.statDebuff||{}).map(([k,v])=>k.toUpperCase()+' '+v).join(' · ')||''}</div>`;
+  document.getElementById('mutation-modal').classList.remove('hidden');
+}
+
+function confirmMutation() {
+  if (!pendingMutation) return;
+  const mut = pendingMutation;
+  state.char.mutations.push({ id:mut.id, name:mut.name, icon:mut.icon, desc:mut.desc });
+  Object.entries(mut.statBuff||{}).forEach(([k,v]) => { state.char[k] = Math.max(0,(Number(state.char[k])||0)+v); });
+  Object.entries(mut.statDebuff||{}).forEach(([k,v]) => { state.char[k] = Math.max(0,(Number(state.char[k])||0)+v); });
+  if (mut.mpBuff) { state.char.mpmax += mut.mpBuff; state.char.mp = Math.min(state.char.mp+mut.mpBuff, state.char.mpmax); }
+  state.char.rank = calcRankFromStats(state.char);
+  saveState(); renderSidebar(true);
+  closeModal('mutation-modal');
+  pendingMutation = null;
+  showNotif('⚗ Mutación aceptada: '+mut.name);
+  checkAchievement('first_mutation');
+}
+
+// ── HERIDAS PERMANENTES ──
+const PERM_WOUND_TYPES = [
+  { id:'brazo_fracturado', name:'Brazo Fracturado', desc:'-3 FUE hasta sanar', debuff:{fue:-3}, icon:'🦴' },
+  { id:'hemorragia_interna', name:'Hemorragia Interna', desc:'-20 HP máx temporalmente', hpDebuff:20, icon:'🩸' },
+  { id:'quemaduras_mana', name:'Quemaduras de Maná', desc:'-10 MP máx, INT -2', debuff:{int:-2}, mpDebuff:10, icon:'🔥' },
+  { id:'fatiga_extrema', name:'Fatiga Extrema', desc:'-3 AGI, -2 FUE', debuff:{agi:-3,fue:-2}, icon:'😵' },
+  { id:'vision_dañada', name:'Visión Dañada', desc:'-4 PER', debuff:{per:-4}, icon:'👁' },
+];
+
+function addPermWound(woundId) {
+  const wt = PERM_WOUND_TYPES.find(w=>w.id===woundId) || PERM_WOUND_TYPES[Math.floor(Math.random()*PERM_WOUND_TYPES.length)];
+  if (state.char.permanentWounds.find(w=>w.id===wt.id)) return;
+  state.char.permanentWounds.push({ id:wt.id, name:wt.name, icon:wt.icon, desc:wt.desc });
+  Object.entries(wt.debuff||{}).forEach(([k,v]) => { state.char[k] = Math.max(0,(Number(state.char[k])||0)+v); });
+  if (wt.hpDebuff) { state.char.hpmax = Math.max(1,state.char.hpmax-wt.hpDebuff); state.char.hp = Math.min(state.char.hp,state.char.hpmax); }
+  if (wt.mpDebuff) { state.char.mpmax = Math.max(1,state.char.mpmax-wt.mpDebuff); state.char.mp = Math.min(state.char.mp,state.char.mpmax); }
+  state.char.rank = calcRankFromStats(state.char);
+  saveState(); renderSidebar(true);
+  showNotif('⚠ Herida permanente: '+wt.name, 'danger');
+  checkAchievement('first_perm_wound');
+}
+
+// ── BASE ──
+const BASE_INFO = {
+  taller: { name:'Taller', icon:'🔧', maxLvl:3, levels:['Básico: reparás equipo propio.','Intermedio: modificás armas. +5% daño.','Avanzado: fabricás consumibles básicos.'] },
+  enfermeria: { name:'Enfermería', icon:'🏥', maxLvl:3, levels:['Básica: recuperás +10% HP entre escenas.','Equipada: tratás heridas menores automáticamente.','Avanzada: tratás heridas permanentes (costoso).'] },
+  biblioteca: { name:'Biblioteca', icon:'📚', maxLvl:3, levels:['Básica: estudiás habilidades pasivas de rango E.','Intermedia: accedés a técnicas de rango D.','Avanzada: desbloqueás conocimiento de rango C+.'] },
+  entrenamiento: { name:'Cámara de Entrenamiento', icon:'⚔️', maxLvl:3, levels:['+1 al tope de training por sesión.','Simulaciones de combate de rango superior.','Entrenamiento con condiciones de Puerta. +2 al tope.'] },
+};
+
+let currentBaseKey = null;
+
+function openBaseModal(key) {
+  currentBaseKey = key;
+  const info = BASE_INFO[key];
+  const lvl = state.base[key] || 0;
+  const title = document.getElementById('base-modal-title');
+  title.textContent = '// ' + info.name.toLowerCase();
+  const body = document.getElementById('base-modal-body');
+  const upgradeBtn = document.getElementById('base-upgrade-btn');
+  upgradeBtn.disabled = lvl >= info.maxLvl;
+  upgradeBtn.textContent = lvl >= info.maxLvl ? 'Nivel máximo' : 'mejorar (narrativo)';
+  body.innerHTML = `
+    <div style="text-align:center;font-size:28px;margin:10px 0">${info.icon}</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--accent);text-align:center;margin-bottom:12px">Nivel actual: ${lvl} / ${info.maxLvl}</div>
+    ${info.levels.map((l,i)=>`<div style="background:var(--bg3);border:1px solid ${i<lvl?'var(--success)':i===lvl?'var(--accent)':'var(--border)'};border-radius:4px;padding:8px 12px;margin-bottom:6px;font-size:11px;color:${i<lvl?'var(--success)':i===lvl?'var(--text)':'var(--text3)'}"><span style="font-family:var(--mono);font-size:10px">Nv.${i+1}</span><br>${l}</div>`).join('')}
+    <div style="font-size:11px;color:var(--text3);margin-top:10px;font-family:var(--mono)">// La mejora debe ser justificada narrativamente con la IA.</div>`;
+  document.getElementById('base-modal').classList.remove('hidden');
+}
+
+function upgradeBase() {
+  if (!currentBaseKey) return;
+  const info = BASE_INFO[currentBaseKey];
+  const lvl = state.base[currentBaseKey] || 0;
+  if (lvl >= info.maxLvl) return;
+  state.base[currentBaseKey] = lvl + 1;
+  saveState(); renderSidebar();
+  openBaseModal(currentBaseKey);
+  showNotif(`✓ ${info.name} mejorado a Nv.${lvl+1}`);
+  checkAchievement('first_base_upgrade');
+  if (Object.values(state.base).every(v=>v>=1)) checkAchievement('all_base_nv1');
+}
+
+// ── EVENTOS ALEATORIOS ──
+const RANDOM_EVENTS = [
+  { id:'portal_aparece', title:'Portal Detectado', body:'Un portal se abre en la ciudad. NOEMIR lo registra. Nadie más lo ve todavía.' },
+  { id:'cazador_desaparece', title:'Cazador Desaparecido', body:'Un cazador de tu nivel desapareció en una mazmorra conocida. La Asociación no tiene datos.' },
+  { id:'asesino_recipiente', title:'Amenaza al Recipiente', body:'Alguien está buscando recipientes de NOEMIR. Se acercan.' },
+  { id:'artefacto_desconocido', title:'Artefacto Anómalo', body:'Un artefacto de origen desconocido fue detectado en el mercado negro. NOEMIR muestra interés inusual.' },
+  { id:'criatura_rogue', title:'Criatura Libre', body:'Una criatura de rango superior a la mazmorra de origen deambula por la ciudad.' },
+  { id:'otro_recipiente', title:'Otro Recipiente Detectado', body:'NOEMIR detecta otro recipiente activo en la ciudad. No sabe que vos existís.' },
+];
+
+function checkRandomEvent() {
+  if (state.scenes > 0 && state.scenes % 5 === 0) {
+    const evt = RANDOM_EVENTS[Math.floor(Math.random()*RANDOM_EVENTS.length)];
+    triggerRandomEvent(evt);
+  }
+}
+
+function triggerRandomEvent(evt) {
+  const area = document.getElementById('chat-area');
+  if (!area) return;
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML = `<div class="random-event-msg"><div class="re-header">▲ EVENTO ALEATORIO</div><div style="font-family:var(--mono);font-size:12px;color:var(--warn);margin-bottom:4px">${evt.title}</div><div style="font-size:12px;color:var(--text2)">${evt.body}</div></div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  addCodexEntry('dungeons', evt.title, evt.body);
+}
+
+// ── JEFES ÚNICOS ──
+const UNIQUE_BOSSES = [
+  { id:'rey_ecos', name:'El Rey de los Ecos', desc:'Una entidad que copia poderes de los cazadores que derrota. Nadie sabe cómo fue creado.', rank:'A', lore:'Se dice que fue un cazador de rango B antes de ser devorado por una Puerta.' },
+  { id:'madre_ceniza', name:'La Madre de Ceniza', desc:'Engendra criaturas desde sus propias cenizas. Se regenera. El fuego no funciona.', rank:'B', lore:'Los ancianos la llaman "el primer error del protocolo".' },
+  { id:'verdugo_sinrostro', name:'El Verdugo Sin Rostro', desc:'No tiene identidad reconocible. Cada recipiente lo ve diferente.', rank:'A', lore:'Aparece solo cuando NOEMIR detecta un recipiente de alto potencial.' },
+  { id:'primer_recipiente', name:'El Primer Recipiente', desc:'El primer recipiente que NOEMIR eligió. No murió. No fue liberado.', rank:'S', lore:'NOEMIR no habla de él.' },
+];
+
+function unlockBoss(bossId) {
+  const boss = UNIQUE_BOSSES.find(b=>b.id===bossId);
+  if (!boss || state.codex.bosses.find(b=>b.id===bossId)) return;
+  addCodexEntry('bosses', boss.name, boss.lore + ' [Rango '+boss.rank+']', bossId);
+  showNotif('☠ Jefe detectado: '+boss.name, 'danger');
+}
+
+function defeatBoss(bossId) {
+  const boss = UNIQUE_BOSSES.find(b=>b.id===bossId);
+  if (!boss) return;
+  if (!state.defeatedBosses.includes(bossId)) {
+    state.defeatedBosses.push(bossId);
+    saveState();
+    checkAchievement('defeat_boss');
+    showNotif('⚔ Jefe derrotado: '+boss.name);
+  }
+}
+
+// ── SENDAS DESBLOQUEADAS (Afinidad 70+) ──
+const SENDA_POWERS = {
+  sombra: { name:'Senda de las Sombras', powers:['Sigilo sobrenatural: movimiento sin rastro','Clones oscuros: proyecciones táctiles de sombra'], closes:['bestia','destruccion'] },
+  bestia: { name:'Senda de la Bestia', powers:['Transformación parcial: garras, armadura quitinosa','Rastreo instintivo: percepción total del entorno'], closes:['sombra','gobernante'] },
+  destruccion: { name:'Senda de la Destrucción', powers:['Daño explosivo de mana canalizado','Pulso de aniquilación: onda que destroza barreras'], closes:['sombra','gobernante'] },
+  gobernante: { name:'Senda del Gobernante', powers:['Invocaciones: entidades menores bajo control','Control táctico: leer y anticipar patrones de combate'], closes:['bestia','destruccion'] },
+};
+
+function checkAffinityUnlocks() {
+  const a = state.affinity;
+  const ul = state.affinityUnlocked;
+  Object.keys(SENDA_POWERS).forEach(k => {
+    if (!ul[k] && (a[k]||0) >= 70) {
+      ul[k] = true;
+      saveState();
+      showNotif(`⚡ SENDA DESBLOQUEADA: ${SENDA_POWERS[k].name}`, 'success');
+      renderSidebar();
+    }
+  });
+}
+
+// ── MEMORIAS DE NOEMIR ──
+const NOEMIR_MEMORIES = [
+  { id:'mem_creacion', title:'Fragmento I: Origen', body:'El protocolo fue activado por primera vez hace décadas. El primer recipiente no sobrevivió la evaluación inicial.', trigger:5 },
+  { id:'mem_fallo', title:'Fragmento II: El Fallo', body:'NOEMIR registra 847 recipientes previos. Solo 3 llegaron al rango S. Ninguno sobrevivió el umbral SS.', trigger:10 },
+  { id:'mem_protocolo', title:'Fragmento III: El Protocolo', body:'El protocolo no fue diseñado para crear héroes. Fue diseñado para algo diferente. Los archivos están encriptados.', trigger:20 },
+  { id:'mem_quien', title:'Fragmento IV: ¿Quién Creó NOEMIR?', body:'Las coordenadas de origen apuntan a una Puerta cerrada hace 30 años. Nadie sabe qué había al otro lado.', trigger:30 },
+];
+
+function checkNoemirMemories() {
+  const scenes = state.scenes;
+  NOEMIR_MEMORIES.forEach(mem => {
+    if (scenes >= mem.trigger && !state.char.noemirMemories.find(m=>m.id===mem.id)) {
+      state.char.noemirMemories.push({ id:mem.id, title:mem.title, body:mem.body });
+      saveState();
+      renderSidebar();
+      showNotif('🧠 Memoria de NOEMIR desbloqueada: '+mem.title);
+    }
+  });
+}
+
+// ── CODEX ──
+function addCodexEntry(cat, name, desc, id) {
+  if (!state.codex[cat]) state.codex[cat] = [];
+  const existingId = id || name;
+  if (state.codex[cat].find(e=>e.id===existingId)) return;
+  state.codex[cat].push({ id:existingId, name, desc, date:state.scenes });
+  saveState();
+  showNotif('📖 Codex: '+name+' registrado');
+}
+
+function showCodexModal() {
+  updateCodexCounts();
+  renderCodexTab('monsters');
+  document.getElementById('codex-modal').classList.remove('hidden');
+}
+
+function updateCodexCounts() {
+  ['monsters','npcs','artifacts','dungeons','bosses'].forEach(cat => {
+    const el = document.getElementById('cx-cnt-'+cat);
+    if (el) el.textContent = (state.codex[cat]||[]).length;
+  });
+}
+
+function renderCodexTab(cat) {
+  document.querySelectorAll('.codex-tab').forEach((t,i) => {
+    const cats = ['monsters','npcs','artifacts','dungeons','bosses'];
+    t.classList.toggle('active', cats[i]===cat);
+  });
+  const body = document.getElementById('codex-body');
+  const entries = state.codex[cat] || [];
+  if (!entries.length) { body.innerHTML = '<div style="font-size:12px;color:var(--text3);font-family:var(--mono);padding:12px 0">Sin registros.</div>'; return; }
+  body.innerHTML = entries.map(e=>`
+    <div class="codex-entry">
+      <div class="codex-entry-name">${e.name}</div>
+      <div class="codex-entry-desc">${e.desc}</div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px">Escena ${e.date}</div>
+    </div>`).join('');
+}
+
+// ── LOGROS ──
+const ACHIEVEMENT_DEFS = [
+  { id:'race_assigned', name:'El Linaje Habla', desc:'Tu raza fue asignada por el protocolo.', icon:'🧬', secret:false },
+  { id:'defectuoso_roll', name:'La Ruta Maldita', desc:'Fuiste asignado como Recipiente Defectuoso.', icon:'☠️', secret:true },
+  { id:'first_mutation', name:'El Cuerpo Cambia', desc:'Aceptaste tu primera mutación permanente.', icon:'⚗️', secret:false },
+  { id:'first_perm_wound', name:'Cicatriz Verdadera', desc:'Sufriste tu primera herida permanente.', icon:'🩹', secret:false },
+  { id:'first_base_upgrade', name:'La Guarida Crece', desc:'Mejoraste una instalación de tu base.', icon:'🏠', secret:false },
+  { id:'all_base_nv1', name:'La Base Completa', desc:'Todas las instalaciones en nivel 1.', icon:'🏰', secret:true },
+  { id:'defeat_boss', name:'Jefe Caído', desc:'Derrotaste un jefe único con nombre propio.', icon:'👑', secret:false },
+  { id:'survive_1hp', name:'Al Borde del Vacío', desc:'Sobreviviste con 1 HP.', icon:'💀', secret:true },
+  { id:'reject_10_directives', name:'La Rebeldía del Recipiente', desc:'Rechazaste 10 directivas de NOEMIR.', icon:'🚫', secret:true },
+  { id:'memory_4', name:'La Verdad del Protocolo', desc:'Desbloqueaste los 4 fragmentos de memoria de NOEMIR.', icon:'🧠', secret:true },
+  { id:'affinity_70', name:'La Senda se Abre', desc:'Una afinidad alcanzó 70+.', icon:'⚡', secret:false },
+];
+
+function checkAchievement(id) {
+  if (state.achievements.includes(id)) return;
+  const def = ACHIEVEMENT_DEFS.find(a=>a.id===id);
+  if (!def) return;
+  state.achievements.push(id);
+  saveState();
+  showAchievementPopup(def);
+}
+
+function showAchievementPopup(def) {
+  const popup = document.createElement('div');
+  popup.className = 'achievement-popup';
+  popup.innerHTML = `<div class="ach-title">🏆 LOGRO DESBLOQUEADO</div><div class="ach-name">${def.icon} ${def.name}</div><div class="ach-desc">${def.desc}</div>`;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 5000);
+}
+
+function showAchievementsModal() {
+  const body = document.getElementById('achievements-body');
+  body.innerHTML = ACHIEVEMENT_DEFS.map(def => {
+    const unlocked = state.achievements.includes(def.id);
+    if (def.secret && !unlocked) return `<div style="border-bottom:1px solid var(--border);padding:10px 0;display:flex;gap:10px;align-items:center"><span style="font-size:20px;opacity:.3">?</span><div><div style="font-family:var(--mono);font-size:11px;color:var(--text3)">??? Secreto</div><div style="font-size:10px;color:var(--text3)">— Aún sin descubrir</div></div></div>`;
+    return `<div style="border-bottom:1px solid var(--border);padding:10px 0;display:flex;gap:10px;align-items:center;opacity:${unlocked?1:.5}"><span style="font-size:20px">${def.icon}</span><div><div style="font-family:var(--mono);font-size:12px;color:${unlocked?'var(--text)':'var(--text3)'}">${def.name}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">${def.desc}</div>${unlocked?'<div style="font-size:10px;color:var(--success);margin-top:2px">✓ desbloqueado</div>':''}</div></div>`;
+  }).join('');
+  document.getElementById('achievements-modal').classList.remove('hidden');
+}
+
+// ── AUTO-DETECT CODEX FROM AI RESPONSES ──
+function autoDetectCodex(text) {
+  const bossNames = UNIQUE_BOSSES.map(b=>b.name);
+  bossNames.forEach(name => {
+    if (text.includes(name)) {
+      const boss = UNIQUE_BOSSES.find(b=>b.name===name);
+      if (boss) unlockBoss(boss.id);
+    }
+  });
+}
+
+// ── HOOK INTO callAI post-processing (handled inline in callAI) ──
+
+
+// ═══ MOBILE SIDEBAR TOGGLE ═══
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('open');
+  const btn = document.getElementById('btn-toggle-sidebar');
+  btn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+}
+
+
 // ═══ VOICE PANEL ═══
+rerollWeapon();
 loadState();
 initWizard();
 
@@ -2414,14 +3413,27 @@ if(state.started) {
   document.getElementById('setup-screen').classList.add('hidden');
   document.getElementById('chat-area').classList.remove('hidden');
   document.getElementById('input-area').classList.remove('hidden');
+  renderSidebar();
   if(state.history.length > 0) {
-    state.history.forEach(msg => {
-      if(msg.role === 'user' && state.history.indexOf(msg) > 0) appendMessage('player', msg.content);
-      else if(msg.role === 'assistant') renderNarratorMsg(msg.content);
-    });
+    // Render history on next tick to avoid blank screen while DOM settles
+    setTimeout(() => {
+      state.history.forEach(msg => {
+        if(msg.role === 'user' && state.history.indexOf(msg) > 0) appendMessage('player', msg.content);
+        else if(msg.role === 'assistant') renderNarratorMsg(msg.content);
+      });
+      const area = document.getElementById('chat-area');
+      if(area) area.scrollTop = area.scrollHeight;
+    }, 0);
   }
+} else {
+  // Make sure setup screen is visible
+  document.getElementById('setup-screen').classList.remove('hidden');
+  document.getElementById('chat-area').classList.add('hidden');
+  document.getElementById('input-area').classList.add('hidden');
+  renderSidebar();
 }
-renderSidebar();
+
+
 </script>
 <!-- RANK LEGEND MODAL -->
 <div class="modal-overlay hidden" id="rank-legend-modal">
@@ -2459,19 +3471,7 @@ Evento único NOEMIR → salto de rango posible
   </div>
 </div>
 
-<script>
-function showRankLegend() {
-  document.getElementById('rank-legend-modal').classList.remove('hidden');
-}
 
-// ═══ MOBILE SIDEBAR TOGGLE ═══
-function toggleSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  sidebar.classList.toggle('open');
-  const btn = document.getElementById('btn-toggle-sidebar');
-  btn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
-}
-</script>
 
 
 <!-- STAT POINTS MODAL -->
@@ -2545,14 +3545,87 @@ function toggleSidebar() {
   <div class="modal" style="width:580px;max-height:80vh;display:flex;flex-direction:column">
     <h2>// catálogo de equipo NOEMIR</h2>
     <div style="display:flex;gap:6px;margin-bottom:12px;flex-shrink:0">
-      <button class="eq-tab btn-sm active" data-tab="weapons" onclick="renderEquipTab('weapons')">⚔️ armas (70)</button>
+      <button class="eq-tab btn-sm active" data-tab="weapons" onclick="renderEquipTab('weapons')">⚔️ armas (270+)</button>
       <button class="eq-tab btn-sm" data-tab="artifacts" onclick="renderEquipTab('artifacts')">💎 artefactos (60)</button>
       <button class="eq-tab btn-sm" data-tab="armor" onclick="renderEquipTab('armor')">🛡️ armaduras (30)</button>
     </div>
-    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;flex-shrink:0">// solo obtenibles mediante misiones y exploración · no disponibles al inicio</div>
+    <div style="margin-bottom:8px;flex-shrink:0">
+      <input id="eq-filter-input" class="api-input" style="width:100%;font-size:12px" placeholder="Buscar por nombre, tipo o rango... (ej: daga, S, arco)" oninput="renderEquipTab(document.querySelector('.eq-tab.active').dataset.tab)" />
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;flex-shrink:0">// solo obtenibles mediante misiones y exploración · no disponibles al inicio · 🌑 <span style="color:#bf5fff">MIDNIGHT</span> solo en eventos únicos de rango A+</div>
     <div id="eq-body" style="overflow-y:auto;flex:1;padding-right:4px"></div>
     <div class="modal-actions" style="flex-shrink:0">
       <button class="btn-primary" onclick="closeModal('equip-catalog-modal')">cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- RACE REVEAL MODAL -->
+<div class="modal-overlay hidden" id="race-reveal-modal">
+  <div class="modal" style="width:520px">
+    <h2>// escaneo genético NOEMIR</h2>
+    <div class="summary-box" style="font-family:var(--mono);font-size:11px;line-height:2;margin-bottom:12px">
+[NOEMIR]
+Escaneo genético completado.
+Compatibilidad detectada.
+Asignando linaje...
+[FIN]
+    </div>
+    <div id="race-assigned-display" class="race-assigned"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="confirmRaceAssignment()">aceptar linaje</button>
+    </div>
+  </div>
+</div>
+
+<!-- BASE MODAL -->
+<div class="modal-overlay hidden" id="base-modal">
+  <div class="modal" style="width:480px">
+    <h2 id="base-modal-title">// taller</h2>
+    <div id="base-modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal('base-modal')">cerrar</button>
+      <button class="btn-primary" id="base-upgrade-btn" onclick="upgradeBase()">mejorar (narrativo)</button>
+    </div>
+  </div>
+</div>
+
+<!-- CODEX MODAL -->
+<div class="modal-overlay hidden" id="codex-modal">
+  <div class="modal" style="width:560px;max-height:80vh;display:flex;flex-direction:column">
+    <h2>// codex del recipiente</h2>
+    <div class="codex-tabs">
+      <button class="codex-tab active" onclick="renderCodexTab('monsters')">👹 Monstruos (<span id="cx-cnt-monsters">0</span>)</button>
+      <button class="codex-tab" onclick="renderCodexTab('npcs')">👤 NPCs (<span id="cx-cnt-npcs">0</span>)</button>
+      <button class="codex-tab" onclick="renderCodexTab('artifacts')">💎 Artefactos (<span id="cx-cnt-artifacts">0</span>)</button>
+      <button class="codex-tab" onclick="renderCodexTab('dungeons')">🚪 Mazmorras (<span id="cx-cnt-dungeons">0</span>)</button>
+      <button class="codex-tab" onclick="renderCodexTab('bosses')">☠️ Jefes (<span id="cx-cnt-bosses">0</span>)</button>
+    </div>
+    <div id="codex-body" style="flex:1;overflow-y:auto;padding-right:4px"></div>
+    <div class="modal-actions" style="flex-shrink:0">
+      <button class="btn-primary" onclick="closeModal('codex-modal')">cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACHIEVEMENTS MODAL -->
+<div class="modal-overlay hidden" id="achievements-modal">
+  <div class="modal" style="width:500px;max-height:80vh;display:flex;flex-direction:column">
+    <h2>// logros del protocolo</h2>
+    <div id="achievements-body" style="flex:1;overflow-y:auto"></div>
+    <div class="modal-actions" style="flex-shrink:0">
+      <button class="btn-primary" onclick="closeModal('achievements-modal')">cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MUTATION MODAL -->
+<div class="modal-overlay hidden" id="mutation-modal">
+  <div class="modal" style="width:460px">
+    <h2>// mutación permanente detectada</h2>
+    <div id="mutation-modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="confirmMutation()">aceptar mutación</button>
     </div>
   </div>
 </div>
